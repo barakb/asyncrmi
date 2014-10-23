@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>rmi</name>
-    <url>http://asyncrmi.github.io</url>
+    <url>http://barakb.github.io/asyncrmi/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
