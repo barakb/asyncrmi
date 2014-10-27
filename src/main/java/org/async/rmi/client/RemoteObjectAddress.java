@@ -1,15 +1,21 @@
 package org.async.rmi.client;
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Barak Bar Orion
  * 08/10/14.
  */
 public class RemoteObjectAddress implements Serializable, Externalizable{
+    private final static Pattern URL_PATTERN =Pattern.compile("rmi://([^:]+):([0-9]+)");
+
     private String url;
     private long objectId;
     private long classLoaderId;
+    private transient String host;
+    private transient int port;
 
     public RemoteObjectAddress() {
     }
@@ -48,6 +54,15 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
         url = in.readUTF();
         objectId = in.readLong();
         classLoaderId = in.readLong();
+        parseURL();
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     @Override
@@ -81,4 +96,15 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
                 ", classLoaderId=" + classLoaderId +
                 '}';
     }
+
+    private void parseURL() {
+        Matcher m = URL_PATTERN.matcher(url);
+        if(m.matches()){
+            this.host = m.group(1);
+            this.port = Integer.valueOf(m.group(2));
+        }else{
+            throw new IllegalArgumentException("Fail to parse url: " + url);
+        }
+    }
+
 }

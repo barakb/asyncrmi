@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface Util {
 
-    String getMethodNameAndDescriptor(Method method);
+    long computeMethodHash(Method method);
 
     List<Method> getSortedMethodList(Class[] remoteInterfaces);
 }

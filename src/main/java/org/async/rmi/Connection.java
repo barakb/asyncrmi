@@ -1,0 +1,14 @@
+package org.async.rmi;
+
+import org.async.rmi.messages.Response;
+import org.async.rmi.pool.PooledResource;
+
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * Created by Barak Bar Orion
+ * 27/10/14.
+ */
+public interface Connection<M> extends PooledResource {
+    void send(M message, CompletableFuture<Response> response);
+}

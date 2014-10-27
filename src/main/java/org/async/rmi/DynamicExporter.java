@@ -17,6 +17,7 @@ import java.util.Map;
  * 05/10/14.
  */
 public class DynamicExporter implements Exporter {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(DynamicExporter.class);
     private final Configuration configuration;
 
@@ -62,6 +63,7 @@ public class DynamicExporter implements Exporter {
     }
 
 
+    @SuppressWarnings("SpellCheckingInspection")
     @Override
     synchronized public boolean unexport(Remote obj) {
 		/* remove from cache */

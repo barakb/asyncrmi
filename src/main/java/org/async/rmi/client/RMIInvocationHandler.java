@@ -4,6 +4,7 @@ import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
 import org.async.rmi.modules.Util;
 import org.async.rmi.net.ServerPeer;
+import org.async.rmi.server.RemoteRef;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
+import java.rmi.UnexpectedException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +29,15 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
     private final transient ClassLoader exporterContextClassLoader;
     private final transient Remote exported;
+    private  Class[] remoteInterfaces;
+    private RemoteRef ref;
+
     private Configuration configuration;
     private RemoteObjectAddress remoteObjectAddress;
-    private Map<String, Integer> methodMap;
+    private Map<Method, Long> methodToMethodIdMap;
 
 
     private long remoteObjectId;
-    private long remoteClassLoaderId;
 
 
     public RMIInvocationHandler() {
@@ -43,8 +47,9 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
     public RMIInvocationHandler(Remote exported, Class[] remoteInterfaces) {
         this.exported = exported;
+        this.remoteInterfaces = remoteInterfaces;
         this.exporterContextClassLoader = Thread.currentThread().getContextClassLoader();
-        this.methodMap = createMethodMap(remoteInterfaces);
+        this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
     }
 
     @Override
@@ -82,17 +87,41 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     }
 
     @SuppressWarnings("UnusedParameters")
-    private Object invokeRemote(Object proxy, Method method, Object[] args) {
-        return null;
+    private Object invokeRemote(Object proxy, Method method, Object[] args) throws Exception{
+        try {
+            if (!(proxy instanceof Remote)) {
+                throw new IllegalArgumentException(
+                        "proxy not Remote instance");
+            }
+            return ref.invoke((Remote) proxy, method, args, methodToMethodIdMap.get(method));
+        } catch (Exception e) {
+            if (!(e instanceof RuntimeException)) {
+                Class<?> cl = proxy.getClass();
+                try {
+                    method = cl.getMethod(method.getName(),
+                            method.getParameterTypes());
+                } catch (NoSuchMethodException nsme) {
+                    throw (IllegalArgumentException) new IllegalArgumentException().initCause(nsme);
+                }
+                Class<?> thrownType = e.getClass();
+                for (Class<?> declaredType : method.getExceptionTypes()) {
+                    if (declaredType.isAssignableFrom(thrownType)) {
+                        throw e;
+                    }
+                }
+                e = new UnexpectedException("unexpected exception", e);
+            }
+            throw e;
+        }
     }
 
 
-    private Map<String, Integer> createMethodMap(Class[] remoteInterfaces) {
+    private Map<Method, Long> createMethodToMethodIdMap(Class[] remoteInterfaces) {
         Util util = Modules.getInstance().getUtil();
         List<Method> sortedMethodList = util.getSortedMethodList(remoteInterfaces);
-        Map<String, Integer> mapping = new HashMap<String, Integer>(sortedMethodList.size());
-        for (int i = 0; i < sortedMethodList.size(); ++i) {
-            mapping.put(util.getMethodNameAndDescriptor(sortedMethodList.get(i)), i);
+        Map<Method, Long> mapping = new HashMap<>(sortedMethodList.size());
+        for (Method method : sortedMethodList) {
+            mapping.put(method, util.computeMethodHash(method));
         }
         return mapping;
     }
@@ -107,16 +136,17 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
             }
         }
         out.writeObject(configuration);
-        out.writeObject(remoteObjectAddress);
-        out.writeObject(methodMap);
+        out.writeObject(remoteInterfaces);
+        out.writeObject(ref);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         configuration = (Configuration) in.readObject();
-        remoteObjectAddress = (RemoteObjectAddress) in.readObject();
-        methodMap = (Map<String, Integer>) in.readObject();
+        remoteInterfaces = (Class[]) in.readObject();
+        this.ref = (RemoteRef) in.readObject();
+        this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
     }
 
     private void export() throws UnknownHostException {
@@ -126,7 +156,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
             ServerPeer serverPeer = Modules.getInstance().getTransport().export(exported, configuration);
             remoteObjectAddress = new RemoteObjectAddress(serverPeer.getConnectionURL(), serverPeer.getObjectId()
                     , serverPeer.getClassLoaderId());
-
+            ref = Modules.getInstance().getTransport().createUnicastRef(remoteObjectAddress, remoteInterfaces);
         } finally {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
@@ -172,6 +202,6 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
     @Override
     public String toString() {
-        return "RemoteObject{" + remoteObjectAddress + "}@" + hashCode();
+        return "RemoteObject{" + ref + "}@" + hashCode();
     }
 }

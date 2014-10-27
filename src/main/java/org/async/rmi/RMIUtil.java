@@ -1,8 +1,15 @@
 package org.async.rmi;
 
 import org.async.rmi.modules.Util;
+import sun.rmi.runtime.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,30 +19,45 @@ import java.util.List;
  * Created by Barak Bar Orion
  * 12/10/14.
  */
-public class RMIUtil implements Util{
+public class RMIUtil implements Util {
 
+    /**
+     * Compute the "method hash" of a remote method.  The method hash
+     * is a long containing the first 64 bits of the SHA digest from
+     * the UTF encoded string of the method name and descriptor.
+     */
     @Override
-    public String getMethodNameAndDescriptor(Method method) {
-        StringBuilder desc = new StringBuilder(method.getName());
-        desc.append('(');
-        Class[] paramTypes = method.getParameterTypes();
-        for (Class paramType : paramTypes) {
-            desc.append(getTypeDescriptor(paramType));
+    public long computeMethodHash(Method m) {
+        long hash = 0;
+        ByteArrayOutputStream sink = new ByteArrayOutputStream(127);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA");
+            DataOutputStream out = new DataOutputStream(
+                    new DigestOutputStream(sink, md));
+
+            String s = getMethodNameAndDescriptor(m);
+            out.writeUTF(s);
+
+            // use only the first 64 bits of the digest for the hash
+            out.flush();
+            byte hasharray[] = md.digest();
+            for (int i = 0; i < Math.min(8, hasharray.length); i++) {
+                hash += ((long) (hasharray[i] & 0xFF)) << (i * 8);
+            }
+        } catch (IOException ignore) {
+            /* can't happen, but be deterministic anyway. */
+            hash = -1;
+        } catch (NoSuchAlgorithmException complain) {
+            throw new SecurityException(complain.getMessage());
         }
-        desc.append(')');
-        Class returnType = method.getReturnType();
-        if (returnType == void.class) {
-            desc.append('V');
-        } else {
-            desc.append(getTypeDescriptor(returnType));
-        }
-        return desc.toString();
+        return hash;
     }
 
+
     @Override
-    public List<Method> getSortedMethodList(Class[] remoteInterfaces){
+    public List<Method> getSortedMethodList(Class[] remoteInterfaces) {
         ArrayList<Method> methodList = new ArrayList<>();
-        for( Class<?> cl : remoteInterfaces){
+        for (Class<?> cl : remoteInterfaces) {
             methodList.addAll(Arrays.asList(cl.getMethods()));
         }
 
@@ -72,5 +94,22 @@ public class RMIUtil implements Util{
         } else {
             return "L" + type.getName().replace('.', '/') + ";";
         }
+    }
+
+    private String getMethodNameAndDescriptor(Method method) {
+        StringBuilder desc = new StringBuilder(method.getName());
+        desc.append('(');
+        Class[] paramTypes = method.getParameterTypes();
+        for (Class paramType : paramTypes) {
+            desc.append(getTypeDescriptor(paramType));
+        }
+        desc.append(')');
+        Class returnType = method.getReturnType();
+        if (returnType == void.class) {
+            desc.append('V');
+        } else {
+            desc.append(getTypeDescriptor(returnType));
+        }
+        return desc.toString();
     }
 }
