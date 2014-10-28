@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Barak Bar Orion
@@ -16,12 +17,27 @@ public class ExampleServer implements Example {
 
     @Override
     public String echo(String msg) throws RemoteException {
-        logger.debug("Server: {}", msg);
+        logger.debug("Server: called echo({})", msg);
         return msg;
     }
 
+    @Override
+    public CompletableFuture<String> futuredEcho(final String msg) throws RemoteException {
+        logger.debug("Server: futuredEcho echo({})", msg);
+        final CompletableFuture<String> res = new CompletableFuture<>();
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                logger.error(e.toString(), e);
+            }
+            res.complete(msg);
+        }).start();
+        return res;
+    }
+
     public static void main(String[] args) throws Exception {
-        org.apache.log4j.BasicConfigurator.configure();
+//        org.apache.log4j.BasicConfigurator.configure();
         try {
             ExampleServer server = new ExampleServer();
             Example proxy = (Example) Modules.getInstance().getExporter().export(server);
@@ -39,5 +55,9 @@ public class ExampleServer implements Example {
         logger.info("client got: {}", res);
         res = example.echo("foo1");
         logger.info("client got: {}", res);
+
+        CompletableFuture<String> future = example.futuredEcho("async foo");
+        res = future.join();
+        logger.debug("client got async res : {}", res);
     }
 }

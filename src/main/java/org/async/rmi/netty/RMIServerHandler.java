@@ -37,8 +37,7 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     private void dispatch(Request request, ChannelHandlerContext ctx) {
         long objectId = request.getObjectId();
         ObjectRef objectRef = Modules.getInstance().getObjectRepository().get(objectId);
-        Response response = objectRef.invoke(request);
-        ctx.writeAndFlush(response);
+        objectRef.invoke(request, ctx);
     }
 
 }

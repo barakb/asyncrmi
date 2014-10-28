@@ -87,7 +87,7 @@ public class NettyTransport implements Transport {
         ServerBootstrap b = new ServerBootstrap();
         b.group(acceptGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
+//                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {

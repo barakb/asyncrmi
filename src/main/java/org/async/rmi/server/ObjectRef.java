@@ -1,9 +1,12 @@
 package org.async.rmi.server;
 
+import io.netty.channel.ChannelHandlerContext;
 import org.async.rmi.Modules;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,12 +14,16 @@ import java.rmi.Remote;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Barak Bar Orion
  * 28/10/14.
  */
 public class ObjectRef {
+
+    private static final Logger logger = LoggerFactory.getLogger(ObjectRef.class);
+
     private final Remote impl;
     private Map<Long, Method> methodIdToMethodMap;
 
@@ -25,19 +32,35 @@ public class ObjectRef {
         this.methodIdToMethodMap = createMethodIdToMethodMap(remoteInterfaces);
     }
 
-    public Response invoke(Request request){
+    public void invoke(Request request, ChannelHandlerContext ctx) {
         Method method = methodIdToMethodMap.get(request.getMethodId());
-        if(method == null){
+        if (method == null) {
             throw new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl);
         }
         try {
             Object res = method.invoke(impl, request.getParams());
-            return new Response(request.getRequestId(), res);
+            if (res instanceof CompletableFuture) {
+                //noinspection unchecked
+                ((CompletableFuture<Object>) res).whenComplete((o, e) -> {
+                    if (o != null) {
+                        writeResponse(ctx, new Response(request.getRequestId(), o));
+                    } else {
+                        writeResponse(ctx, new Response(request.getMethodId(), null, e));
+                    }
+                });
+            } else {
+                writeResponse(ctx, new Response(request.getRequestId(), res));
+            }
         } catch (IllegalAccessException e) {
-            return new Response(request.getMethodId(), null, e);
+            writeResponse(ctx, new Response(request.getMethodId(), null, e));
         } catch (InvocationTargetException e) {
-            return new Response(request.getMethodId(), null, e.getTargetException());
+            writeResponse(ctx, new Response(request.getMethodId(), null, e.getTargetException()));
         }
+    }
+
+    private void writeResponse(ChannelHandlerContext ctx, Response response) {
+        logger.debug("--> {}", response);
+        ctx.writeAndFlush(response);
     }
 
 

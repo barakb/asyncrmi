@@ -43,14 +43,18 @@ public class UnicastRef implements RemoteRef {
 
     @Override
     public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Exception {
-        logger.info("remote invoke: {}.{}({})", obj, method.getName(), Arrays.toString(params));
+//        logger.info("remote invoke: {}.{}({})", obj, method.getName(), Arrays.toString(params));
         Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params);
-        Future<Response> future = send(request);
-        return future.get().getResult();
+        CompletableFuture<Response> future = send(request);
+        if(CompletableFuture.class.equals(method.getReturnType())){
+            return future.thenApply(Response::getResult);
+        }else {
+            return future.get().getResult();
+        }
     }
 
     private CompletableFuture<Response> send(Request request) {
-        logger.info("sending request: {}", request);
+        logger.debug("--> {}", request);
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request.getRequestId(), responseFuture);
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
