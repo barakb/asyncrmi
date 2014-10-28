@@ -35,6 +35,9 @@ public class ExampleServer implements Example {
         File file = new File("ExampleServer.proxy");
         //noinspection UnusedDeclaration
         Example example = (Example) Util.deserialize(Files.asByteSource(file));
-        example.echo("foo");
+        String res = example.echo("foo");
+        logger.info("client got: {}", res);
+        res = example.echo("foo1");
+        logger.info("client got: {}", res);
     }
 }

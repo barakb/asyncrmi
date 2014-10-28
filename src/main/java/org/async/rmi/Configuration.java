@@ -7,7 +7,17 @@ import java.io.Serializable;
  * 05/10/14.
  */
 public class Configuration implements Serializable {
+    private int port = 5050;
 
     public Configuration() {
+
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

@@ -1,6 +1,7 @@
 package org.async.rmi;
 
 import org.async.rmi.modules.Exporter;
+import org.async.rmi.modules.ObjectRepository;
 import org.async.rmi.modules.Transport;
 import org.async.rmi.modules.Util;
 import org.async.rmi.net.NettyTransport;
@@ -15,12 +16,14 @@ public class Modules {
     private Exporter exporter;
     private Transport transport;
     private Util util;
+    private ObjectRepository objectRepository;
 
     private Modules() {
         configuration = new Configuration();
         setExporter(new DynamicExporter(configuration));
         setTransport(new NettyTransport());
         setUtil(new RMIUtil());
+        setObjectRepository(new ObjectRepository());
     }
 
     public static synchronized Modules getInstance(){
@@ -56,5 +59,13 @@ public class Modules {
 
     public void setUtil(Util util) {
         this.util = util;
+    }
+
+    public ObjectRepository getObjectRepository() {
+        return objectRepository;
+    }
+
+    public void setObjectRepository(ObjectRepository objectRepository) {
+        this.objectRepository = objectRepository;
     }
 }

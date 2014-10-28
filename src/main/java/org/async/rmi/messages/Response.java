@@ -6,6 +6,7 @@ package org.async.rmi.messages;
  */
 public class Response extends Message {
     private Object result;
+    private Throwable error;
 
     public Response() {
     }
@@ -14,7 +15,18 @@ public class Response extends Message {
         super(requestId);
         this.result = result;
     }
+    public Response(long requestId, @SuppressWarnings("UnusedParameters") Object result, Throwable error) {
+        super(requestId);
+        this.error = error;
+    }
 
+    public Throwable getError() {
+        return error;
+    }
+
+    public boolean isError(){
+        return error != null;
+    }
 
     public Object getResult() {
         return result;

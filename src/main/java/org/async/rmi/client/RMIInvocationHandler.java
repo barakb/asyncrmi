@@ -3,8 +3,6 @@ package org.async.rmi.client;
 import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
 import org.async.rmi.modules.Util;
-import org.async.rmi.net.ServerPeer;
-import org.async.rmi.server.RemoteRef;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -28,28 +26,25 @@ import java.util.Map;
 public class RMIInvocationHandler implements InvocationHandler, Externalizable, Remote {
 
     private final transient ClassLoader exporterContextClassLoader;
-    private final transient Remote exported;
+    private final transient Remote impl;
     private  Class[] remoteInterfaces;
     private RemoteRef ref;
 
     private Configuration configuration;
-    private RemoteObjectAddress remoteObjectAddress;
     private Map<Method, Long> methodToMethodIdMap;
 
 
-    private long remoteObjectId;
-
-
     public RMIInvocationHandler() {
-        this.exported = null;
+        this.impl = null;
         this.exporterContextClassLoader = null;
     }
 
-    public RMIInvocationHandler(Remote exported, Class[] remoteInterfaces) {
-        this.exported = exported;
+    public RMIInvocationHandler(Remote impl, Class[] remoteInterfaces) {
+        this.impl = impl;
         this.remoteInterfaces = remoteInterfaces;
         this.exporterContextClassLoader = Thread.currentThread().getContextClassLoader();
         this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
+        this.configuration = Modules.getInstance().getConfiguration();
     }
 
     @Override
@@ -67,7 +62,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
             throw new InternalError("Unexpected Object method dispatched: " + method);
         }
-        if (exported != null) {
+        if (impl != null) {
             return invokeLocally(method, args);
         } else {
             return invokeRemote(proxy, method, args);
@@ -78,7 +73,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         ClassLoader current = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(exporterContextClassLoader);
-            return method.invoke(exported, args);
+            return method.invoke(impl, args);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         } finally {
@@ -128,9 +123,9 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        if (exported != null) {
+        if (impl != null) {
             synchronized (this) {
-                if (remoteObjectAddress == null) {
+                if (ref == null) {
                     export();
                 }
             }
@@ -153,10 +148,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(exporterContextClassLoader);
-            ServerPeer serverPeer = Modules.getInstance().getTransport().export(exported, configuration);
-            remoteObjectAddress = new RemoteObjectAddress(serverPeer.getConnectionURL(), serverPeer.getObjectId()
-                    , serverPeer.getClassLoaderId());
-            ref = Modules.getInstance().getTransport().createUnicastRef(remoteObjectAddress, remoteInterfaces);
+            ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration);
         } finally {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
@@ -187,7 +179,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 //            return _localObj == eqSt.getLocalObjImpl();
 
 		/* equals by remote objectId */
-        return remoteObjectAddress != null && remoteObjectAddress.equals(handler.remoteObjectAddress);
+        return ref != null && ref.equals(handler.ref);
     }
 
     private RMIInvocationHandler extractRMIInvocationHandler(Object obj) {

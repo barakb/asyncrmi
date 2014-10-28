@@ -1,4 +1,4 @@
-package org.async.rmi.server;
+package org.async.rmi.client;
 
 import java.rmi.Remote;
 

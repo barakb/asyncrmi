@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * 08/10/14.
  */
 public class RemoteObjectAddress implements Serializable, Externalizable{
-    private final static Pattern URL_PATTERN =Pattern.compile("rmi://([^:]+):([0-9]+)");
+    private final static Pattern URL_PATTERN = Pattern.compile("rmi://([^:]+):([0-9]+)");
 
     private String url;
     private long objectId;

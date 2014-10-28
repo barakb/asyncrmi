@@ -8,7 +8,6 @@ import org.async.rmi.messages.Response;
 import org.async.rmi.netty.NettyClientConnectionFactory;
 import org.async.rmi.pool.Pool;
 import org.async.rmi.pool.ShrinkableConnectionPool;
-import org.async.rmi.server.RemoteRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +75,22 @@ public class UnicastRef implements RemoteRef {
         remoteObjectAddress = (RemoteObjectAddress) in.readObject();
         remoteInterfaces = (Class[]) in.readObject();
         pool = createPool();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UnicastRef that = (UnicastRef) o;
+
+        return remoteObjectAddress.equals(that.remoteObjectAddress);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return remoteObjectAddress.hashCode();
     }
 
     private Pool<Connection<Message>> createPool() {

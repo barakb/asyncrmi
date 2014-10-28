@@ -3,6 +3,8 @@ package org.async.rmi.netty;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.async.rmi.Modules;
+import org.async.rmi.messages.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +21,9 @@ public class RMIClientHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        super.channelRead(ctx, msg);
-        // todo handle message
+//        super.channelRead(ctx, msg);
+        Response response = (Response) msg;
+        Modules.getInstance().getTransport().handleResponse(response);
     }
 
 

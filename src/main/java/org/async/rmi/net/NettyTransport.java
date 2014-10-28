@@ -1,19 +1,36 @@
 package org.async.rmi.net;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.async.rmi.Configuration;
+import org.async.rmi.Modules;
 import org.async.rmi.client.RemoteObjectAddress;
+import org.async.rmi.client.RemoteRef;
 import org.async.rmi.client.UnicastRef;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Transport;
-import org.async.rmi.server.RemoteRef;
+import org.async.rmi.netty.MessageDecoder;
+import org.async.rmi.netty.MessageEncoder;
+import org.async.rmi.netty.RMIServerHandler;
+import org.async.rmi.server.ObjectRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Barak Bar Orion
@@ -21,8 +38,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyTransport implements Transport {
 
+    private static final Logger logger = LoggerFactory.getLogger(NettyTransport.class);
+
     private final ConcurrentHashMap<Long, CompletableFuture<Response>> awaitingResponses = new ConcurrentHashMap<>();
-    private final  EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup();
+    private final EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup();
+    private final EventLoopGroup acceptGroup = new NioEventLoopGroup(1);
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private AtomicLong objectIds = new AtomicLong(0);
+    private AtomicBoolean severStarted = new AtomicBoolean(false);
 
     public NettyTransport() {
     }
@@ -34,30 +57,52 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public ServerPeer export(Remote exported, Configuration configuration) throws UnknownHostException {
+    public void handleResponse(Response response) {
+        CompletableFuture<Response> responseFuture = awaitingResponses.remove(response.getRequestId());
+        if(responseFuture != null){
+            responseFuture.complete(response);
+        }else{
+            logger.error("unexpected response {}", response);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        //todo
+    }
+
+    @Override
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException {
+        if (severStarted.compareAndSet(false, true)) {
+            listen(configuration);
+        }
         final String address = InetAddress.getLocalHost().getHostAddress();
-        final int port = 5050;
-        return new ServerPeer() {
-            @Override
-            public String getConnectionURL() {
-                return "rmi://" + address + ":" + port;
-            }
+        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces);
+        long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
+        RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getPort(), objectIds.getAndIncrement(), objectId);
+        return createUnicastRef(remoteObjectAddress, remoteInterfaces);
+    }
 
-            @Override
-            public long getObjectId() {
-                return 8;
-            }
-
-            @Override
-            public long getClassLoaderId() {
-                return 9;
-            }
-        };
+    private void listen(Configuration configuration) {
+        ServerBootstrap b = new ServerBootstrap();
+        b.group(acceptGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ChannelPipeline p = ch.pipeline();
+                        p.addLast(
+                                new MessageEncoder(),
+                                new MessageDecoder(),
+                                new RMIServerHandler());
+                    }
+                });
+        b.bind(configuration.getPort());
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    @Override
-    public RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces) {
+    private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces) {
         return new UnicastRef(remoteObjectAddress, remoteInterfaces);
     }
 
