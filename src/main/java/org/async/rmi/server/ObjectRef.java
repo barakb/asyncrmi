@@ -43,13 +43,13 @@ public class ObjectRef {
                 //noinspection unchecked
                 ((CompletableFuture<Object>) res).whenComplete((o, e) -> {
                     if (o != null) {
-                        writeResponse(ctx, new Response(request.getRequestId(), o));
+                        writeResponse(ctx, new Response(request.getRequestId(), o, method.getName()));
                     } else {
                         writeResponse(ctx, new Response(request.getMethodId(), null, e));
                     }
                 });
             } else {
-                writeResponse(ctx, new Response(request.getRequestId(), res));
+                writeResponse(ctx, new Response(request.getRequestId(), res, method.getName()));
             }
         } catch (IllegalAccessException e) {
             writeResponse(ctx, new Response(request.getMethodId(), null, e));

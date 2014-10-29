@@ -10,16 +10,17 @@ public class Request extends Message {
     private long objectId;
     private long methodId;
     private Object[] params;
-
+    private transient String methodName;
     @SuppressWarnings("UnusedDeclaration")
     public Request() {
     }
 
-    public Request(long requestId, long objectId, long methodId, Object[] params) {
+    public Request(long requestId, long objectId, long methodId, Object[] params, String methodName) {
         super(requestId);
         this.objectId = objectId;
         this.methodId = methodId;
         this.params = params;
+        this.methodName = methodName;
     }
 
 
@@ -37,11 +38,20 @@ public class Request extends Message {
 
     @Override
     public String toString() {
-        return "Request{" +
-                "requestId=" + getRequestId() +
-                ", objectId=" + objectId +
-                ", methodId=" + methodId +
-                ", params=" + Arrays.toString(params) +
-                '}';
+        if(methodName != null){
+            return "Request [" + methodName +"] {" +
+                    "requestId=" + getRequestId() +
+                    ", objectId=" + objectId +
+                    ", methodId=" + methodId +
+                    ", params=" + Arrays.toString(params) +
+                    '}';
+        }else{
+            return "Request {" +
+                    "requestId=" + getRequestId() +
+                    ", objectId=" + objectId +
+                    ", methodId=" + methodId +
+                    ", params=" + Arrays.toString(params) +
+                    '}';
+        }
     }
 }

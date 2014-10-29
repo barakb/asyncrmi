@@ -3,6 +3,8 @@ package org.async.rmi.client;
 import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
 import org.async.rmi.modules.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -25,12 +27,15 @@ import java.util.Map;
  */
 public class RMIInvocationHandler implements InvocationHandler, Externalizable, Remote {
 
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger logger = LoggerFactory.getLogger(RMIInvocationHandler.class);
+
     private final transient ClassLoader exporterContextClassLoader;
     private final transient Remote impl;
-    private  Class[] remoteInterfaces;
+    private Class[] remoteInterfaces;
     private RemoteRef ref;
 
-    private Configuration configuration;
+    private transient Configuration configuration;
     private Map<Method, Long> methodToMethodIdMap;
 
 
@@ -126,11 +131,14 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         if (impl != null) {
             synchronized (this) {
                 if (ref == null) {
-                    export();
+                    try {
+                        export();
+                    } catch (InterruptedException e) {
+                        throw new IOException("Interrupted while writing object: " + this, e);
+                    }
                 }
             }
         }
-        out.writeObject(configuration);
         out.writeObject(remoteInterfaces);
         out.writeObject(ref);
     }
@@ -138,13 +146,13 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     @SuppressWarnings("unchecked")
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        configuration = (Configuration) in.readObject();
         remoteInterfaces = (Class[]) in.readObject();
         this.ref = (RemoteRef) in.readObject();
         this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
+        this.configuration = Modules.getInstance().getConfiguration();
     }
 
-    private void export() throws UnknownHostException {
+    private void export() throws UnknownHostException, InterruptedException {
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(exporterContextClassLoader);

@@ -19,14 +19,11 @@ import java.util.Map;
 public class DynamicExporter implements Exporter {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(DynamicExporter.class);
-    private final Configuration configuration;
 
     private Map<WeakKey, WeakReference<Remote>> exportedObjects;
 
-    public DynamicExporter(Configuration configuration) {
+    public DynamicExporter() {
         exportedObjects = new HashMap<>();
-        this.configuration = configuration;
-
     }
 
     @Override
@@ -81,7 +78,7 @@ public class DynamicExporter implements Exporter {
 
 
     private Class[] extractRemoteInterfaces(Class cls) {
-        ArrayList<Class<?>> found = new ArrayList<Class<?>>();
+        ArrayList<Class<?>> found = new ArrayList<>();
         found.add(Exported.class);
         while (!cls.equals(Object.class)) {
             for (Class cl : cls.getInterfaces()) {

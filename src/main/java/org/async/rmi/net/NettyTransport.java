@@ -7,8 +7,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
 import org.async.rmi.client.RemoteObjectAddress;
@@ -25,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.util.concurrent.CompletableFuture;
@@ -72,18 +71,18 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException {
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException {
         if (severStarted.compareAndSet(false, true)) {
             listen(configuration);
         }
         final String address = InetAddress.getLocalHost().getHostAddress();
         ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
-        RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getPort(), objectIds.getAndIncrement(), objectId);
+        RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectIds.getAndIncrement(), objectId);
         return createUnicastRef(remoteObjectAddress, remoteInterfaces);
     }
 
-    private void listen(Configuration configuration) {
+    private void listen(Configuration configuration) throws InterruptedException {
         ServerBootstrap b = new ServerBootstrap();
         b.group(acceptGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -98,7 +97,8 @@ public class NettyTransport implements Transport {
                                 new RMIServerHandler());
                     }
                 });
-        b.bind(configuration.getPort());
+        int actualPort = ((InetSocketAddress)b.bind(configuration.getConfigurePort()).sync().channel().localAddress()).getPort();
+        Modules.getInstance().getConfiguration().setActualPort(actualPort);
     }
 
     @SuppressWarnings("SpellCheckingInspection")

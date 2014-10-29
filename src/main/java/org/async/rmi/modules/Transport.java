@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * 12/10/14.
  */
 public interface Transport extends Closeable{
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException;
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException;
 
     void addResponseFuture(long requestId, CompletableFuture<Response> responseFuture);
 

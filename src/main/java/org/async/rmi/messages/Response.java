@@ -7,14 +7,17 @@ package org.async.rmi.messages;
 public class Response extends Message {
     private Object result;
     private Throwable error;
+    private transient String methodName;
 
     public Response() {
     }
 
-    public Response(long requestId, Object result) {
+    public Response(long requestId, Object result, String methodName) {
         super(requestId);
         this.result = result;
+        this.methodName = methodName;
     }
+
     public Response(long requestId, @SuppressWarnings("UnusedParameters") Object result, Throwable error) {
         super(requestId);
         this.error = error;
@@ -24,7 +27,7 @@ public class Response extends Message {
         return error;
     }
 
-    public boolean isError(){
+    public boolean isError() {
         return error != null;
     }
 
@@ -34,9 +37,16 @@ public class Response extends Message {
 
     @Override
     public String toString() {
-        return "Response{" +
-                "requestId=" + getRequestId() +
-                ", result=" + result +
-                '}';
+        if (methodName != null) {
+            return "Response [" + methodName + "] {" +
+                    "requestId=" + getRequestId() +
+                    ", result=" + result +
+                    '}';
+        } else {
+            return "Response {" +
+                    "requestId=" + getRequestId() +
+                    ", result=" + result +
+                    '}';
+        }
     }
 }

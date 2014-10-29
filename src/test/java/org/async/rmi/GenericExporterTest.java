@@ -26,7 +26,7 @@ public class GenericExporterTest {
     @Before
     public void setUp() {
         server = new ExampleServer();
-        exporter = new DynamicExporter(new Configuration());
+        exporter = new DynamicExporter();
 
     }
 

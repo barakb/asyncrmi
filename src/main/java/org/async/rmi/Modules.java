@@ -20,7 +20,7 @@ public class Modules {
 
     private Modules() {
         configuration = new Configuration();
-        setExporter(new DynamicExporter(configuration));
+        setExporter(new DynamicExporter());
         setTransport(new NettyTransport());
         setUtil(new RMIUtil());
         setObjectRepository(new ObjectRepository());
