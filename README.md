@@ -32,6 +32,12 @@ A Modern Java Asynchronous RMI Implementation
 ##Example.
 
 ```java
+
+public interface Example extends Remote {
+    public String echo(String msg) throws RemoteException;
+    public CompletableFuture<String> futuredEcho(String msg) throws RemoteException;
+}
+
 public class ExampleServer implements Example {
     private static final Logger logger = LoggerFactory.getLogger(ExampleServer.class);
 
