@@ -20,7 +20,7 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
     - [x] RemoteException.
   - [x] Logging [SLF4J](http://www.slf4j.org/)
   - [x] No code generation.
-  - [ ] Closure ans streams.
+  - [ ] Closure and streams.
 - [ ] DGC.
   - [ ] Leases.
   - [ ] Finalize
