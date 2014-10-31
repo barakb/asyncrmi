@@ -4,13 +4,6 @@ title:  "Welcome to Async RMI the future of RMI!"
 date:   2014-11-01 15:40:56
 categories: update
 ---
-### Todo
-- [ ] a bigger project
-  - [ ] first subtask #1234
-  - [ ] follow up subtask #4321
-  - [ ] final subtask cc @mention
-- [ ] a separate task
-
 ### Welcome to GitHub Pages.
 This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:
 
