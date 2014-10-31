@@ -4,6 +4,9 @@
 asyncrmi (RMI Future)
 =====================
 
+- [x] This is a complete item
+- [ ] This is an incomplete item
+
 #Goals
 
 A Modern Java Asynchronous RMI Implementation
