@@ -1,5 +1,3 @@
 name: Async RMI
-#github_username: barakb
-#url: http://barakb.github.io
 baseurl: /asyncrmi
 markdown: redcarpet

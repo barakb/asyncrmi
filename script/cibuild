@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e # halt script on error
+
+bundle exec jekyll build 
+
+# workaround github baseurl.
+rm -rf _site/asyncrmi
+mkdir  _site/asyncrmi
+cp -r _site/stylesheets _site/asyncrmi/stylesheets
+cp -r _site/update _site/asyncrmi/update
+cp -r _site/jekyll _site/asyncrmi/jekyll
+
+
+bundle exec htmlproof ./_site
+
+rm -rf _site/asyncrmi
