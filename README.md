@@ -1,11 +1,9 @@
-[![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi) master
-[![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://github.com/barakb/asyncrmi/tree/gh-pages) gh-pages
+master | gh-pages
+-------|---------
+[![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi) master| [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://github.com/barakb/asyncrmi/tree/gh-pages) gh-pages
 
 asyncrmi (RMI Future)
 =====================
-
-- [x] This is a complete item
-- [ ] This is an incomplete item
 
 #Goals
 
