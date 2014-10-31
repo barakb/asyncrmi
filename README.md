@@ -12,7 +12,7 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
 - [ ] Allow configure thread policies.
 - [ ] Class loading.
   - [ ] Code base.
-  - [ ] Direct.
+  - [ ] Direct class loading.
 - [ ] Ease of usage.
   - [x] Maven build.
   - [x] Use Oracle RMI marker interfaces.
@@ -21,10 +21,15 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
   - [x] Logging [SLF4J](http://www.slf4j.org/)
   - [x] No code generation.
   - [ ] Closure and streams.
+  - [ ] Firewalls.
 - [ ] DGC.
   - [ ] Leases.
   - [ ] Finalize
-- [ ] Benchmark.
+- [ ] Preformance.
+  - [x] Connection poolling.
+  - [ ] Requests pipeline.
+  - [ ] One way calls.
+  - [ ] Benchmark.
 
 
 ##How to build.
