@@ -6,28 +6,25 @@ Async RMI is modern Java RMI implementation.
 
 See the [documentation](http://barakb.github.io/asyncrmi) page.
 
-asyncrmi (RMI Future)
-=====================
-
-#Goals
-
-A Modern Java Asynchronous RMI Implementation
-
-- Support asynchronous calls.
-    * Java 8 CompletableFuture.
-- Support multiple threads policies.
-    * NIO.
-- Easy To use.
-    * Easy class loading.
-    * No code generation.
-    * Use Oracle RMI marker interfaces when possible.
-    * Closures on top of futures and streams.
-- Easy to read, understand and debug.
-     * Use 3rd parties such as:
-        + [netty](http://netty.io/)
-        + [slf4j](http://www.slf4j.org/)
-- Production ready.
-- High performance.
+###Todo
+- [x] Support asynchronous calls.
+  - [x] Java 8 CompletableFuture.
+- [ ] Allow configure thread policies.
+- [ ] Class loading.
+  - [ ] Code base.
+  - [ ] Direct.
+- [ ] Ease of usage.
+  - [x] Maven build.
+  - [x] Use Oracle RMI marker interfaces.
+    - [x] Remote.
+    - [x] RemoteException.
+  - [x] Logging [SLF4J](http://www.slf4j.org/)
+  - [x] No code generation.
+  - [ ] Closure ans streams.
+- [ ] DGC.
+  - [ ] Leases.
+  - [ ] Finalize
+- [ ] Benchmark.
 
 
 ##How to build.
