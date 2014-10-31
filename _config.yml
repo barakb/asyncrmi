@@ -1,3 +1,4 @@
 name: Async RMI
 baseurl: /asyncrmi
 markdown: redcarpet
+exclude: [vendor]
