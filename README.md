@@ -28,20 +28,24 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
 
 
 ##How to build.
+- Install Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+- Install [maven](http://maven.apache.org/).
+- Clone the project `git clone git@github.com:barakb/asyncrmi.git` or download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file. 
+- Change dir to the asyncrmi dir and type `mvn install` at the console.
 
-- Install maven (2 or 3)
-- Clone the project 'git clone git@github.com:barakb/asyncrmi.git'
-- Type 'cd asyncrmi; maven install' in the console.
+##An example.
 
-##Example.
-
+####[The remote interface](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/Example.java).
 ```java
 
 public interface Example extends Remote {
     public String echo(String msg) throws RemoteException;
     public CompletableFuture<String> futuredEcho(String msg) throws RemoteException;
 }
+```
 
+####[The server and the client](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/ExampleServer.java).
+```java
 public class ExampleServer implements Example {
     private static final Logger logger = LoggerFactory.getLogger(ExampleServer.class);
 
