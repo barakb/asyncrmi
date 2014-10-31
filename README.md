@@ -4,7 +4,7 @@ master | gh-pages
 
 Async RMI is modern Java RMI implementation.
 
-See the [Documentation](http://barakb.github.io/asyncrmi) page.
+See the [documentation](http://barakb.github.io/asyncrmi) page.
 
 asyncrmi (RMI Future)
 =====================
