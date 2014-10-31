@@ -5,3 +5,5 @@
 .idea
 *.proxy
 target
+*.log
+*.log.*
