@@ -1,5 +1,5 @@
-### Async RMI build [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi)
-### Async RMI gh-pages build [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://github.com/barakb/asyncrmi/tree/gh-pages)
+Async RMI build [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi)
+Async RMI gh-pages build [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://github.com/barakb/asyncrmi/tree/gh-pages)
 asyncrmi (RMI Future)
 =====================
 
