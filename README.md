@@ -9,6 +9,7 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
 ###Todo
 - [x] Support asynchronous calls.
   - [x] Java 8 CompletableFuture.
+  - [ ] One way calls.
 - [ ] Allow configure thread policies.
 - [ ] Class loading.
   - [ ] Code base.
@@ -26,9 +27,8 @@ See the [documentation](http://barakb.github.io/asyncrmi) page.
   - [ ] Leases.
   - [ ] Finalize
 - [ ] Preformance.
-  - [x] Connection poolling.
+  - [x] Connection pooling.
   - [ ] Requests pipeline.
-  - [ ] One way calls.
   - [ ] Benchmark.
 
 
