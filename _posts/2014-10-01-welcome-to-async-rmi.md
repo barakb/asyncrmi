@@ -4,25 +4,78 @@ title:  "Welcome to Async RMI the future of RMI!"
 date:   2014-11-01 15:40:56
 categories: update
 ---
-### Welcome to GitHub Pages.
-This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:
 
-```
-$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-```
+###Why did I started this project.
 
-If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.
+####Java RMI is grate here are some of for it pros:
 
-### Designer Templates
-We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.
+- Unlike Corba or Web services it does not need another compilation step.
 
-### Rather Drive Stick?
-If you prefer to not use the automatic generator, push a branch named `gh-pages` to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.
+- It transfer POJO and built on top Java native serialization.
 
-### Authors and Contributors
-You can @mention a GitHub username to generate a link to their profile. The resulting `<a>` element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (@defunkt), PJ Hyett (@pjhyett), and Tom Preston-Werner (@mojombo) founded GitHub.
+- It can load new code dynamically from http server.
 
-### Support or Contact
-Having trouble with Pages? Check out the documentation at http://help.github.com/pages or contact support@github.com and we’ll help you sort it out.
+- It has distributed garbage collection.
+
+
+####Even with those pros Java RMI is not being used as much as it should be and here is (what I think some of the reasons) for that.
+
+- The dynamic code loading is cumbersome to use, 
+   you have to run 2 web http server deploy the jars and configure the code base.
+   while this is accepted for production it is not accepted for development.
+
+- The implementation shipped with Oracle Java is not production ready, 
+  it was written before the age of NIO and hence, uses thread per socket model that is not scale well.
+
+- It does not leverage new Java futures such as:
+     + Futures.
+     + Closures.
+     + Streams.
+
+####Just for example supposed we have server that have to notifiy hundreds of clients remotely about some event.
+With current Java RMI implementation it is impossible to write it right, the code contains something like that:
+
+````java
+for(Listener listener : listeners){
+    listener.notify(event);	     
+}
+````
+
+But because of the fact that notify is a synchronous remote call that can take arbitrary time (at least until the client finish to process the event) the server can not execute this call with one thread.
+In case it does one lazy client or bad network will delay the delivery of the event to all the clients from that point on.
+Even the program use some thread pools to execute the notification the thread can be all exhausted by bad network or disconnected machines, and what size will this thread pool will be anyway ?
+
+####Now lets assume that the remote listener interface could be define in RMI like that:
+
+````java
+public interface Listener extends Remote {
+    public CompletableFuture<Void> notify(Event event);
+}
+````
+Notice that:
+
+1. The notify return Future.
+2. The call to notify does not throws RemoteException, this is because the call executing asynchronously.
+
+With this interface you can write the notify code like that:
+ 
+````java
+List<CompletableFuture<Void>> pendings = new List<>(listeners.size());
+for(Listener listener : listeners){
+    CompletableFuture<Void> pendingResult = listener.notify(event);
+    pendingResult.exceptionally(throwable -> cancelListener(listener));
+    pendings.add(pendingResult);	     
+}
+````
+At some other time from a timer thread when sufficient time has passed for the notify call to be sent to the client and back to the server call `cancelPending(pendings);`
+
+````java
+privat void cancelPending(List<CompletableFuture<Void>> pendings){
+  for(CompletableFuture<Void> pending : pendings){
+     if(!pending.isDone()){
+         pending.cancel();
+     }	     
+}
+````
+*Simple and elegant*.
+LocalWords:  NIO notifiy CompletableFuture RemoteException
