@@ -29,14 +29,14 @@ public class GenericExporterTest {
 
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 5000)
     public void exportTwice() throws Exception {
         Example proxy = (Example) exporter.export(server);
         Example proxy2 = (Example) exporter.export(proxy);
         assertThat(proxy, is(proxy2));
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 5000)
     public void invokeProxyLocally() throws Exception {
         Example proxy = (Example) exporter.export(server);
         assertThat(proxy.echo("foo"), equalTo("foo"));

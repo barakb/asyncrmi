@@ -54,7 +54,7 @@ public class ShrinkableConnectionPoolTest {
         }));
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 5000)
     public void testGet() throws Exception {
         Assert.assertThat(pool.getAllSize(), is(0));
         Assert.assertThat(pool.getFreeSize(), is(0));

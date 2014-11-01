@@ -46,7 +46,7 @@ public class CloseTest {
     public void setUp() throws RemoteException {
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 5000)
     @SuppressWarnings("SpellCheckingInspection")
     public void close() throws Exception {
         Modules.getInstance().getTransport().close();
