@@ -2,7 +2,7 @@
 layout: post
 title:  Why did I started this project
 date:   2014-11-01 15:40:56
-categories: update
+categories: introduction
 ---
 
 
