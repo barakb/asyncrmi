@@ -10,11 +10,8 @@ categories: update
 ###Java RMI is grate, here are some of its pros:
 
 - Unlike Corba or Web services it does not need another compilation step.
-
 - It transfer POJO and built on top Java native serialization.
-
 - It can load new code dynamically from http server.
-
 - It has distributed garbage collection.
 
 
@@ -23,10 +20,8 @@ categories: update
 - The dynamic code loading is cumbersome to use, 
    you have to run 2 web http server deploy the jars and configure the code base.
    while this is accepted for production it is not accepted for development.
-
 - The implementation shipped with Oracle Java is not production ready, 
   it was written before the age of NIO and hence, uses thread per socket model that is not scale well.
-
 - It does not leverage new Java futures such as:
      + Futures.
      + Closures.
