@@ -65,7 +65,8 @@ for(Listener listener : listeners){
     // register future listenr to cancle the client listener
     // in case of notification failuer.
     pendingResult.exceptionally(throwable -> cancelListener(listener));
-    // store the future to be processed by timer thread after the notify timeout expired.
+    // store the future to be processed by a 
+    // timer thread after the notify timeout expired.
     pendings.add(pendingResult);	     
 }
 ````
