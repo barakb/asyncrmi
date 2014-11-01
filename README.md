@@ -4,7 +4,6 @@ master | gh-pages
 
 Async RMI is modern Java RMI implementation.
 
-See the [documentation](http://barakb.github.io/asyncrmi) page.
 
 ###Todo
 - [x] Support asynchronous calls.
@@ -100,3 +99,5 @@ public class ExampleServer implements Example {
     }
 }
 ```
+
+The full [documentation](http://barakb.github.io/asyncrmi) page.
