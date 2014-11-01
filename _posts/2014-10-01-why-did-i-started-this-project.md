@@ -7,7 +7,7 @@ categories: update
 
 
 
-###Java RMI is grate here are some of its pros:
+###Java RMI is grate, here are some of its pros:
 
 - Unlike Corba or Web services it does not need another compilation step.
 
