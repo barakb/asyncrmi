@@ -5,4 +5,5 @@ package org.async.rmi;
  * 08/10/14.
  */
 public interface Exported {
+    public long getObjectId();
 }

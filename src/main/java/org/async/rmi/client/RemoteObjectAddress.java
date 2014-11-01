@@ -13,17 +13,15 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
 
     private String url;
     private long objectId;
-    private long classLoaderId;
     private transient String host;
     private transient int port;
 
     public RemoteObjectAddress() {
     }
 
-    public RemoteObjectAddress(String url, long objectId, long classLoaderId) {
+    public RemoteObjectAddress(String url, long objectId) {
         this.url = url;
         this.objectId = objectId;
-        this.classLoaderId = classLoaderId;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -36,16 +34,11 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
         return objectId;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public long getClassLoaderId() {
-        return classLoaderId;
-    }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(url);
         out.writeLong(objectId);
-        out.writeLong(classLoaderId);
 
     }
 
@@ -53,7 +46,6 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         url = in.readUTF();
         objectId = in.readLong();
-        classLoaderId = in.readLong();
         parseURL();
     }
 
@@ -72,7 +64,6 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
 
         RemoteObjectAddress that = (RemoteObjectAddress) o;
 
-        if (classLoaderId != that.classLoaderId) return false;
         if (objectId != that.objectId) return false;
         //noinspection RedundantIfStatement
         if (url != null ? !url.equals(that.url) : that.url != null) return false;
@@ -84,7 +75,6 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
     public int hashCode() {
         int result = url != null ? url.hashCode() : 0;
         result = 31 * result + (int) (objectId ^ (objectId >>> 32));
-        result = 31 * result + (int) (classLoaderId ^ (classLoaderId >>> 32));
         return result;
     }
 
@@ -93,7 +83,6 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
         return "RemoteObjectAddress{" +
                 "url='" + url + '\'' +
                 ", objectId=" + objectId +
-                ", classLoaderId=" + classLoaderId +
                 '}';
     }
 

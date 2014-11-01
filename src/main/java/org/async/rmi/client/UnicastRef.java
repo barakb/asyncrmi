@@ -18,7 +18,6 @@ import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -32,24 +31,42 @@ public class UnicastRef implements RemoteRef {
     private Class[] remoteInterfaces;
     private static final AtomicLong nextRequestId = new AtomicLong(0);
     private Pool<Connection<Message>> pool;
+    private long objectid;
 
     public UnicastRef() {
     }
 
-    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces) {
+    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid) {
         this.remoteObjectAddress = remoteObjectAddress;
         this.remoteInterfaces = remoteInterfaces;
+        this.objectid = objectid;
+    }
+
+    public long getObjectid() {
+        return objectid;
     }
 
     @Override
-    public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Exception {
-//        logger.info("remote invoke: {}.{}({})", obj, method.getName(), Arrays.toString(params));
+    public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Throwable {
         Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params, method.getName());
         CompletableFuture<Response> future = send(request);
         if(CompletableFuture.class.equals(method.getReturnType())){
-            return future.thenApply(Response::getResult);
+//            return future.thenApply(Response::getResult);
+            //noinspection unchecked
+            CompletableFuture<Object> result = new CompletableFuture();
+            future.handle((response, throwable) -> {
+                if(null != throwable){
+                    result.completeExceptionally(throwable);
+                }else if(response.isError()){
+                    result.completeExceptionally(response.getError());
+                }else{
+                    result.complete(response.getResult());
+                }
+                return null;
+            });
+            return result;
         }else {
-            return future.get().getResult();
+            return getResponseResult(future.get());
         }
     }
 
@@ -68,16 +85,26 @@ public class UnicastRef implements RemoteRef {
         return responseFuture;
     }
 
+    private Object getResponseResult(Response response) throws Throwable {
+        if(response.isError()){
+            throw response.getError();
+        }else{
+            return response.getResult();
+        }
+    }
+
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(remoteObjectAddress);
         out.writeObject(remoteInterfaces);
+        out.writeLong(objectid);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         remoteObjectAddress = (RemoteObjectAddress) in.readObject();
         remoteInterfaces = (Class[]) in.readObject();
+        objectid = in.readLong();
         pool = createPool();
     }
 

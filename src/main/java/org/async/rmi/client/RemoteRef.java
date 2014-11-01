@@ -12,6 +12,6 @@ public interface RemoteRef extends java.io.Externalizable {
                   java.lang.reflect.Method method,
                   Object[] params,
                   long opHash)
-            throws Exception;
+            throws Throwable;
 
 }

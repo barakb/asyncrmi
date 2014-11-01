@@ -9,19 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.concurrent.CompletableFuture;
 
 import static org.async.rmi.Util.writeAndRead;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Barak Bar Orion
  * 29/10/14.
  */
-public class BasicCallTest {
+public class CloseTest {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger logger = LoggerFactory.getLogger(BasicCallTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CloseTest.class);
 
     private static Exporter exporter;
     private static Counter proxy;
@@ -29,6 +27,8 @@ public class BasicCallTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
+        org.apache.log4j.BasicConfigurator.resetConfiguration();
+        org.apache.log4j.BasicConfigurator.configure();
         Counter server = new CounterServer();
         Modules.getInstance().getConfiguration().setConfigurePort(0);
         exporter = Modules.getInstance().getExporter();
@@ -44,29 +44,16 @@ public class BasicCallTest {
 
     @Before
     public void setUp() throws RemoteException {
-        client.reset();
     }
 
     @Test(timeout = 1000)
-    public void sync() throws Exception {
-            assertThat(client.read(), is(0));
-            assertThat(client.next(), is(1));
-            assertThat(client.read(), is(1));
-    }
-
-    @Test(timeout = 5000)
-    public void async() throws Exception {
-        CompletableFuture<Integer> firstReadFuture = client.asyncRead();
-        CompletableFuture<Integer> firstNextFuture = client.asyncNext();
-        assertThat(firstReadFuture.isDone(), is(false));
-        assertThat(firstNextFuture.isDone(), is(false));
-        //noinspection StatementWithEmptyBody
-        while (client.getQueueSize() < 2) {
-            // wait until the server have those 2 messages.
+    @SuppressWarnings("SpellCheckingInspection")
+    public void close() throws Exception {
+        Modules.getInstance().getTransport().close();
+        try {
+            client.read();
+            fail("Should throw RemoteException");
+        } catch (RemoteException ignored) {
         }
-        client.processQueue();
-        firstReadFuture.join();
-        firstNextFuture.join();
     }
-
 }

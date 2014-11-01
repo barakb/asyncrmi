@@ -1,6 +1,7 @@
 package org.async.rmi.client;
 
 import org.async.rmi.Configuration;
+import org.async.rmi.Exported;
 import org.async.rmi.Modules;
 import org.async.rmi.modules.Util;
 import org.slf4j.Logger;
@@ -44,16 +45,18 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         this.exporterContextClassLoader = null;
     }
 
-    public RMIInvocationHandler(Remote impl, Class[] remoteInterfaces) {
+    public RMIInvocationHandler(Remote impl, Class[] remoteInterfaces) throws InterruptedException, UnknownHostException {
         this.impl = impl;
         this.remoteInterfaces = remoteInterfaces;
         this.exporterContextClassLoader = Thread.currentThread().getContextClassLoader();
         this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
         this.configuration = Modules.getInstance().getConfiguration();
+        this.ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration);
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//        logger.info("invoking {} on {} ", method.getName());
         Class<?> declaringClass = method.getDeclaringClass();
         if (declaringClass == Object.class) {
             if (method.getName().equals("hashCode"))
@@ -65,6 +68,11 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
             if (method.getName().equals("toString"))
                 return toString();
 
+            throw new InternalError("Unexpected Object method dispatched: " + method);
+        }else if(declaringClass == Exported.class){
+            if (method.getName().equals("getObjectId")){
+                return ((UnicastRef)ref).getObjectid();
+            }
             throw new InternalError("Unexpected Object method dispatched: " + method);
         }
         if (impl != null) {
@@ -87,7 +95,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     }
 
     @SuppressWarnings("UnusedParameters")
-    private Object invokeRemote(Object proxy, Method method, Object[] args) throws Exception{
+    private Object invokeRemote(Object proxy, Method method, Object[] args) throws Throwable{
         try {
             if (!(proxy instanceof Remote)) {
                 throw new IllegalArgumentException(
@@ -128,17 +136,6 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        if (impl != null) {
-            synchronized (this) {
-                if (ref == null) {
-                    try {
-                        export();
-                    } catch (InterruptedException e) {
-                        throw new IOException("Interrupted while writing object: " + this, e);
-                    }
-                }
-            }
-        }
         out.writeObject(remoteInterfaces);
         out.writeObject(ref);
     }
@@ -152,15 +149,6 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         this.configuration = Modules.getInstance().getConfiguration();
     }
 
-    private void export() throws UnknownHostException, InterruptedException {
-        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(exporterContextClassLoader);
-            ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration);
-        } finally {
-            Thread.currentThread().setContextClassLoader(originalClassLoader);
-        }
-    }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object obj) {

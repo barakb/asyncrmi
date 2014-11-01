@@ -1,6 +1,7 @@
 package org.async.rmi.net;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -29,7 +30,6 @@ import java.rmi.Remote;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Barak Bar Orion
@@ -41,10 +41,10 @@ public class NettyTransport implements Transport {
 
     private final ConcurrentHashMap<Long, CompletableFuture<Response>> awaitingResponses = new ConcurrentHashMap<>();
     private final EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup();
-    private final EventLoopGroup acceptGroup = new NioEventLoopGroup(1);
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private AtomicLong objectIds = new AtomicLong(0);
+    private volatile EventLoopGroup acceptGroup;
+    private volatile EventLoopGroup workerGroup;
     private AtomicBoolean severStarted = new AtomicBoolean(false);
+    private volatile Channel serverChannel;
 
     public NettyTransport() {
     }
@@ -58,52 +58,73 @@ public class NettyTransport implements Transport {
     @Override
     public void handleResponse(Response response) {
         CompletableFuture<Response> responseFuture = awaitingResponses.remove(response.getRequestId());
-        if(responseFuture != null){
+        if (responseFuture != null) {
             responseFuture.complete(response);
-        }else{
-            logger.error("unexpected response {}", response);
+        } else {
+            logger.error("unexpected response {}.", response);
         }
     }
 
     @Override
     public void close() throws IOException {
-        //todo
+        if (serverChannel != null) {
+            try {
+                serverChannel.close().channel().closeFuture().sync();
+                acceptGroup.shutdownGracefully();
+                acceptGroup = null;
+                workerGroup.shutdownGracefully();
+                workerGroup = null;
+                severStarted.set(false);
+            } catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+            logger.info("RMI server: {} is closed.", serverChannel.localAddress());
+        }
     }
 
     @Override
     public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException {
-        if (severStarted.compareAndSet(false, true)) {
-            listen(configuration);
-        }
         final String address = InetAddress.getLocalHost().getHostAddress();
         ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
-        RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectIds.getAndIncrement(), objectId);
-        return createUnicastRef(remoteObjectAddress, remoteInterfaces);
+        RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
+        return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId);
     }
 
-    private void listen(Configuration configuration) throws InterruptedException {
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(acceptGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
+    @Override
+    public void listen() throws InterruptedException {
+        if (severStarted.compareAndSet(false, true)) {
+            if (acceptGroup == null) {
+                acceptGroup = new NioEventLoopGroup(1);
+            }
+            if (workerGroup == null) {
+                workerGroup = new NioEventLoopGroup();
+            }
+            Configuration configuration = Modules.getInstance().getConfiguration();
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(acceptGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
 //                .handler(new LoggingHandler(LogLevel.DEBUG))
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline p = ch.pipeline();
-                        p.addLast(
-                                new MessageEncoder(),
-                                new MessageDecoder(),
-                                new RMIServerHandler());
-                    }
-                });
-        int actualPort = ((InetSocketAddress)b.bind(configuration.getConfigurePort()).sync().channel().localAddress()).getPort();
-        Modules.getInstance().getConfiguration().setActualPort(actualPort);
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(SocketChannel ch) throws Exception {
+                            ChannelPipeline p = ch.pipeline();
+                            p.addLast(
+                                    new MessageEncoder(),
+                                    new MessageDecoder(),
+                                    new RMIServerHandler());
+                        }
+                    });
+            serverChannel = b.bind(configuration.getConfigurePort()).sync().channel();
+            logger.info("RMI server started: {}.", serverChannel.localAddress());
+            int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
+            configuration.setActualPort(actualPort);
+        }
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces) {
-        return new UnicastRef(remoteObjectAddress, remoteInterfaces);
+    private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid) {
+        return new UnicastRef(remoteObjectAddress, remoteInterfaces, objectid);
     }
 
     @Override

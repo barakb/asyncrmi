@@ -8,6 +8,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.async.rmi.Connection;
 import org.async.rmi.Factory;
+import org.async.rmi.Modules;
+import org.async.rmi.TimeSpan;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.messages.Message;
 import org.async.rmi.pool.Pool;
@@ -48,11 +50,12 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
 
     @Override
     public CompletableFuture<Connection<Message>> create() {
+        TimeSpan clientConnectTimeout = Modules.getInstance().getConfiguration().getClientConnectTimeout();
         CompletableFuture<Connection<Message>> res = new CompletableFuture<>();
         final NettyClientConnection connection = new NettyClientConnection(bootstrap, address, pool);
         connection.connect().addListener(future -> {
             try {
-                future.get();
+                future.get(clientConnectTimeout.getTime(), clientConnectTimeout.getTimeUnit());
                 res.complete(connection);
             } catch (ExecutionException e) {
                 res.completeExceptionally(e.getCause());

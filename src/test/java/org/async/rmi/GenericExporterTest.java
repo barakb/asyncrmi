@@ -20,7 +20,6 @@ public class GenericExporterTest {
 
     @BeforeClass
     public static void beforeClass() {
-        org.apache.log4j.BasicConfigurator.configure();
     }
 
     @Before
@@ -30,14 +29,14 @@ public class GenericExporterTest {
 
     }
 
-    @Test
+    @Test(timeout = 1000)
     public void exportTwice() throws Exception {
         Example proxy = (Example) exporter.export(server);
         Example proxy2 = (Example) exporter.export(proxy);
         assertThat(proxy, is(proxy2));
     }
 
-    @Test
+    @Test(timeout = 1000)
     public void invokeProxyLocally() throws Exception {
         Example proxy = (Example) exporter.export(server);
         assertThat(proxy.echo("foo"), equalTo("foo"));

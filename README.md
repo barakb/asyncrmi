@@ -8,6 +8,7 @@ Async RMI is modern Java RMI implementation.
 ###Todo
 - [x] Support asynchronous calls.
   - [x] Java 8 CompletableFuture.
+  - [ ] Client timeoute.
   - [ ] One way calls.
 - [ ] Allow configure thread policies.
 - [ ] Class loading.
@@ -25,10 +26,16 @@ Async RMI is modern Java RMI implementation.
 - [ ] DGC.
   - [ ] Leases.
   - [ ] Finalize
-- [ ] Preformance.
+- [ ] Performance.
   - [x] Connection pooling.
   - [ ] Requests pipeline.
   - [ ] Benchmark.
+- [ ] Logging
+  - [ ] Add ip address.
+- [ ] Networking.
+    - [x] un publish.
+    - [ ] handshake.
+    - [ ] port range.
 
 
 ##How to build.

@@ -1,5 +1,7 @@
 package org.async.rmi;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Barak Bar Orion
  * 05/10/14.
@@ -7,6 +9,7 @@ package org.async.rmi;
 public class Configuration {
     private int configurePort = 0;
     private int actualPort;
+    private TimeSpan clientConnectTimeout = new TimeSpan(3, TimeUnit.SECONDS);
 
     public Configuration() {
     }
@@ -27,5 +30,9 @@ public class Configuration {
     public Configuration setActualPort(int actualPort) {
         this.actualPort = actualPort;
         return this;
+    }
+
+    public TimeSpan getClientConnectTimeout() {
+        return clientConnectTimeout;
     }
 }

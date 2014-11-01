@@ -1,5 +1,6 @@
 package org.async.rmi.modules;
 
+import java.net.UnknownHostException;
 import java.rmi.Remote;
 
 /**
@@ -7,7 +8,7 @@ import java.rmi.Remote;
  * 12/10/14.
  */
 public interface Exporter {
-    Remote export(Remote impl);
+    Remote export(Remote impl) throws InterruptedException, UnknownHostException;
 
     @SuppressWarnings({"UnusedDeclaration", "SpellCheckingInspection"})
     boolean unexport();

@@ -41,11 +41,13 @@ public class Response extends Message {
             return "Response [" + methodName + "] {" +
                     "requestId=" + getRequestId() +
                     ", result=" + result +
+                    ", error=" + error +
                     '}';
         } else {
             return "Response {" +
                     "requestId=" + getRequestId() +
                     ", result=" + result +
+                    ", error=" + error +
                     '}';
         }
     }
