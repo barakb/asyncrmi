@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
+import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.client.UnicastRef;
@@ -27,6 +28,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,14 +48,23 @@ public class NettyTransport implements Transport {
     private volatile EventLoopGroup workerGroup;
     private AtomicBoolean severStarted = new AtomicBoolean(false);
     private volatile Channel serverChannel;
+    private final PendingRequests pendingRequests = new PendingRequests();
+    private final Timer timer = new Timer(true);
 
     public NettyTransport() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                pendingRequests.process();
+            }
+        }, 1000, 1000);
     }
 
     @Override
     public void addResponseFuture(final long requestId, CompletableFuture<Response> responseFuture) {
         awaitingResponses.put(requestId, responseFuture);
         responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(requestId));
+        pendingRequests.add(responseFuture);
     }
 
     @Override

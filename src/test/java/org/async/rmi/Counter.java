@@ -21,4 +21,9 @@ public interface Counter extends Remote {
     public void reset() throws RemoteException;
 
     public int getQueueSize() throws RemoteException;
+
+    public Integer readAfterDelay(long millis);
+
+    public CompletableFuture<Integer> asyncReadAfterDelay(long millis);
+
 }

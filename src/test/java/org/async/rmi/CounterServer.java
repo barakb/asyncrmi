@@ -57,4 +57,21 @@ public class CounterServer implements Counter {
     public int getQueueSize() throws RemoteException {
         return queue.size();
     }
+
+    @Override
+    public Integer readAfterDelay(long millis) {
+        try {
+            Thread.sleep(millis);
+        }catch(Exception ignored){
+
+        }
+        return value.get();
+    }
+
+    @Override
+    public CompletableFuture<Integer> asyncReadAfterDelay(long millis) {
+        CompletableFuture<Integer> res = new CompletableFuture<>();
+        new Thread(() -> res.complete(readAfterDelay(millis))).start();
+        return res;
+    }
 }

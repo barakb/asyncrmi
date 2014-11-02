@@ -16,8 +16,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Method;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -50,23 +53,24 @@ public class UnicastRef implements RemoteRef {
     public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Throwable {
         Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params, method.getName());
         CompletableFuture<Response> future = send(request);
-        if(CompletableFuture.class.equals(method.getReturnType())){
+        if (CompletableFuture.class.equals(method.getReturnType())) {
 //            return future.thenApply(Response::getResult);
             //noinspection unchecked
             CompletableFuture<Object> result = new CompletableFuture();
             future.handle((response, throwable) -> {
-                if(null != throwable){
+                if (null != throwable) {
                     result.completeExceptionally(throwable);
-                }else if(response.isError()){
+                } else if (response.isError()) {
                     result.completeExceptionally(response.getError());
-                }else{
+                } else {
                     result.complete(response.getResult());
                 }
                 return null;
             });
             return result;
-        }else {
-            return getResponseResult(future.get());
+        } else {
+//            return getResponseResult(future.join());
+            return getResponseResult(translateClientError(future));
         }
     }
 
@@ -85,11 +89,35 @@ public class UnicastRef implements RemoteRef {
         return responseFuture;
     }
 
+    public <T> T translateClientError(Future<T> future) throws Throwable {
+        try {
+            return future.get();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                throw e;
+            } else if (e instanceof ExecutionException) {
+                throw e.getCause();
+            } else {
+                throw e;
+            }
+        }
+    }
+
     private Object getResponseResult(Response response) throws Throwable {
-        if(response.isError()){
-            throw response.getError();
-        }else{
+        if (response.isError()) {
+            //noinspection ThrowableResultOfMethodCallIgnored
+            Throwable t = response.getError();
+            return translateServerError(t);
+        } else {
             return response.getResult();
+        }
+    }
+
+    private Object translateServerError(Throwable t) throws Throwable {
+        if (t instanceof RemoteException) {
+            throw t;
+        } else {
+            throw new RemoteException(t.toString() + " from server", t);
         }
     }
 

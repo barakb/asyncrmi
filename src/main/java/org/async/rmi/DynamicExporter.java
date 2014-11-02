@@ -15,6 +15,7 @@ import java.util.Map;
 /**
  * Created by Barak Bar Orion
  * 05/10/14.
+ * Export Remote Object using DynamicProxy.
  */
 public class DynamicExporter implements Exporter {
     @SuppressWarnings("UnusedDeclaration")

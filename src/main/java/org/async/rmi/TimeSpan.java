@@ -23,6 +23,10 @@ public class TimeSpan {
         return timeUnit;
     }
 
+    public long asMilliseconds(){
+        return TimeUnit.MILLISECONDS.convert(time, timeUnit);
+    }
+
     @Override
     public String toString() {
         return "TimeSpan{" +
