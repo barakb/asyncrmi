@@ -7,20 +7,12 @@ import java.io.Serializable;
  * 11/4/14.
  */
 public class SimpleObject implements Serializable {
-    private int value;
 
-    public SimpleObject(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
+    public SimpleObject() {
     }
 
     @Override
     public String toString() {
-        return "SimpleObject{" +
-                "value=" + value +
-                '}';
+        return "SimpleObject";
     }
 }
