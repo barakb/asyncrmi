@@ -148,7 +148,6 @@ public class LoaderHandler {
     public static Class loadClass(String codebase, String name, ClassLoader defaultLoader)
             throws MalformedURLException, ClassNotFoundException {
         logger.debug("loading class {}, codebase {}, defaultLoader {}", name, codebase, defaultLoader);
-
         URL[] urls;
         if (codebase != null) {
             urls = pathToURLs(codebase);
@@ -175,7 +174,6 @@ public class LoaderHandler {
     private static Class loadClass(URL[] urls, String name) throws ClassNotFoundException {
         ClassLoader parent = Thread.currentThread().getContextClassLoader();
         logger.debug("thread context class loader: {}", parent);
-
         /*
          * Get or create the RMI class loader for this codebase URL path
          * and parent class loader pair.
@@ -183,7 +181,7 @@ public class LoaderHandler {
         Loader loader = lookupLoader(urls, parent);
         try {
             Class c = Class.forName(name, false, loader);
-            logger.debug("class {} found via codebase {} , defined by {}", Arrays.toString(urls),  name, c.getClassLoader());
+            logger.debug("class {} found via codebase {} , defined by {}", Arrays.toString(urls), name, c.getClassLoader());
             return c;
         } catch (ClassNotFoundException e) {
             logger.debug("class {} not found via codebase", e);
@@ -362,6 +360,7 @@ public class LoaderHandler {
         }
 
 
+        @SuppressWarnings("ConstantConditions")
         protected PermissionCollection getPermissions(CodeSource codesource) {
             return null;
         }
