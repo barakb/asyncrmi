@@ -12,7 +12,7 @@ Async RMI is modern Java RMI implementation.
   - [ ] One way calls.
 - [ ] Allow configure thread policies.
 - [ ] Class loading.
-  - [ ] Code base.
+  - [x] Code base.
   - [ ] Direct class loading.
 - [ ] Ease of usage.
   - [x] Maven build.

@@ -6,8 +6,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.async.rmi.messages.Message;
-
-import java.io.ObjectOutputStream;
+import org.async.rmi.server.MarshalOutputStream;
 
 /**
  * Created by Barak Bar Orion
@@ -23,7 +22,7 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
 
         ByteBufOutputStream bout = new ByteBufOutputStream(out);
         bout.write(LENGTH_PLACEHOLDER);
-        ObjectOutputStream oos = new ObjectOutputStream(bout);
+        MarshalOutputStream oos = new MarshalOutputStream(bout);
         oos.writeObject(msg);
         oos.flush();
         oos.close();

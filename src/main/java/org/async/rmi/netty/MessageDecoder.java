@@ -5,8 +5,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.async.rmi.messages.Message;
-
-import java.io.ObjectInputStream;
+import org.async.rmi.server.MarshalInputStream;
 
 /**
  * Created by Barak Bar Orion
@@ -29,7 +28,7 @@ public class MessageDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
 
-        ObjectInputStream is = new ObjectInputStream(new ByteBufInputStream(frame));
+        MarshalInputStream is = new MarshalInputStream(new ByteBufInputStream(frame));
         Message result = (Message) is.readObject();
         is.close();
         return result;
