@@ -20,7 +20,6 @@ public class MarshalInputStream extends ObjectInputStream {
         Object annotation = readLocation();
 
         String className = classDesc.getName();
-        //todo
         ClassLoader defaultLoader = Thread.currentThread().getContextClassLoader();
 
         String codebase = null;
