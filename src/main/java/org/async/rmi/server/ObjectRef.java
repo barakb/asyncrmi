@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +60,20 @@ public class ObjectRef {
     }
 
     private void writeResponse(ChannelHandlerContext ctx, Response response) {
-        logger.debug("--> {}", response);
+        logger.debug("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
         ctx.writeAndFlush(response);
+    }
+
+    private String getFrom(ChannelHandlerContext ctx) {
+        return addressAsString((InetSocketAddress) ctx.channel().localAddress());
+    }
+
+    private String addressAsString(InetSocketAddress socketAddress) {
+        return socketAddress.getHostString() + ":" + socketAddress.getPort();
+    }
+
+    private String getTo(ChannelHandlerContext ctx) {
+        return addressAsString((InetSocketAddress) ctx.channel().remoteAddress());
     }
 
 
