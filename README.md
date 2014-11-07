@@ -67,7 +67,8 @@ public class ExampleServer implements Example {
     }
 
     @Override
-    public CompletableFuture<String> futuredEcho(final String msg) throws RemoteException {
+    public CompletableFuture<String> futuredEcho(final String msg)
+            throws RemoteException {
         logger.debug("Server: futuredEcho echo({})", msg);
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -86,7 +87,8 @@ public class ExampleServer implements Example {
             Example proxy = (Example) Modules.getInstance().getExporter().export(server);
             File file = new File("ExampleServer.proxy");
             Util.serialize(Files.asByteSink(file), proxy);
-            logger.info("proxy {} saved to file  {}, server is running at: {}:{}", proxy, file.getAbsolutePath());
+            logger.info("proxy {} saved to file  {}, server is running at: {}:{}",
+                    proxy, file.getAbsolutePath());
         } catch (Exception e) {
             logger.error("ExampleServer exception while exporting:", e);
         }
