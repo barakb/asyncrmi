@@ -36,6 +36,9 @@ Async RMI is modern Java RMI implementation.
     - [x] un publish.
     - [ ] handshake.
     - [ ] port range.
+    - [ ] TSL.
+- [ ] Client.
+   - [ ] Close.
 
 
 ##How to build.

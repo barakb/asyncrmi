@@ -1,12 +1,13 @@
 package org.async.rmi;
 
-import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.concurrent.CompletableFuture;
+
+import static org.async.rmi.Util.writeAndRead;
 
 /**
  * Created by Barak Bar Orion
@@ -37,20 +38,19 @@ public class ExampleServer implements Example {
     }
 
     public static void main(String[] args) throws Exception {
+        Example example;
         try {
             ExampleServer server = new ExampleServer();
             Example proxy = (Example) Modules.getInstance().getExporter().export(server);
             File file = new File("ExampleServer.proxy");
-            Util.serialize(Files.asByteSink(file), proxy);
+            example = writeAndRead(proxy);
             logger.info("proxy {} saved to file  {}, server is running at: {}:{}",
                     proxy, file.getAbsolutePath());
         } catch (Exception e) {
             logger.error("ExampleServer exception while exporting:", e);
+            return;
         }
 
-        File file = new File("ExampleServer.proxy");
-        //noinspection UnusedDeclaration
-        Example example = (Example) Util.deserialize(Files.asByteSource(file));
         String res = example.echo("foo");
         logger.info("client got: {}", res);
         res = example.echo("foo1");
