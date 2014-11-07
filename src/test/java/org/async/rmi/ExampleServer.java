@@ -24,20 +24,18 @@ public class ExampleServer implements Example {
     @Override
     public CompletableFuture<String> futuredEcho(final String msg) throws RemoteException {
         logger.debug("Server: futuredEcho echo({})", msg);
-        final CompletableFuture<String> res = new CompletableFuture<>();
-        new Thread(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 logger.error(e.toString(), e);
             }
-            res.complete(msg);
-        }).start();
-        return res;
+            return msg;
+        });
     }
 
     public static void main(String[] args) throws Exception {
-//        org.apache.log4j.BasicConfigurator.configure();
         try {
             ExampleServer server = new ExampleServer();
             Example proxy = (Example) Modules.getInstance().getExporter().export(server);
