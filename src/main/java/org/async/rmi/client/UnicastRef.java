@@ -53,7 +53,7 @@ public class UnicastRef implements RemoteRef {
     public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Throwable {
         Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params, method.getName());
         CompletableFuture<Response> future = send(request);
-        if (CompletableFuture.class.equals(method.getReturnType())) {
+        if(Future.class.isAssignableFrom(method.getReturnType())){
             //noinspection unchecked
             CompletableFuture<Object> result = new CompletableFuture();
             future.handle((response, throwable) -> {

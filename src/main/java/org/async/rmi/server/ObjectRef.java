@@ -45,16 +45,16 @@ public class ObjectRef {
                     if (o != null) {
                         writeResponse(ctx, new Response(request.getRequestId(), o, method.getName()));
                     } else {
-                        writeResponse(ctx, new Response(request.getMethodId(), null, e));
+                        writeResponse(ctx, new Response(request.getRequestId(), null, e));
                     }
                 });
             } else {
                 writeResponse(ctx, new Response(request.getRequestId(), res, method.getName()));
             }
         } catch (IllegalAccessException e) {
-            writeResponse(ctx, new Response(request.getMethodId(), null, e));
+            writeResponse(ctx, new Response(request.getRequestId(), null, e));
         } catch (InvocationTargetException e) {
-            writeResponse(ctx, new Response(request.getMethodId(), null, e.getTargetException()));
+            writeResponse(ctx, new Response(request.getRequestId(), null, e.getTargetException()));
         }
     }
 

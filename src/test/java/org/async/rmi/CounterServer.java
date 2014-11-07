@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,7 +44,7 @@ public class CounterServer implements Counter {
 
     @Override
     public void processQueue() throws RemoteException {
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             queue.remove(0).run();
         }
     }
@@ -62,7 +63,7 @@ public class CounterServer implements Counter {
     public Integer readAfterDelay(long millis) {
         try {
             Thread.sleep(millis);
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
 
         }
         return value.get();
@@ -73,5 +74,14 @@ public class CounterServer implements Counter {
         CompletableFuture<Integer> res = new CompletableFuture<>();
         new Thread(() -> res.complete(readAfterDelay(millis))).start();
         return res;
+    }
+
+    @Override
+    public Future<String> toUpper(String msg) {
+        if (null == msg) {
+            return CompletableFuture.completedFuture(null);
+        } else {
+            return CompletableFuture.supplyAsync(msg::toUpperCase);
+        }
     }
 }
