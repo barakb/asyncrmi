@@ -30,7 +30,7 @@ Async RMI is modern Java RMI implementation.
   - [x] Connection pooling.
   - [x] Requests pipeline.
   - [ ] Benchmark.
-- [ ] Logging
+- [x] Logging
   - [x] Add ip addresses.
 - [ ] Networking.
     - [x] un publish.
