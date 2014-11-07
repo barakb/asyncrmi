@@ -21,7 +21,6 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-//        // Echo back the received object to the client.
         Request request = (Request) msg;
         dispatch(request, ctx);
     }

@@ -49,6 +49,8 @@ public class NettyTransport implements Transport {
     private AtomicBoolean severStarted = new AtomicBoolean(false);
     private volatile Channel serverChannel;
     private final PendingRequests pendingRequests = new PendingRequests();
+
+    @SuppressWarnings("FieldCanBeLocal")
     private final Timer timer = new Timer(true);
 
     public NettyTransport() {
