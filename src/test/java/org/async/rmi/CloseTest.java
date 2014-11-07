@@ -27,8 +27,6 @@ public class CloseTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        org.apache.log4j.BasicConfigurator.resetConfiguration();
-        org.apache.log4j.BasicConfigurator.configure();
         Counter server = new CounterServer();
         Modules.getInstance().getConfiguration().setConfigurePort(0);
         exporter = Modules.getInstance().getExporter();
