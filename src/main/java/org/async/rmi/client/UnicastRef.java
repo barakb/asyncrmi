@@ -54,7 +54,6 @@ public class UnicastRef implements RemoteRef {
         Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params, method.getName());
         CompletableFuture<Response> future = send(request);
         if (CompletableFuture.class.equals(method.getReturnType())) {
-//            return future.thenApply(Response::getResult);
             //noinspection unchecked
             CompletableFuture<Object> result = new CompletableFuture();
             future.handle((response, throwable) -> {
@@ -69,7 +68,6 @@ public class UnicastRef implements RemoteRef {
             });
             return result;
         } else {
-//            return getResponseResult(future.join());
             return getResponseResult(translateClientError(future));
         }
     }
