@@ -10,5 +10,9 @@ import java.util.concurrent.CompletableFuture;
  * 27/10/14.
  */
 public interface Connection<M> extends PooledResource {
+
+    String getRemoteAddress();
+    String getLocalAddress();
+
     void send(M message, CompletableFuture<Response> response);
 }

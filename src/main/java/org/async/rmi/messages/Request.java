@@ -10,6 +10,7 @@ public class Request extends Message {
     private long objectId;
     private long methodId;
     private Object[] params;
+
     private transient String methodName;
     @SuppressWarnings("UnusedDeclaration")
     public Request() {

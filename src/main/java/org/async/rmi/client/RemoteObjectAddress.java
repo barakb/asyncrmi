@@ -22,6 +22,7 @@ public class RemoteObjectAddress implements Serializable, Externalizable{
     public RemoteObjectAddress(String url, long objectId) {
         this.url = url;
         this.objectId = objectId;
+        parseURL();
     }
 
     @SuppressWarnings("UnusedDeclaration")

@@ -73,7 +73,6 @@ public class UnicastRef implements RemoteRef {
     }
 
     private CompletableFuture<Response> send(Request request) {
-        logger.debug("--> {}", request);
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request.getRequestId(), responseFuture);
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
@@ -81,6 +80,7 @@ public class UnicastRef implements RemoteRef {
             if (throwable != null) {
                 responseFuture.completeExceptionally(throwable);
             } else {
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(),request);
                 connection.send(request, responseFuture);
             }
         });

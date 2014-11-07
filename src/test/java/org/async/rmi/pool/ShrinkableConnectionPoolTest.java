@@ -51,6 +51,16 @@ public class ShrinkableConnectionPoolTest {
             public void free() {
                 pool.free(this);
             }
+
+            @Override
+            public String getRemoteAddress() {
+                return null;
+            }
+
+            @Override
+            public String getLocalAddress() {
+                return null;
+            }
         }));
     }
 
