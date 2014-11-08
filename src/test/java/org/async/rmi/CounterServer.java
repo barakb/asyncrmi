@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -82,6 +83,26 @@ public class CounterServer implements Counter {
             return CompletableFuture.completedFuture(null);
         } else {
             return CompletableFuture.supplyAsync(msg::toUpperCase);
+        }
+    }
+    @Override
+    public Future<String> toUpperFuture(String msg) {
+        if (null == msg) {
+            return null;
+        } else {
+            FutureTask<String> res = new FutureTask<>(msg::toUpperCase);
+            new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    res.run();
+                }
+            }.start();
+            return res;
         }
     }
 }

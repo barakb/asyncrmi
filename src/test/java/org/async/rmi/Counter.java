@@ -11,25 +11,26 @@ import java.util.concurrent.Future;
  */
 public interface Counter extends Remote {
 
-    public int next() throws RemoteException;
+    int next() throws RemoteException;
 
-    public int read() throws RemoteException;
+    int read() throws RemoteException;
 
-    public CompletableFuture<Integer> asyncNext();
+    CompletableFuture<Integer> asyncNext();
 
-    public CompletableFuture<Integer> asyncRead();
+    CompletableFuture<Integer> asyncRead();
 
-    public void processQueue() throws RemoteException;
+    void processQueue() throws RemoteException;
 
-    public void reset() throws RemoteException;
+    void reset() throws RemoteException;
 
-    public int getQueueSize() throws RemoteException;
+    int getQueueSize() throws RemoteException;
 
-    public Integer readAfterDelay(long millis);
+    Integer readAfterDelay(long millis);
 
-    public CompletableFuture<Integer> asyncReadAfterDelay(long millis);
+    CompletableFuture<Integer> asyncReadAfterDelay(long millis);
 
-    public Future<String> toUpper(String msg);
+    Future<String> toUpper(String msg);
 
+    Future<String> toUpperFuture(String msg);
 
 }

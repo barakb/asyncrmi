@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Created by Barak Bar Orion
@@ -39,10 +41,11 @@ public class ObjectRef {
             throw new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl);
         }
         try {
-            Object res = method.invoke(impl, request.getParams());
-            if (res instanceof CompletableFuture) {
+            final Object res = method.invoke(impl, request.getParams());
+            if (res instanceof Future) {
+                final CompletableFuture<Object> completableFuture = toCompletableFuture((Future) res);
                 //noinspection unchecked
-                ((CompletableFuture<Object>) res).whenComplete((o, e) -> {
+                completableFuture.whenComplete((o, e) -> {
                     if (o != null) {
                         writeResponse(ctx, new Response(request.getRequestId(), o, method.getName()));
                     } else {
@@ -58,6 +61,28 @@ public class ObjectRef {
             writeResponse(ctx, new Response(request.getRequestId(), null, e.getTargetException()));
         }
     }
+
+    private CompletableFuture<Object> toCompletableFuture(Future future) {
+        if (future instanceof CompletableFuture) {
+            //noinspection unchecked
+            return (CompletableFuture<Object>) future;
+        } else {
+            CompletableFuture<Object> res = new CompletableFuture<Object>();
+            CompletableFuture.runAsync(() -> {
+                try {
+                    //noinspection unchecked
+                    res.complete(future.get());
+                } catch (InterruptedException e) {
+                    res.completeExceptionally(e);
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    res.completeExceptionally(e.getCause());
+                }
+            });
+            return res;
+        }
+    }
+
 
     private void writeResponse(ChannelHandlerContext ctx, Response response) {
         logger.debug("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);

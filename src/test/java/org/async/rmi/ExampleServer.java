@@ -3,7 +3,6 @@ package org.async.rmi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.rmi.RemoteException;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,10 +41,8 @@ public class ExampleServer implements Example {
         try {
             ExampleServer server = new ExampleServer();
             Example proxy = (Example) Modules.getInstance().getExporter().export(server);
-            File file = new File("ExampleServer.proxy");
             example = writeAndRead(proxy);
-            logger.info("proxy {} saved to file  {}, server is running at: {}:{}",
-                    proxy, file.getAbsolutePath());
+            logger.info("proxy is: {}", proxy);
         } catch (Exception e) {
             logger.error("ExampleServer exception while exporting:", e);
             return;

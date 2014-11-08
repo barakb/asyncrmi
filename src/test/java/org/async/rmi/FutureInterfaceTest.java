@@ -55,4 +55,16 @@ public class FutureInterfaceTest {
         assertThat(client.toUpper(null).get(), is(nullValue()));
     }
 
+    @Test(timeout = 5000)
+    public void test3() throws Exception {
+        // server.toUpperFuture returns FutureTask instead of CompletableFuture.
+        assertThat(client.toUpperFuture("foo").get(), is("FOO"));
+    }
+
+    @Test(timeout = 5000)
+    public void test4() throws Exception {
+        // server.toUpperFuture returns null instead of CompletableFuture.
+        assertThat(client.toUpperFuture(null).get(), is(nullValue()));
+    }
+
 }
