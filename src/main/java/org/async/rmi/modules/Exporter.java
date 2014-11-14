@@ -8,7 +8,7 @@ import java.rmi.Remote;
  * 12/10/14.
  */
 public interface Exporter {
-    Remote export(Remote impl) throws InterruptedException, UnknownHostException;
+    <T extends Remote> T export(Remote impl) throws InterruptedException, UnknownHostException;
 
     @SuppressWarnings({"UnusedDeclaration", "SpellCheckingInspection"})
     boolean unexport();

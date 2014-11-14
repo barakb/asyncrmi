@@ -49,7 +49,7 @@ Async RMI is modern Java RMI implementation.
 
 ##An example.
 
-####[The remote interface](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/Example.java).
+####[The remote interface](https://github.com/barakb/asyncrmi/blob/master/example/src/main/java/org/async/example/embedded/Example.java).
 ```java
 
 public interface Example extends Remote {
@@ -58,7 +58,7 @@ public interface Example extends Remote {
 }
 ```
 
-####[The server and the client](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/ExampleServer.java).
+####[The server and the client](https://github.com/barakb/asyncrmi/blob/master/example/src/main/java/org/async/example/embedded/ExampleServer.java).
 ```java
 public class ExampleServer implements Example {
     private static final Logger logger = LoggerFactory.getLogger(ExampleServer.class);
@@ -114,7 +114,7 @@ public class ExampleServer implements Example {
 ####And the output is:
 ```
 2014-11-07 20:35:04 INFO  NettyTransport:133 - RMI server started: /0:0:0:0:0:0:0:0:46770.
-2014-11-07 20:35:04 INFO  ExampleServer:45 - proxy RemoteObject{UnicastRef{remoteObjectAddress=RemoteObjectAddress{url='rmi://127.0.1.1:46770', objectId=0}, remoteInterfaces=[interface org.async.rmi.Exported, interface org.async.rmi.Example]}}@1310540333 saved to file  /home/barakbo/opensource/asyncrmi/ExampleServer.proxy, server is running at: {}:{}
+2014-11-07 20:35:04 INFO  ExampleServer:45 - proxy RemoteObject{UnicastRef{remoteObjectAddress=RemoteObjectAddress{url='rmi://127.0.1.1:46770', objectId=0}, remoteInterfaces=[interface org.async.rmi.Exported, interface org.async.example.embedded.Example]}}@1310540333 saved to file  /home/barakbo/opensource/asyncrmi/ExampleServer.proxy, server is running at: {}:{}
 2014-11-07 20:35:04 DEBUG UnicastRef:83 - 127.0.0.1:52244 --> 127.0.1.1:46770 : Request [echo] {requestId=0, objectId=0, methodId=5525131960618330777, params=[foo]}
 2014-11-07 20:35:04 DEBUG ExampleServer:20 - Server: called echo(foo)
 2014-11-07 20:35:04 DEBUG ObjectRef:63 - 127.0.1.1:46770 --> 127.0.0.1:52244 : Response [echo] {requestId=0, result=foo, error=null}
@@ -128,7 +128,7 @@ public class ExampleServer implements Example {
 2014-11-07 20:35:14 DEBUG ObjectRef:63 - 127.0.1.1:46770 --> 127.0.0.1:52246 : Response [futuredEcho] {requestId=2, result=async foo, error=null}
 2014-11-07 20:35:14 DEBUG ExampleServer:60 - client got async res : async foo
 ```
-[Try it out](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/ExampleServer.java)
+[Try it out](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/example/embedded)
 
 
 The full [documentation](http://barakb.github.io/asyncrmi) page.

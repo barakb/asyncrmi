@@ -1,12 +1,12 @@
-package org.async.rmi;
+package org.async.example.embedded;
 
+import org.async.rmi.Modules;
+import org.async.rmi.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.concurrent.CompletableFuture;
-
-import static org.async.rmi.Util.writeAndRead;
 
 /**
  * Created by Barak Bar Orion
@@ -40,8 +40,8 @@ public class ExampleServer implements Example {
         Example example;
         try {
             ExampleServer server = new ExampleServer();
-            Example proxy = (Example) Modules.getInstance().getExporter().export(server);
-            example = writeAndRead(proxy);
+            Example proxy = Modules.getInstance().getExporter().export(server);
+            example = Util.writeAndRead(proxy);
             logger.info("proxy is: {}", proxy);
         } catch (Exception e) {
             logger.error("ExampleServer exception while exporting:", e);

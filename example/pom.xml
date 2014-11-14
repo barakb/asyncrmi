@@ -3,18 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.async</groupId>
-    <artifactId>asyncrmi</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <artifactId>asyncrmi-example</artifactId>
     <packaging>jar</packaging>
+    <version>0.1</version>
 
-    <name>rmi</name>
+    <name>rmi/Example</name>
+
     <url>http://barakb.github.io/asyncrmi/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4jVersion>1.7.7</slf4jVersion>
         <log4jVersion>1.2.17</log4jVersion>
-        <nettyVersion>5.0.0.Alpha2-SNAPSHOT</nettyVersion>
+        <!--<nettyVersion>5.0.0.Alpha2-SNAPSHOT</nettyVersion>-->
     </properties>
 
     <licenses>
@@ -35,14 +36,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>5.0.0.Alpha2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.18.0-GA</version>
+            <groupId>org.async</groupId>
+            <artifactId>asyncrmi</artifactId>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
