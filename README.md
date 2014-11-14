@@ -5,14 +5,14 @@ master | gh-pages
 Async RMI is modern Java RMI implementation.
 
 
-###Todo
-- [x] Support asynchronous calls.
-  - [x] Java 8 CompletableFuture.
-  - [x] Client timeout.
-  - [ ] One way calls.
-- [ ] Allow configure thread policies.
+###Feature set (todo add link doc page end link to example dir for done)
+- [x] Support asynchronous calls. [documentation](http://barakb.github.io/asyncrmi/asynchronous-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
+  - [x] Java 8 CompletableFuture. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
+  - [x] Client timeout. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout)
+  - [ ] One way calls. [documentation](http://barakb.github.io/asyncrmi/oneway-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway)
+- [ ] Allow configure thread policies. [documentation](http://barakb.github.io/asyncrmi/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
 - [x] Class loading.
-  - [x] Code base.
+  - [x] Code base. [documentation](http://barakb.github.io/asyncrmi/dynamic-class-loading.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
   - [ ] Direct class loading.
 - [ ] Ease of usage.
   - [x] Maven build.
@@ -28,10 +28,10 @@ Async RMI is modern Java RMI implementation.
   - [ ] Finalize
 - [ ] Performance.
   - [x] Connection pooling.
-  - [x] Requests pipeline.
+  - [x] Requests pipeline. [documentation](http://barakb.github.io/asyncrmi/request-pipeline.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline)
   - [ ] Benchmark.
 - [x] Logging
-  - [x] Add ip addresses.
+  - [x] Add ip addresses. [documentation](http://barakb.github.io/asyncrmi/logging.html)
 - [ ] Networking.
     - [x] un publish.
     - [ ] handshake.
