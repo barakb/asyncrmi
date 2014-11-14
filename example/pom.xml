@@ -15,7 +15,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4jVersion>1.7.7</slf4jVersion>
         <log4jVersion>1.2.17</log4jVersion>
-        <!--<nettyVersion>5.0.0.Alpha2-SNAPSHOT</nettyVersion>-->
     </properties>
 
     <licenses>
@@ -25,6 +24,29 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <id>barakb</id>
+            <name>Barak Bar Orion</name>
+            <email>barakb@gmail.com</email>
+            <roles>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <id>rkimhi</id>
+            <name>Revital Kimhi</name>
+            <email/>
+            <roles>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
 
     <scm>
         <url>https://github.com/barakb/asyncrmi</url>
