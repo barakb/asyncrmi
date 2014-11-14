@@ -128,7 +128,7 @@ public class ExampleServer implements Example {
 2014-11-07 20:35:14 DEBUG ObjectRef:63 - 127.0.1.1:46770 --> 127.0.0.1:52246 : Response [futuredEcho] {requestId=2, result=async foo, error=null}
 2014-11-07 20:35:14 DEBUG ExampleServer:60 - client got async res : async foo
 ```
-[Try it out](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/example/embedded)
+[The example code](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/embedded).
 
 
 The full [documentation](http://barakb.github.io/asyncrmi) page.
