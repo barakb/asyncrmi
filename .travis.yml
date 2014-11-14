@@ -2,7 +2,9 @@ language: java
 jdk:
   - oraclejdk8
 
-# whitelist
+script: "./build.sh"
+
+# white list
 branches:
   only:
     - master
