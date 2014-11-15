@@ -9,7 +9,7 @@ Async RMI is modern Java RMI implementation.
 - [x] Support asynchronous calls. [documentation](http://barakb.github.io/asyncrmi/asynchronous-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
   - [x] Java 8 CompletableFuture. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
   - [x] Client timeout. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout)
-  - [ ] One way calls. [documentation](http://barakb.github.io/asyncrmi/oneway-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway)
+  - [x] One way calls. [documentation](http://barakb.github.io/asyncrmi/oneway-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway)
 - [ ] Allow configure thread policies. [documentation](http://barakb.github.io/asyncrmi/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
 - [x] Class loading.
   - [x] Code base. [documentation](http://barakb.github.io/asyncrmi/dynamic-class-loading.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
