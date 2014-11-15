@@ -4,7 +4,10 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
@@ -15,9 +18,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -35,6 +36,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, FullHttpRequest request) {
+/*
         if (!request.decoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
@@ -68,6 +70,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
             logger.warn("exception while serving request {}, for class {}", request, className, e);
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
+*/
     }
 
     private byte[] getClassBytes(String className) throws IOException {
