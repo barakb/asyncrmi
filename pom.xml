@@ -30,6 +30,7 @@
             <id>barakb</id>
             <name>Barak Bar Orion</name>
             <email>barakb@gmail.com</email>
+            <url>https://github.com/barakb</url>
             <roles>
                 <role>developer</role>
                 <role>maintainer</role>
@@ -39,6 +40,7 @@
         <developer>
             <id>rkimhi</id>
             <name>Revital Kimhi</name>
+            <url>https://github.com/rkimhi</url>
             <email/>
             <roles>
                 <role>developer</role>
