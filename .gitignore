@@ -1,6 +1,7 @@
 *~
 *.jar
 *.class
+*.ser
 *.iml
 .idea
 *.proxy

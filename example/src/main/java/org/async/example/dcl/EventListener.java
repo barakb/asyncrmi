@@ -2,10 +2,8 @@ package org.async.example.dcl;
 
 import org.async.rmi.OneWay;
 
-import java.io.Serializable;
 import java.rmi.Remote;
 import java.util.EventObject;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Barak Bar Orion
@@ -13,6 +11,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface EventListener extends Remote{
 
-    @OneWay
+    @OneWay(fast = true)
     void onEvent(EventObject event);
 }
