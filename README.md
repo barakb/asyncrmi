@@ -23,6 +23,7 @@ Async RMI is modern Java RMI implementation.
   - [x] No code generation.
   - [ ] Closure and streams.
   - [ ] Firewalls.
+  - [x] Auto export. [documentation](http://barakb.github.io/asyncrmi/automatic-exporting.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
 - [ ] DGC.
   - [ ] Leases.
   - [ ] Finalize

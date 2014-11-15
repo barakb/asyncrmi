@@ -98,6 +98,7 @@ public class NettyTransport implements Transport {
 
     @Override
     public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException {
+
         final String address = InetAddress.getLocalHost().getHostAddress();
         ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);

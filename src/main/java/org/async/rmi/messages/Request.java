@@ -37,6 +37,10 @@ public class Request extends Message {
         return params;
     }
 
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
     @Override
     public String toString() {
         if(methodName != null){

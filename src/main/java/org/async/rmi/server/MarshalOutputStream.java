@@ -2,6 +2,8 @@ package org.async.rmi.server;
 
 import org.async.rmi.Exported;
 import org.async.rmi.Modules;
+import org.async.rmi.NoAutoExport;
+import org.async.rmi.client.RMIInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +28,18 @@ public final class MarshalOutputStream extends ObjectOutputStream {
 
     @Override
     protected final Object replaceObject(Object obj) throws IOException {
-        if (obj instanceof Remote && !(obj instanceof Exported)) {
+        if (obj instanceof Remote && !(obj instanceof Exported) && !(obj instanceof RMIInvocationHandler) && isAutoExport(obj)) {
+            logger.debug("Auto exporting {}", obj);
             return export((Remote) obj);
         } else {
             return obj;
         }
     }
+
+    private boolean isAutoExport(Object obj) {
+        return !obj.getClass().isAnnotationPresent(NoAutoExport.class);
+    }
+
 
     @Override
     protected void annotateClass(Class<?> cl) throws IOException {

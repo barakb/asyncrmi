@@ -38,8 +38,13 @@ public class ObjectRef {
     public void invoke(Request request, ChannelHandlerContext ctx) {
         Method method = methodIdToMethodMap.get(request.getMethodId());
         if (method == null) {
-            throw new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl);
+            logger.error("Unknown method id {} in request {} of object ", request.getMethodId(), request,impl);
+            writeResponse(ctx, new Response(request.getRequestId()
+                    , null, new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
+            return;
         }
+        request.setMethodName(method.getName());
+        logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
         try {
             final Object res = method.invoke(impl, request.getParams());
             if (res instanceof Future) {
@@ -56,9 +61,14 @@ public class ObjectRef {
                 writeResponse(ctx, new Response(request.getRequestId(), res, method.getName()));
             }
         } catch (IllegalAccessException e) {
+            logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
             writeResponse(ctx, new Response(request.getRequestId(), null, e));
         } catch (InvocationTargetException e) {
+            logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
             writeResponse(ctx, new Response(request.getRequestId(), null, e.getTargetException()));
+        } catch (Throwable e) {
+            logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
+            writeResponse(ctx, new Response(request.getRequestId(), null, e));
         }
     }
 
