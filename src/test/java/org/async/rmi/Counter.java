@@ -33,4 +33,13 @@ public interface Counter extends Remote {
 
     Future<String> toUpperFuture(String msg);
 
+    @OneWay
+    void sleepSlow(long time);
+
+    @OneWay
+    CompletableFuture<Void> sleepFast(long time);
+
+    void sleepOneWayOnTheImpl(long time);
+
+    void fastSleepOneWayOnTheImpl(long time);
 }

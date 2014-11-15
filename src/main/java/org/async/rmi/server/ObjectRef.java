@@ -2,6 +2,7 @@ package org.async.rmi.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.async.rmi.Modules;
+import org.async.rmi.OneWay;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Util;
@@ -28,25 +29,33 @@ public class ObjectRef {
     private static final Logger logger = LoggerFactory.getLogger(ObjectRef.class);
 
     private final Remote impl;
+    private final Map<Long, OneWay> oneWayMap;
     private Map<Long, Method> methodIdToMethodMap;
 
-    public ObjectRef(Remote impl, Class[] remoteInterfaces) {
+    public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap) {
         this.impl = impl;
+        this.oneWayMap = oneWayMap;
         this.methodIdToMethodMap = createMethodIdToMethodMap(remoteInterfaces);
     }
 
     public void invoke(Request request, ChannelHandlerContext ctx) {
         Method method = methodIdToMethodMap.get(request.getMethodId());
+        OneWay oneWay = oneWayMap.get(request.getMethodId());
         if (method == null) {
-            logger.error("Unknown method id {} in request {} of object ", request.getMethodId(), request,impl);
-            writeResponse(ctx, new Response(request.getRequestId()
-                    , null, new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
+            logger.error("Unknown method id {} in request {} of object ", request.getMethodId(), request, impl);
+            if (oneWay == null) {
+                writeResponse(ctx, new Response(request.getRequestId()
+                        , null, new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
+            }
             return;
         }
         request.setMethodName(method.getName());
         logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
         try {
             final Object res = method.invoke(impl, request.getParams());
+            if(oneWay != null){
+                return;
+            }
             if (res instanceof Future) {
                 final CompletableFuture<Object> completableFuture = toCompletableFuture((Future) res);
                 //noinspection unchecked
@@ -77,7 +86,7 @@ public class ObjectRef {
             //noinspection unchecked
             return (CompletableFuture<Object>) future;
         } else {
-            CompletableFuture<Object> res = new CompletableFuture<Object>();
+            CompletableFuture<Object> res = new CompletableFuture<>();
             CompletableFuture.runAsync(() -> {
                 try {
                     //noinspection unchecked

@@ -1,15 +1,13 @@
 package org.async.rmi.net;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.async.rmi.Configuration;
 import org.async.rmi.Modules;
+import org.async.rmi.OneWay;
 import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
@@ -28,6 +26,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -70,7 +69,8 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public void handleResponse(Response response) {
+    public void handleResponse(Response response, ChannelHandlerContext ctx) {
+        logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
         CompletableFuture<Response> responseFuture = awaitingResponses.remove(response.getRequestId());
         if (responseFuture != null) {
             responseFuture.complete(response);
@@ -78,6 +78,16 @@ public class NettyTransport implements Transport {
             logger.error("unexpected response {}.", response);
         }
     }
+
+   private String getLocalAddress(ChannelHandlerContext ctx){
+       InetSocketAddress address = (InetSocketAddress) ctx.channel().localAddress();
+       return address.getHostString() + ":" + address.getPort();
+   }
+
+   private String getRemoteAddress(ChannelHandlerContext ctx){
+       InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+       return address.getHostString() + ":" + address.getPort();
+   }
 
     @Override
     public void close() throws IOException {
@@ -97,10 +107,10 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException {
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap) throws UnknownHostException, InterruptedException {
 
         final String address = InetAddress.getLocalHost().getHostAddress();
-        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces);
+        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
         RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
         return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId);

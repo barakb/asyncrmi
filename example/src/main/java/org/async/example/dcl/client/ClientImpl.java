@@ -37,6 +37,7 @@ public class ClientImpl {
         logger.info("*************************");
         logger.info("SerializableListener demo");
         logger.info("*************************");
+
         EventListener serializableListener = new SerializableListener(1);
         server.addListener(serializableListener);
         server.triggerEvent(new ClientEvent(ClientImpl.class, 1));
@@ -56,7 +57,7 @@ public class ClientImpl {
         logger.info("*********************");
         logger.info("FilteredListener demo");
         logger.info("*********************");
-        // registering filter listener
+
         FilteredListener evenListener = new FilteredListener(3);
         server.addListener(evenListener);
         for(int i = 0; i < 6; ++i){

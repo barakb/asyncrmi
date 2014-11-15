@@ -32,8 +32,14 @@ public class ShrinkableConnectionPoolTest {
         pool = new ShrinkableConnectionPool(1);
         pool.setFactory(() -> CompletableFuture.completedFuture(new Connection<Message>() {
             private volatile boolean closed = false;
+
             @Override
-            public void send(Message message, CompletableFuture<Response> response) {
+            public void send(Message message) {
+
+            }
+
+            @Override
+            public void sendOneWay(Message message, CompletableFuture<Response> response) {
             }
 
             @Override

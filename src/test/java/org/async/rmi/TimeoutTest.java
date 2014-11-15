@@ -31,7 +31,7 @@ public class TimeoutTest {
         Counter server = new CounterServer();
         Modules.getInstance().getConfiguration().setConfigurePort(0).setClientTimeout(1, TimeUnit.SECONDS);
         exporter = Modules.getInstance().getExporter();
-        proxy = (Counter) exporter.export(server);
+        proxy = exporter.export(server);
         client = writeAndRead(proxy);
 
     }

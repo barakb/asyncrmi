@@ -1,5 +1,8 @@
 package org.async.rmi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 29/10/14.
  */
 public class CounterServer implements Counter {
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger logger = LoggerFactory.getLogger(TimeoutTest.class);
 
     private final AtomicInteger value = new AtomicInteger(0);
 
@@ -103,6 +108,45 @@ public class CounterServer implements Counter {
                 }
             }.start();
             return res;
+        }
+    }
+
+    @Override
+    public void sleepSlow(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            logger.error(e.toString(), e);
+        }
+    }
+
+    @Override
+    public CompletableFuture<Void> sleepFast(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            logger.error(e.toString(), e);
+        }
+        return null;
+    }
+
+    @OneWay
+    @Override
+    public void sleepOneWayOnTheImpl(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            logger.error(e.toString(), e);
+        }
+    }
+
+    @OneWay(fast=true)
+    @Override
+    public void fastSleepOneWayOnTheImpl(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            logger.error(e.toString(), e);
         }
     }
 }

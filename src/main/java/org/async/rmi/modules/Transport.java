@@ -1,13 +1,16 @@
 package org.async.rmi.modules;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import org.async.rmi.Configuration;
+import org.async.rmi.OneWay;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.messages.Response;
 
 import java.io.Closeable;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -16,11 +19,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Transport extends Closeable {
 
-    RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration) throws UnknownHostException, InterruptedException;
+    RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap) throws UnknownHostException, InterruptedException;
 
     void addResponseFuture(long requestId, CompletableFuture<Response> responseFuture);
 
-    void handleResponse(Response response);
+    void handleResponse(Response response, ChannelHandlerContext ctx);
 
     EventLoopGroup getClientEventLoopGroup();
 

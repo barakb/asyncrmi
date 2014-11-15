@@ -9,6 +9,7 @@ import java.util.Arrays;
 public class Request extends Message {
     private long objectId;
     private long methodId;
+    private boolean oneWay;
     private Object[] params;
 
     private transient String methodName;
@@ -16,14 +17,14 @@ public class Request extends Message {
     public Request() {
     }
 
-    public Request(long requestId, long objectId, long methodId, Object[] params, String methodName) {
+    public Request(long requestId, long objectId, long methodId, boolean oneWay, Object[] params, String methodName) {
         super(requestId);
         this.objectId = objectId;
         this.methodId = methodId;
+        this.oneWay = oneWay;
         this.params = params;
         this.methodName = methodName;
     }
-
 
     public long getObjectId() {
         return objectId;
@@ -48,6 +49,7 @@ public class Request extends Message {
                     "requestId=" + getRequestId() +
                     ", objectId=" + objectId +
                     ", methodId=" + methodId +
+                    ", oneWay=" + oneWay +
                     ", params=" + Arrays.toString(params) +
                     '}';
         }else{
@@ -55,6 +57,7 @@ public class Request extends Message {
                     "requestId=" + getRequestId() +
                     ", objectId=" + objectId +
                     ", methodId=" + methodId +
+                    ", oneWay=" + oneWay +
                     ", params=" + Arrays.toString(params) +
                     '}';
         }

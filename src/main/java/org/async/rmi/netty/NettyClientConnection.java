@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Barak Bar Orion
@@ -48,9 +49,9 @@ public class NettyClientConnection implements Connection<Message> {
                     closed = true;
                     pool.free(NettyClientConnection.this);
                 });
-            }catch(Exception e){
+            } catch (Exception e) {
                 //noinspection ConstantConditions
-                if(!(e instanceof java.net.ConnectException)){
+                if (!(e instanceof java.net.ConnectException)) {
                     logger.error(e.toString(), e);
                 }
             }
@@ -75,11 +76,27 @@ public class NettyClientConnection implements Connection<Message> {
     }
 
     @Override
-    public void send(Message message, CompletableFuture<Response> response) {
+    public void send(Message message) {
         channelFuture.addListener((ChannelFuture future) -> future.channel().writeAndFlush(message));
     }
 
-    public String getRemoteAddress(){
+    @Override
+    public void sendOneWay(Message message, CompletableFuture<Response> response) {
+        channelFuture.addListener((ChannelFuture future) -> future.channel().writeAndFlush(message)
+                .addListener((ChannelFuture future1) -> {
+                            try {
+                                future1.get();
+                                response.complete(null);
+                            } catch (ExecutionException e) {
+                                response.completeExceptionally(e.getCause());
+                            } catch (Exception e) {
+                                response.completeExceptionally(e);
+                            }
+                        }
+                ));
+    }
+
+    public String getRemoteAddress() {
         return remoteAddress;
     }
 

@@ -1,5 +1,7 @@
 package org.async.rmi.client;
 
+import org.async.rmi.OneWay;
+
 import java.rmi.Remote;
 
 /**
@@ -11,7 +13,8 @@ public interface RemoteRef extends java.io.Externalizable {
     Object invoke(Remote obj,
                   java.lang.reflect.Method method,
                   Object[] params,
-                  long opHash)
+                  long opHash,
+                  OneWay oneWay)
             throws Throwable;
 
 }

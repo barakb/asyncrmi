@@ -23,7 +23,7 @@ public class RMIClientHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 //        super.channelRead(ctx, msg);
         Response response = (Response) msg;
-        Modules.getInstance().getTransport().handleResponse(response);
+        Modules.getInstance().getTransport().handleResponse(response, ctx);
     }
 
 

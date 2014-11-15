@@ -2,6 +2,7 @@ package org.async.rmi.client;
 
 import org.async.rmi.Connection;
 import org.async.rmi.Modules;
+import org.async.rmi.OneWay;
 import org.async.rmi.messages.Message;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
@@ -50,10 +51,10 @@ public class UnicastRef implements RemoteRef {
     }
 
     @Override
-    public Object invoke(Remote obj, Method method, Object[] params, long opHash) throws Throwable {
-        Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, params, method.getName());
-        CompletableFuture<Response> future = send(request);
-        if(Future.class.isAssignableFrom(method.getReturnType())){
+    public Object invoke(Remote obj, Method method, Object[] params, long opHash, OneWay oneWay) throws Throwable {
+        Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, oneWay != null, params, method.getName());
+        CompletableFuture<Response> future = send(request, oneWay);
+        if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
             CompletableFuture<Object> result = new CompletableFuture();
             future.handle((response, throwable) -> {
@@ -67,12 +68,30 @@ public class UnicastRef implements RemoteRef {
                 return null;
             });
             return result;
+        } else if (oneWay != null) {
+            if (Future.class.isAssignableFrom(method.getReturnType())) {
+                //noinspection unchecked
+                CompletableFuture<Void> result = new CompletableFuture();
+                future.handle((response, throwable) -> {
+                    if (null != throwable) {
+                        result.completeExceptionally(throwable);
+                    } else {
+                        result.complete(null);
+                    }
+                    return null;
+                });
+                return result;
+            } else if(oneWay.fast()){
+                return null;
+            }else{
+                return getResponseResult(translateClientError(future));
+            }
         } else {
             return getResponseResult(translateClientError(future));
         }
     }
 
-    private CompletableFuture<Response> send(Request request) {
+    private CompletableFuture<Response> send(Request request, OneWay oneWay) {
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request.getRequestId(), responseFuture);
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
@@ -80,8 +99,12 @@ public class UnicastRef implements RemoteRef {
             if (throwable != null) {
                 responseFuture.completeExceptionally(throwable);
             } else {
-                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(),request);
-                connection.send(request, responseFuture);
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+                if (oneWay != null) {
+                    connection.sendOneWay(request, responseFuture);
+                } else {
+                    connection.send(request);
+                }
             }
         });
         return responseFuture;
@@ -102,6 +125,9 @@ public class UnicastRef implements RemoteRef {
     }
 
     private Object getResponseResult(Response response) throws Throwable {
+        if (response == null) {
+            return null;
+        }
         if (response.isError()) {
             //noinspection ThrowableResultOfMethodCallIgnored
             Throwable t = response.getError();

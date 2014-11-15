@@ -31,7 +31,7 @@ public class FutureInterfaceTest {
     public static void beforeClass() throws Exception {
         Counter server = new CounterServer();
         exporter = Modules.getInstance().getExporter();
-        proxy = (Counter) exporter.export(server);
+        proxy = exporter.export(server);
         client = writeAndRead(proxy);
 
     }
