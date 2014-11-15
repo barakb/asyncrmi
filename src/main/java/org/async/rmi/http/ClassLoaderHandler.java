@@ -4,10 +4,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
@@ -18,7 +15,10 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -36,17 +36,16 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, FullHttpRequest request) {
-/*
-        if (!request.decoderResult().isSuccess()) {
+        if (!request.getDecoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
         }
-        if (request.method() != GET) {
+        if (request.getMethod() != GET) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
 
-        final String uri = request.uri();
+        final String uri = request.getUri();
         final String className = sanitizeUri(uri);
         if (className == null) {
             sendError(ctx, FORBIDDEN);
@@ -56,7 +55,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
         try {
             byte[] bytes = getClassBytes(className);
 
-            boolean keepAlive = HttpHeaderUtil.isKeepAlive(request);
+            boolean keepAlive = isKeepAlive(request);
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(bytes));
             response.headers().set(CONTENT_TYPE, "application/x-java-class");
             response.headers().set(CONTENT_LENGTH, String.valueOf(response.content().readableBytes()));
@@ -70,7 +69,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
             logger.warn("exception while serving request {}, for class {}", request, className, e);
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
-*/
+
     }
 
     private byte[] getClassBytes(String className) throws IOException {
