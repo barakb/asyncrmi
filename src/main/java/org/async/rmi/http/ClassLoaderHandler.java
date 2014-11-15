@@ -57,7 +57,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
             boolean keepAlive = HttpHeaderUtil.isKeepAlive(request);
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(bytes));
             response.headers().set(CONTENT_TYPE, "application/x-java-class");
-            response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
+            response.headers().set(CONTENT_LENGTH, String.valueOf(response.content().readableBytes()));
             if (!keepAlive) {
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             } else {
