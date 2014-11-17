@@ -55,15 +55,19 @@
     </scm>
 
     <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
     </repositories>
-
 
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <!--<version>5.0.0.Alpha2-SNAPSHOT</version>-->
-            <version>5.0.0.Alpha1</version>
+            <version>5.0.0.Alpha2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>

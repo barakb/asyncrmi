@@ -16,7 +16,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -36,16 +35,16 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, FullHttpRequest request) {
-        if (!request.getDecoderResult().isSuccess()) {
+        if (!request.decoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
         }
-        if (request.getMethod() != GET) {
+        if (request.method() != GET) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
         }
 
-        final String uri = request.getUri();
+        final String uri = request.uri();
         final String className = sanitizeUri(uri);
         if (className == null) {
             sendError(ctx, FORBIDDEN);
@@ -55,7 +54,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
         try {
             byte[] bytes = getClassBytes(className);
 
-            boolean keepAlive = isKeepAlive(request);
+            boolean keepAlive = HttpHeaderUtil.isKeepAlive(request);
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(bytes));
             response.headers().set(CONTENT_TYPE, "application/x-java-class");
             response.headers().set(CONTENT_LENGTH, String.valueOf(response.content().readableBytes()));

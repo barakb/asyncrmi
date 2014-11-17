@@ -27,6 +27,9 @@ public interface Transport extends Closeable {
 
     EventLoopGroup getClientEventLoopGroup();
 
-    void listen() throws InterruptedException;
+    void listen(ClassLoader cl) throws InterruptedException, UnknownHostException;
 
+    EventLoopGroup getAcceptGroup();
+
+    EventLoopGroup getWorkerGroup();
 }

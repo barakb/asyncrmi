@@ -32,7 +32,7 @@ public class DynamicExporter implements Exporter {
         if (impl instanceof Exported) {
             return impl;
         }
-        Modules.getInstance().getTransport().listen();
+        Modules.getInstance().getTransport().listen(impl.getClass().getClassLoader());
 
         Remote proxy = createProxy(impl);
 

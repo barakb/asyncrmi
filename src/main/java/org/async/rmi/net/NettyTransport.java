@@ -3,6 +3,7 @@ package org.async.rmi.net;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.async.rmi.Configuration;
@@ -12,6 +13,7 @@ import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.client.UnicastRef;
+import org.async.rmi.http.ClassLoaderServer;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Transport;
 import org.async.rmi.netty.MessageDecoder;
@@ -48,6 +50,7 @@ public class NettyTransport implements Transport {
     private AtomicBoolean severStarted = new AtomicBoolean(false);
     private volatile Channel serverChannel;
     private final PendingRequests pendingRequests = new PendingRequests();
+    private Channel httpChannel;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final Timer timer = new Timer(true);
@@ -99,6 +102,9 @@ public class NettyTransport implements Transport {
                 workerGroup.shutdownGracefully();
                 workerGroup = null;
                 severStarted.set(false);
+                if(httpChannel != null){
+                    httpChannel.close();
+                }
             } catch (InterruptedException e) {
                 throw new IOException(e);
             }
@@ -117,7 +123,7 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public void listen() throws InterruptedException {
+    public void listen(ClassLoader cl) throws InterruptedException, UnknownHostException {
         if (severStarted.compareAndSet(false, true)) {
             if (acceptGroup == null) {
                 acceptGroup = new NioEventLoopGroup(1);
@@ -144,6 +150,7 @@ public class NettyTransport implements Transport {
             logger.info("RMI server started: {}.", serverChannel.localAddress());
             int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
             configuration.setActualPort(actualPort);
+            startHttpServer(cl);
         }
     }
 
@@ -155,5 +162,28 @@ public class NettyTransport implements Transport {
     @Override
     public EventLoopGroup getClientEventLoopGroup() {
         return clientEventLoopGroup;
+    }
+
+    @Override
+    public EventLoopGroup getAcceptGroup() {
+        return acceptGroup;
+    }
+
+    @Override
+    public EventLoopGroup getWorkerGroup() {
+        return workerGroup;
+    }
+
+    private void startHttpServer(ClassLoader classLoader) throws InterruptedException, UnknownHostException {
+        String codeBase = System.getProperty("java.rmi.server.codebase", null);
+        if(codeBase == null || codeBase.matches("[0-9]+")){
+            int port = (codeBase == null) ? 0 : Integer.valueOf(codeBase);
+            httpChannel = ClassLoaderServer.run(acceptGroup, workerGroup, port, classLoader);
+            InetSocketAddress inetSocketAddress = ((ServerSocketChannel) httpChannel).localAddress();
+            port = inetSocketAddress.getPort();
+            String hostName = InetAddress.getLocalHost().getHostName();
+            System.setProperty("java.rmi.server.codebase", "http://" + hostName + ":" + port + "/");
+            logger.info("Embedded HTTP server run at {} java.rmi.server.codebase is set to {} ", inetSocketAddress , System.getProperty("java.rmi.server.codebase"));
+        }
     }
 }
