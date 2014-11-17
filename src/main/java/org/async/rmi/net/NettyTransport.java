@@ -3,7 +3,6 @@ package org.async.rmi.net;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.async.rmi.Configuration;
@@ -50,10 +49,10 @@ public class NettyTransport implements Transport {
     private AtomicBoolean severStarted = new AtomicBoolean(false);
     private volatile Channel serverChannel;
     private final PendingRequests pendingRequests = new PendingRequests();
-    private Channel httpChannel;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final Timer timer = new Timer(true);
+    private ClassLoaderServer classLoaderServer;
 
     public NettyTransport() {
         timer.schedule(new TimerTask() {
@@ -82,15 +81,15 @@ public class NettyTransport implements Transport {
         }
     }
 
-   private String getLocalAddress(ChannelHandlerContext ctx){
-       InetSocketAddress address = (InetSocketAddress) ctx.channel().localAddress();
-       return address.getHostString() + ":" + address.getPort();
-   }
+    private String getLocalAddress(ChannelHandlerContext ctx) {
+        InetSocketAddress address = (InetSocketAddress) ctx.channel().localAddress();
+        return address.getHostString() + ":" + address.getPort();
+    }
 
-   private String getRemoteAddress(ChannelHandlerContext ctx){
-       InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-       return address.getHostString() + ":" + address.getPort();
-   }
+    private String getRemoteAddress(ChannelHandlerContext ctx) {
+        InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+        return address.getHostString() + ":" + address.getPort();
+    }
 
     @Override
     public void close() throws IOException {
@@ -102,8 +101,8 @@ public class NettyTransport implements Transport {
                 workerGroup.shutdownGracefully();
                 workerGroup = null;
                 severStarted.set(false);
-                if(httpChannel != null){
-                    httpChannel.close();
+                if (classLoaderServer != null) {
+                    classLoaderServer.close();
                 }
             } catch (InterruptedException e) {
                 throw new IOException(e);
@@ -125,17 +124,12 @@ public class NettyTransport implements Transport {
     @Override
     public void listen(ClassLoader cl) throws InterruptedException, UnknownHostException {
         if (severStarted.compareAndSet(false, true)) {
-            if (acceptGroup == null) {
-                acceptGroup = new NioEventLoopGroup(1);
-            }
-            if (workerGroup == null) {
-                workerGroup = new NioEventLoopGroup();
-            }
+            acceptGroup = getAcceptGroup();
+            workerGroup = getWorkerGroup();
             Configuration configuration = Modules.getInstance().getConfiguration();
             ServerBootstrap b = new ServerBootstrap();
             b.group(acceptGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-//                .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
@@ -150,7 +144,7 @@ public class NettyTransport implements Transport {
             logger.info("RMI server started: {}.", serverChannel.localAddress());
             int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
             configuration.setActualPort(actualPort);
-            startHttpServer(cl);
+            classLoaderServer = new ClassLoaderServer(cl);
         }
     }
 
@@ -165,25 +159,18 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public EventLoopGroup getAcceptGroup() {
+    public synchronized EventLoopGroup getAcceptGroup() {
+        if (acceptGroup == null) {
+            acceptGroup = new NioEventLoopGroup(1);
+        }
         return acceptGroup;
     }
 
     @Override
-    public EventLoopGroup getWorkerGroup() {
-        return workerGroup;
-    }
-
-    private void startHttpServer(ClassLoader classLoader) throws InterruptedException, UnknownHostException {
-        String codeBase = System.getProperty("java.rmi.server.codebase", null);
-        if(codeBase == null || codeBase.matches("[0-9]+")){
-            int port = (codeBase == null) ? 0 : Integer.valueOf(codeBase);
-            httpChannel = ClassLoaderServer.run(acceptGroup, workerGroup, port, classLoader);
-            InetSocketAddress inetSocketAddress = ((ServerSocketChannel) httpChannel).localAddress();
-            port = inetSocketAddress.getPort();
-            String hostName = InetAddress.getLocalHost().getHostName();
-            System.setProperty("java.rmi.server.codebase", "http://" + hostName + ":" + port + "/");
-            logger.info("Embedded HTTP server run at {} java.rmi.server.codebase is set to {} ", inetSocketAddress , System.getProperty("java.rmi.server.codebase"));
+    public synchronized EventLoopGroup getWorkerGroup() {
+        if (workerGroup == null) {
+            workerGroup = new NioEventLoopGroup();
         }
+        return workerGroup;
     }
 }
