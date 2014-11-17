@@ -10,11 +10,11 @@ Async RMI is modern Java RMI implementation.
   - [x] Java 8 CompletableFuture. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
   - [x] Client timeout. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout)
   - [x] One way calls. [documentation](http://barakb.github.io/asyncrmi/oneway-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway)
-- [ ] Allow configure thread policies. [documentation](http://barakb.github.io/asyncrmi/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
+- [ ] Allow configurable thread policies. [documentation](http://barakb.github.io/asyncrmi/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
 - [x] Class loading.
   - [x] Code base. [documentation](http://barakb.github.io/asyncrmi/dynamic-class-loading.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
   - [ ] Direct class loading.
-- [ ] Ease of usage.
+- [ ] Ease of use.
   - [x] Maven build.
   - [x] Use Oracle RMI marker interfaces.
     - [x] Remote.
@@ -32,12 +32,12 @@ Async RMI is modern Java RMI implementation.
   - [x] Requests pipeline. [documentation](http://barakb.github.io/asyncrmi/request-pipeline.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline)
   - [ ] Benchmark.
 - [x] Logging
-  - [x] Add ip addresses. [documentation](http://barakb.github.io/asyncrmi/logging.html)
+  - [x] Add IP addresses. [documentation](http://barakb.github.io/asyncrmi/logging.html)
 - [ ] Networking.
-    - [x] un publish.
-    - [ ] choosing network interface.
-    - [ ] handshake.
-    - [ ] port range.
+    - [x] Unpublish.
+    - [ ] Selecting network interface.
+    - [ ] Handshake.
+    - [ ] Port range.
     - [ ] TSL.
 - [ ] Client.
    - [ ] Close.
@@ -47,7 +47,7 @@ Async RMI is modern Java RMI implementation.
 - Install Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 - Install [maven](http://maven.apache.org/).
 - Clone the project `git clone git@github.com:barakb/asyncrmi.git` or download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file. 
-- Change dir to the asyncrmi dir and type `mvn install` at the console.
+- Change dir to the asyncrmi directory and type `mvn install` at the console.
 
 ## How to build the examples.
 - After building asyncrmi from the asyncrmi dir type `(cd example; maven install)`
