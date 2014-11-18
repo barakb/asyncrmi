@@ -33,6 +33,9 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error(cause.getMessage(), cause);
+        // todo sep request and the metadata from requested arguements since they can have class loading issue.
+        // or better pass the args as
+        // Response response = new Response();
         ctx.close();
     }
 

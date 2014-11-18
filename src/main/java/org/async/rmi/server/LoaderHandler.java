@@ -36,10 +36,8 @@ public class LoaderHandler {
      */
     private static final ReferenceQueue<Loader> refQueue = new ReferenceQueue<>();
 
-    /**
-     * For test only
-     */
-    static void loadCodeBaseProperty() {
+
+    public static void loadCodeBaseProperty() {
         String prop = System.getProperty("java.rmi.server.codebase", null);
         if (prop != null && prop.trim().length() > 0) {
             // normalize the string to allow better caching.

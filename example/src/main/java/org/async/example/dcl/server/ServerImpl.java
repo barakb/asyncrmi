@@ -51,6 +51,7 @@ public class ServerImpl implements Server {
         System.setProperty("side", "server");
         Server server = new ServerImpl();
         Util.writeToFile(server, new File(SER_FILE_NAME));
+        Util.writeToFile(server, new File(new File(".."), SER_FILE_NAME));
         Thread.sleep(Long.MAX_VALUE);
     }
 }

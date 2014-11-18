@@ -9,8 +9,8 @@ import java.lang.reflect.Proxy;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Barak Bar Orion
@@ -24,11 +24,11 @@ public class DynamicExporter implements Exporter {
     private Map<Long, Remote> exportedObjects;
 
     public DynamicExporter() {
-        exportedObjects = new HashMap<>();
+        exportedObjects = new ConcurrentHashMap<>();
     }
 
     @Override
-    public synchronized Remote export(Remote impl) throws InterruptedException, UnknownHostException {
+    public Remote export(Remote impl) throws InterruptedException, UnknownHostException {
         if (impl instanceof Exported) {
             return impl;
         }
@@ -45,7 +45,7 @@ public class DynamicExporter implements Exporter {
      * {@inheritDoc}
      */
     @Override
-    synchronized public boolean unexport() {
+    public boolean unexport() {
         for (Long objectId : exportedObjects.keySet()) {
             exportedObjects.remove(objectId);
             Modules.getInstance().getObjectRepository().remove(objectId);
@@ -56,7 +56,7 @@ public class DynamicExporter implements Exporter {
 
     @SuppressWarnings("SpellCheckingInspection")
     @Override
-    synchronized public boolean unexport(Remote obj) {
+    public boolean unexport(Remote obj) {
         if (obj instanceof Exported) {
             long objectId = ((Exported) obj).getObjectId();
             if (obj.equals(exportedObjects.get(objectId))) {

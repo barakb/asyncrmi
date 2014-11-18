@@ -49,7 +49,7 @@ public class NettyTransport implements Transport {
     private AtomicBoolean severStarted = new AtomicBoolean(false);
     private volatile Channel serverChannel;
     private final PendingRequests pendingRequests = new PendingRequests();
-
+    private final AtomicBoolean serverClassLoaderStarted = new AtomicBoolean(false);
     @SuppressWarnings("FieldCanBeLocal")
     private final Timer timer = new Timer(true);
     private ClassLoaderServer classLoaderServer;
@@ -144,7 +144,19 @@ public class NettyTransport implements Transport {
             logger.info("RMI server started: {}.", serverChannel.localAddress());
             int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
             configuration.setActualPort(actualPort);
-            classLoaderServer = new ClassLoaderServer(cl);
+            startClassLoaderServer(cl);
+        }
+    }
+
+    public void startClassLoaderServer(ClassLoader cl){
+        if(serverClassLoaderStarted.compareAndSet(false, true)){
+            try {
+                acceptGroup = getAcceptGroup();
+                workerGroup = getWorkerGroup();
+                classLoaderServer = new ClassLoaderServer(cl);
+            }catch(Exception e){
+                logger.error("Failed to run internal http class loader server", e);
+            }
         }
     }
 

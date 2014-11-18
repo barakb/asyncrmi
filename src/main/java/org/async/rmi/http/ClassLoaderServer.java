@@ -8,6 +8,7 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.async.rmi.Modules;
 import org.async.rmi.modules.Transport;
+import org.async.rmi.server.LoaderHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class ClassLoaderServer implements Closeable {
             port = inetSocketAddress.getPort();
             String hostName = InetAddress.getLocalHost().getHostName();
             System.setProperty("java.rmi.server.codebase", "http://" + hostName + ":" + port + "/");
+            LoaderHandler.loadCodeBaseProperty();
             logger.info("Embedded HTTP server run at {} java.rmi.server.codebase is set to {} ", inetSocketAddress, System.getProperty("java.rmi.server.codebase"));
         } else {
             httpChannel = null;
