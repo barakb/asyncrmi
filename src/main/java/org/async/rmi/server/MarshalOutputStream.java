@@ -43,7 +43,9 @@ public final class MarshalOutputStream extends ObjectOutputStream {
 
     @Override
     protected void annotateClass(Class<?> cl) throws IOException {
-        writeLocation(LoaderHandler.getClassAnnotation(cl));
+        String classAnnotation = LoaderHandler.getClassAnnotation(cl);
+//        logger.info("class {}, classAnnotation {}",  cl, classAnnotation);
+        writeLocation(classAnnotation);
     }
 
     void writeLocation(String location) throws IOException {

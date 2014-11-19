@@ -1,7 +1,6 @@
 package org.async.rmi;
 
 import org.async.rmi.modules.Util;
-import sun.rmi.runtime.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -51,6 +50,33 @@ public class RMIUtil implements Util {
             throw new SecurityException(complain.getMessage());
         }
         return hash;
+    }
+
+
+    @Override
+    public MarshalledObject[] marshalParams(Object[] params) throws IOException {
+        if (params == null) {
+            return null;
+        }
+        MarshalledObject[] res = new MarshalledObject[params.length];
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            res[i] = new MarshalledObject<>(param);
+        }
+        return res;
+    }
+
+    @Override
+    public Object[] unMarshalParams(MarshalledObject[] params) throws IOException, ClassNotFoundException {
+        if (params == null) {
+            return null;
+        }
+        Object[] res = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            MarshalledObject param = params[i];
+            res[i] = param.get();
+        }
+        return res;
     }
 
 

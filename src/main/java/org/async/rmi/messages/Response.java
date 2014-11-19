@@ -41,10 +41,16 @@ public class Response extends Message {
 
     @Override
     public String toString() {
-        return "Response [" + callDescription + "] {" +
-                "requestId=" + getRequestId() +
-                ", result=" + result +
-                ", error=" + error +
-                '}';
+        if(isError()){
+            return "Response [" + callDescription + "] {" +
+                    "requestId=" + getRequestId() +
+                    ", error=" + error +
+                    '}';
+        }else {
+            return "Response [" + callDescription + "] {" +
+                    "requestId=" + getRequestId() +
+                    ", result=" + result +
+                    '}';
+        }
     }
 }

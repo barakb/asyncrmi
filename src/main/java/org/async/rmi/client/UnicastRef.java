@@ -1,6 +1,7 @@
 package org.async.rmi.client;
 
 import org.async.rmi.Connection;
+import org.async.rmi.MarshalledObject;
 import org.async.rmi.Modules;
 import org.async.rmi.OneWay;
 import org.async.rmi.messages.Message;
@@ -54,9 +55,15 @@ public class UnicastRef implements RemoteRef {
 
     @Override
     public Object invoke(Remote obj, Method method, Object[] params, long opHash, OneWay oneWay) throws Throwable {
+
+        Modules.getInstance().getTransport().startClassLoaderServer(Thread.currentThread().getContextClassLoader());
+
+        MarshalledObject [] marshalledParams = Modules.getInstance().getUtil().marshalParams(params);
+
         Request request = new Request(nextRequestId.getAndIncrement()
                 , remoteObjectAddress.getObjectId(), opHash, oneWay != null
-                , params, method.getName(), callDescription);
+                , marshalledParams, method.getName(), callDescription);
+
         CompletableFuture<Response> future = send(request, oneWay);
         if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
@@ -96,7 +103,6 @@ public class UnicastRef implements RemoteRef {
     }
 
     private CompletableFuture<Response> send(Request request, OneWay oneWay) {
-        Modules.getInstance().getTransport().startClassLoaderServer(Thread.currentThread().getContextClassLoader());
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request, responseFuture);
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();

@@ -1,5 +1,8 @@
 package org.async.rmi.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -10,6 +13,8 @@ import java.io.ObjectStreamClass;
  * 11/4/14.
  */
 public class MarshalInputStream extends ObjectInputStream {
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger logger = LoggerFactory.getLogger(MarshalInputStream.class);
 
     public MarshalInputStream(InputStream in) throws IOException {
         super(in);
@@ -26,7 +31,7 @@ public class MarshalInputStream extends ObjectInputStream {
         if (annotation instanceof String) {
             codebase = (String) annotation;
         }
-
+//        logger.info("class {}, classAnnotation {}",  className, codebase);
         try {
             return LoaderHandler.loadClass(codebase, className, defaultLoader);
         } catch (ClassNotFoundException e) {

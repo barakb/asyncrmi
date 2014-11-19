@@ -14,6 +14,9 @@ public class MarshalledObject<T> implements Externalizable {
 
     private byte[] bytes;
 
+    public MarshalledObject() {
+    }
+
     public MarshalledObject(T object) throws IOException {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              MarshalOutputStream marshalOutputStream = new MarshalOutputStream(byteArrayOutputStream)) {
@@ -32,14 +35,12 @@ public class MarshalledObject<T> implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeInt(bytes.length);
-        out.write(bytes);
+        out.writeObject(bytes);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        bytes = new byte[in.readInt()];
-        in.read(bytes);
+        bytes = (byte[]) in.readObject();
     }
 
     @Override
@@ -57,4 +58,6 @@ public class MarshalledObject<T> implements Externalizable {
     public int hashCode() {
         return Arrays.hashCode(bytes);
     }
+
+
 }

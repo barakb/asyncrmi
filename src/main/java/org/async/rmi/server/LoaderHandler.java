@@ -69,7 +69,6 @@ public class LoaderHandler {
 
     public static String getClassAnnotation(Class<?> cl) {
         String name = cl.getName();
-
         int nameLength = name.length();
         if (nameLength > 0 && name.charAt(0) == '[') {
             int i = 1;

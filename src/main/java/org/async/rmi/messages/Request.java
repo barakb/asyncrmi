@@ -1,6 +1,6 @@
 package org.async.rmi.messages;
 
-import java.util.Arrays;
+import org.async.rmi.MarshalledObject;
 
 /**
  * Created by Barak Bar Orion
@@ -10,7 +10,7 @@ public class Request extends Message {
     private long objectId;
     private long methodId;
     private boolean oneWay;
-    private Object[] params;
+    private MarshalledObject[] params;
 
     private transient String methodName;
     private String implClassName;
@@ -19,7 +19,7 @@ public class Request extends Message {
     public Request() {
     }
 
-    public Request(long requestId, long objectId, long methodId, boolean oneWay, Object[] params, String methodName, String implClassName) {
+    public Request(long requestId, long objectId, long methodId, boolean oneWay, MarshalledObject[] params, String methodName, String implClassName) {
         super(requestId);
         this.objectId = objectId;
         this.methodId = methodId;
@@ -37,7 +37,7 @@ public class Request extends Message {
         return methodId;
     }
 
-    public Object[] getParams() {
+    public MarshalledObject[] getParams() {
         return params;
     }
 
@@ -71,9 +71,7 @@ public class Request extends Message {
         return "Request [" + callDescription() + "] {" +
                 "requestId=" + getRequestId() +
                 ", objectId=" + objectId +
-                ", methodId=" + methodId +
                 ", oneWay=" + oneWay +
-                ", params=" + Arrays.toString(params) +
                 '}';
     }
 

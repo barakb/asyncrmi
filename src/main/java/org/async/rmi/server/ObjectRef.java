@@ -55,7 +55,8 @@ public class ObjectRef {
         request.setImplClassName(implClassName);
         logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
         try {
-            final Object res = method.invoke(impl, request.getParams());
+            Object [] params = Modules.getInstance().getUtil().unMarshalParams(request.getParams());
+            final Object res = method.invoke(impl, params);
             if(oneWay != null){
                 return;
             }
