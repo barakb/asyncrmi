@@ -5,9 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.async.rmi.Configuration;
-import org.async.rmi.Modules;
-import org.async.rmi.OneWay;
+import org.async.rmi.*;
 import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
@@ -65,8 +63,8 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public void addResponseFuture(final Request request, CompletableFuture<Response> responseFuture) {
-        ResponseFutureHolder responseFutureHolder = new ResponseFutureHolder(responseFuture, request);
+    public void addResponseFuture(final Request request, CompletableFuture<Response> responseFuture, Trace trace) {
+        ResponseFutureHolder responseFutureHolder = new ResponseFutureHolder(responseFuture, request, trace);
         awaitingResponses.put(request.getRequestId(), responseFutureHolder);
         responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(request.getRequestId()));
         pendingRequests.add(responseFutureHolder);
@@ -78,10 +76,16 @@ public class NettyTransport implements Transport {
         if (responseFutureHolder != null) {
             CompletableFuture<Response> responseFuture = responseFutureHolder.getResponseFuture();
             response.setCallDescription(responseFutureHolder.getRequest().callDescription());
-            logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
+            trace(response, ctx, responseFutureHolder.getTrace());
             responseFuture.complete(response);
         } else {
             logger.error("unexpected response {} --> {} : {}.", getLocalAddress(ctx), getRemoteAddress(ctx), response);
+        }
+    }
+
+    private void trace(Response response, ChannelHandlerContext ctx, Trace trace) {
+        if(trace != null && trace.value() != TraceType.OFF) {
+            logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
         }
     }
 
@@ -116,14 +120,13 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap) throws UnknownHostException, InterruptedException {
-
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException {
         final String address = InetAddress.getLocalHost().getHostAddress();
         final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
-        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, callDescription);
+        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, traceMap, callDescription);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
         RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
-        return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId, callDescription);
+        return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId, traceMap, callDescription);
     }
 
     @Override
@@ -167,8 +170,8 @@ public class NettyTransport implements Transport {
 
     @SuppressWarnings("SpellCheckingInspection")
     private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress
-            , Class[] remoteInterfaces, long objectid, String callDescription) {
-        return new UnicastRef(remoteObjectAddress, remoteInterfaces, objectid, callDescription);
+            , Class[] remoteInterfaces, long objectid, Map<Long, Trace> traceMap, String callDescription) {
+        return new UnicastRef(remoteObjectAddress, remoteInterfaces, objectid, traceMap, callDescription);
     }
 
     @Override

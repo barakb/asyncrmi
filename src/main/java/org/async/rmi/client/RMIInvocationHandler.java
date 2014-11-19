@@ -1,9 +1,6 @@
 package org.async.rmi.client;
 
-import org.async.rmi.Configuration;
-import org.async.rmi.Exported;
-import org.async.rmi.Modules;
-import org.async.rmi.OneWay;
+import org.async.rmi.*;
 import org.async.rmi.modules.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +9,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,6 +35,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     private Class[] remoteInterfaces;
     private RemoteRef ref;
     private Map<Long, OneWay> oneWayMap;
+    private Map<Long, Trace> traceMap;
 
     private transient Configuration configuration;
     private Map<Method, Long> methodToMethodIdMap;
@@ -53,9 +52,11 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         this.exporterContextClassLoader = Thread.currentThread().getContextClassLoader();
         this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
         this.oneWayMap = createOneWayMap();
+        this.traceMap = createTraceMap();
         this.configuration = Modules.getInstance().getConfiguration();
-        this.ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration, oneWayMap);
+        this.ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration, oneWayMap, traceMap);
     }
+
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -139,11 +140,37 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         return mapping;
     }
 
+    private Map<Long, Trace> createTraceMap(){
+        Map<Long, Trace> res = new HashMap<>();
+        for (Method method : methodToMethodIdMap.keySet()) {
+            Trace trace = impl.getClass().getAnnotation(Trace.class);
+            if(trace != null){
+                res.put(methodToMethodIdMap.get(method), trace);
+                continue;
+            }
+            trace = getImplAnnotation(impl, method, Trace.class);
+            if (trace != null) {
+                res.put(methodToMethodIdMap.get(method), trace);
+                continue;
+            }
+            trace = method.getDeclaringClass().getAnnotation(Trace.class);
+            if (trace != null) {
+                res.put(methodToMethodIdMap.get(method), trace);
+                continue;
+            }
+            trace = method.getAnnotation(Trace.class);
+            if (trace != null) {
+                res.put(methodToMethodIdMap.get(method), trace);
+            }
+        }
+        return res;
+    }
+
     private Map<Long, OneWay> createOneWayMap() {
         Map<Long, OneWay> res = new HashMap<>();
 
         for (Method method : methodToMethodIdMap.keySet()) {
-            OneWay oneWay = getImplOneWayAnnotation(impl, method);
+            OneWay oneWay = getImplAnnotation(impl, method, OneWay.class);
             if (oneWay == null) {
                 oneWay = method.getAnnotation(OneWay.class);
             }
@@ -154,9 +181,9 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         return res;
     }
 
-    private OneWay getImplOneWayAnnotation(Remote impl, Method method) {
+    private <T extends Annotation> T getImplAnnotation(Remote impl, Method method, Class<T> annotation) {
         try {
-            return impl.getClass().getMethod(method.getName(), method.getParameterTypes()).getAnnotation(OneWay.class);
+            return impl.getClass().getMethod(method.getName(), method.getParameterTypes()).getAnnotation(annotation);
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -166,6 +193,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(remoteInterfaces);
         out.writeObject(oneWayMap);
+        out.writeObject(traceMap);
         out.writeObject(ref);
     }
 
@@ -174,6 +202,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         remoteInterfaces = (Class[]) in.readObject();
         this.oneWayMap = (Map<Long, OneWay>) in.readObject();
+        this.traceMap = (Map<Long, Trace>) in.readObject();
         this.ref = (RemoteRef) in.readObject();
         this.methodToMethodIdMap = createMethodToMethodIdMap(remoteInterfaces);
         this.configuration = Modules.getInstance().getConfiguration();

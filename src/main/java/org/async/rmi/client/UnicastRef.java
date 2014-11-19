@@ -1,9 +1,6 @@
 package org.async.rmi.client;
 
-import org.async.rmi.Connection;
-import org.async.rmi.MarshalledObject;
-import org.async.rmi.Modules;
-import org.async.rmi.OneWay;
+import org.async.rmi.*;
 import org.async.rmi.messages.Message;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
@@ -20,6 +17,7 @@ import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,15 +35,18 @@ public class UnicastRef implements RemoteRef {
     private static final AtomicLong nextRequestId = new AtomicLong(0);
     private Pool<Connection<Message>> pool;
     private long objectid;
+    private Map<Long, Trace> traceMap;
     private String callDescription;
 
     public UnicastRef() {
     }
 
-    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid, String callDescription) {
+    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid
+            , Map<Long, Trace> traceMap, String callDescription) {
         this.remoteObjectAddress = remoteObjectAddress;
         this.remoteInterfaces = remoteInterfaces;
         this.objectid = objectid;
+        this.traceMap = traceMap;
         this.callDescription = callDescription;
     }
 
@@ -104,13 +105,13 @@ public class UnicastRef implements RemoteRef {
 
     private CompletableFuture<Response> send(Request request, OneWay oneWay) {
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
-        Modules.getInstance().getTransport().addResponseFuture(request, responseFuture);
+        Modules.getInstance().getTransport().addResponseFuture(request, responseFuture, traceMap.get(request.getMethodId()));
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
         connectionFuture.whenComplete((connection, throwable) -> {
             if (throwable != null) {
                 responseFuture.completeExceptionally(throwable);
             } else {
-                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+                trace(request, connection);
                 if (oneWay != null) {
                     connection.sendOneWay(request, responseFuture);
                 } else {
@@ -119,6 +120,13 @@ public class UnicastRef implements RemoteRef {
             }
         });
         return responseFuture;
+    }
+
+    private void trace(Request request, Connection<Message> connection) {
+        Trace trace = traceMap.get(request.getMethodId());
+        if(trace != null && trace.value() != TraceType.OFF) {
+            logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+        }
     }
 
     public <T> T translateClientError(Future<T> future) throws Throwable {
@@ -160,6 +168,7 @@ public class UnicastRef implements RemoteRef {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(remoteObjectAddress);
         out.writeObject(remoteInterfaces);
+        out.writeObject(traceMap);
         out.writeLong(objectid);
         out.writeUTF(callDescription);
     }
@@ -168,6 +177,8 @@ public class UnicastRef implements RemoteRef {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         remoteObjectAddress = (RemoteObjectAddress) in.readObject();
         remoteInterfaces = (Class[]) in.readObject();
+        //noinspection unchecked
+        traceMap = (Map<Long, Trace>) in.readObject();
         objectid = in.readLong();
         callDescription = in.readUTF();
         pool = createPool();

@@ -31,8 +31,8 @@ public class PendingRequestsTest {
     public void testAdd() throws Exception {
         CompletableFuture<Response> pending1 = new CompletableFuture<>();
         CompletableFuture<Response> pending2 = new CompletableFuture<>();
-        pendingRequests.add(new ResponseFutureHolder(pending1, null), 2);
-        pendingRequests.add(new ResponseFutureHolder(pending2, null), 3);
+        pendingRequests.add(new ResponseFutureHolder(pending1, null, null), 2);
+        pendingRequests.add(new ResponseFutureHolder(pending2, null, null), 3);
         assertThat(pendingRequests.size(), is(2));
         pendingRequests.process(3);
         assertThat(pending1.isCompletedExceptionally(), is(true));
@@ -43,14 +43,14 @@ public class PendingRequestsTest {
         assertThat(pendingRequests.size(), is(0));
 
         CompletableFuture<Response> pending3 = new CompletableFuture<>();
-        pendingRequests.add(new ResponseFutureHolder(pending3, null), 4);
+        pendingRequests.add(new ResponseFutureHolder(pending3, null, null), 4);
         pending3.completeExceptionally(new RemoteException());
         //noinspection StatementWithEmptyBody
         while (0 < pendingRequests.size()) {
         }
 
         CompletableFuture<Response> pending4 = new CompletableFuture<>();
-        pendingRequests.add(new ResponseFutureHolder(pending4, null), 4);
+        pendingRequests.add(new ResponseFutureHolder(pending4, null, null), 4);
         pending4.complete(null);
         //noinspection StatementWithEmptyBody
         while (0 < pendingRequests.size()) {

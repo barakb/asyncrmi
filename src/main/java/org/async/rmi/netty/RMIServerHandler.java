@@ -10,6 +10,7 @@ import org.async.rmi.server.ObjectRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 
 /**
@@ -33,9 +34,6 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error(cause.getMessage(), cause);
-        // todo sep request and the metadata from requested arguements since they can have class loading issue.
-        // or better pass the args as
-        // Response response = new Response();
         ctx.close();
     }
 
@@ -54,9 +52,20 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
             Response response = new Response(request.getRequestId(), null, request.callDescription()
                     , new RemoteException("Object id [" + request.getObjectId()
                     +   "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
-            logger.debug("--> {}", response);
+            logger.warn("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
             ctx.writeAndFlush(response);
         }
     }
 
+    private String getFrom(ChannelHandlerContext ctx) {
+        return addressAsString((InetSocketAddress) ctx.channel().localAddress());
+    }
+
+    private String addressAsString(InetSocketAddress socketAddress) {
+        return socketAddress.getHostString() + ":" + socketAddress.getPort();
+    }
+
+    private String getTo(ChannelHandlerContext ctx) {
+        return addressAsString((InetSocketAddress) ctx.channel().remoteAddress());
+    }
 }

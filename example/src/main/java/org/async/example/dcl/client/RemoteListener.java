@@ -1,6 +1,7 @@
 package org.async.example.dcl.client;
 
 import org.async.example.dcl.EventListener;
+import org.async.rmi.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ import java.util.EventObject;
  * Created by Barak Bar Orion
  * 11/14/14.
  */
+@Trace
 public class RemoteListener implements EventListener {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(RemoteListener.class);

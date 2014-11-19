@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import org.async.rmi.Configuration;
 import org.async.rmi.OneWay;
+import org.async.rmi.Trace;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
@@ -20,9 +21,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Transport extends Closeable {
 
-    RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap) throws UnknownHostException, InterruptedException;
+    RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap,
+                     Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException;
 
-    void addResponseFuture(Request request, CompletableFuture<Response> responseFuture);
+    void addResponseFuture(Request request, CompletableFuture<Response> responseFuture, Trace trace);
 
     void handleResponse(Response response, ChannelHandlerContext ctx);
 

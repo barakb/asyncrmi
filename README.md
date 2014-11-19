@@ -33,6 +33,7 @@ Async RMI is modern Java RMI implementation.
   - [ ] Benchmark.
 - [x] Logging
   - [x] Add IP addresses. [documentation](http://barakb.github.io/asyncrmi/logging.html)
+  - [x] Enable/disable method call logs via @Trace annotation. [documentation](http://barakb.github.io/asyncrmi/logging.html)
 - [ ] Networking.
     - [x] Unpublish.
     - [ ] Selecting network interface.

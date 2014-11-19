@@ -3,6 +3,8 @@ package org.async.rmi.server;
 import io.netty.channel.ChannelHandlerContext;
 import org.async.rmi.Modules;
 import org.async.rmi.OneWay;
+import org.async.rmi.Trace;
+import org.async.rmi.TraceType;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Util;
@@ -32,10 +34,12 @@ public class ObjectRef {
     private final Map<Long, OneWay> oneWayMap;
     private final String implClassName;
     private Map<Long, Method> methodIdToMethodMap;
+    private Map<Long, Trace> traceMap;
 
-    public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap, String implClassName) {
+    public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap, String implClassName) {
         this.impl = impl;
         this.oneWayMap = oneWayMap;
+        this.traceMap = traceMap;
         this.methodIdToMethodMap = createMethodIdToMethodMap(remoteInterfaces);
         this.implClassName = implClassName;
     }
@@ -47,17 +51,19 @@ public class ObjectRef {
             logger.error("Unknown method id {} in request {} of object ", request.getMethodId(), request, impl);
             if (oneWay == null) {
                 writeResponse(ctx, new Response(request.getRequestId()
-                        , null, request.callDescription(),  new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
+                        , null, request.callDescription(),
+                        new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl))
+                        , request);
             }
             return;
         }
         request.setMethodName(method.getName());
         request.setImplClassName(implClassName);
-        logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
+        trace(request, ctx);
         try {
-            Object [] params = Modules.getInstance().getUtil().unMarshalParams(request.getParams());
+            Object[] params = Modules.getInstance().getUtil().unMarshalParams(request.getParams());
             final Object res = method.invoke(impl, params);
-            if(oneWay != null){
+            if (oneWay != null) {
                 return;
             }
             if (res instanceof Future) {
@@ -65,23 +71,37 @@ public class ObjectRef {
                 //noinspection unchecked
                 completableFuture.whenComplete((o, e) -> {
                     if (o != null) {
-                        writeResponse(ctx, new Response(request.getRequestId(), o, request.callDescription()));
+                        writeResponse(ctx, new Response(request.getRequestId(), o, request.callDescription()), request);
                     } else {
-                        writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
+                        writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e), request);
                     }
                 });
             } else {
-                writeResponse(ctx, new Response(request.getRequestId(), res, request.callDescription()));
+                writeResponse(ctx, new Response(request.getRequestId(), res, request.callDescription()), request);
             }
         } catch (IllegalAccessException e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e), request);
         } catch (InvocationTargetException e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e.getTargetException()));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e.getTargetException()), request);
         } catch (Throwable e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e), request);
+        }
+    }
+
+    private void trace(Request request, ChannelHandlerContext ctx) {
+        Trace trace = traceMap.get(request.getMethodId());
+        if (trace != null && trace.value() != TraceType.OFF) {
+            logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
+        }
+    }
+
+    private void trace(ChannelHandlerContext ctx, Response response, long methodId) {
+        Trace trace = traceMap.get(methodId);
+        if (trace != null && trace.value() != TraceType.OFF) {
+            logger.debug("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
         }
     }
 
@@ -107,8 +127,8 @@ public class ObjectRef {
     }
 
 
-    private void writeResponse(ChannelHandlerContext ctx, Response response) {
-        logger.debug("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
+    private void writeResponse(ChannelHandlerContext ctx, Response response, Request request) {
+        trace(ctx, response, request.getMethodId());
         ctx.writeAndFlush(response);
     }
 
