@@ -13,6 +13,7 @@ import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.client.UnicastRef;
 import org.async.rmi.http.ClassLoaderServer;
+import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Transport;
 import org.async.rmi.netty.MessageDecoder;
@@ -42,7 +43,7 @@ public class NettyTransport implements Transport {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyTransport.class);
 
-    private final ConcurrentHashMap<Long, CompletableFuture<Response>> awaitingResponses = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, ResponseFutureHolder> awaitingResponses = new ConcurrentHashMap<>();
     private final EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup();
     private volatile EventLoopGroup acceptGroup;
     private volatile EventLoopGroup workerGroup;
@@ -64,20 +65,23 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public void addResponseFuture(final long requestId, CompletableFuture<Response> responseFuture) {
-        awaitingResponses.put(requestId, responseFuture);
-        responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(requestId));
-        pendingRequests.add(responseFuture);
+    public void addResponseFuture(final Request request, CompletableFuture<Response> responseFuture) {
+        ResponseFutureHolder responseFutureHolder = new ResponseFutureHolder(responseFuture, request);
+        awaitingResponses.put(request.getRequestId(), responseFutureHolder);
+        responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(request.getRequestId()));
+        pendingRequests.add(responseFutureHolder);
     }
 
     @Override
     public void handleResponse(Response response, ChannelHandlerContext ctx) {
-        logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
-        CompletableFuture<Response> responseFuture = awaitingResponses.remove(response.getRequestId());
-        if (responseFuture != null) {
+        ResponseFutureHolder responseFutureHolder = awaitingResponses.remove(response.getRequestId());
+        if (responseFutureHolder != null) {
+            CompletableFuture<Response> responseFuture = responseFutureHolder.getResponseFuture();
+            response.setCallDescription(responseFutureHolder.getRequest().callDescription());
+            logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
             responseFuture.complete(response);
         } else {
-            logger.error("unexpected response {}.", response);
+            logger.error("unexpected response {} --> {} : {}.", getLocalAddress(ctx), getRemoteAddress(ctx), response);
         }
     }
 
@@ -115,10 +119,11 @@ public class NettyTransport implements Transport {
     public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap) throws UnknownHostException, InterruptedException {
 
         final String address = InetAddress.getLocalHost().getHostAddress();
-        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap);
+        final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
+        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, callDescription);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
         RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
-        return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId);
+        return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId, callDescription);
     }
 
     @Override
@@ -148,21 +153,22 @@ public class NettyTransport implements Transport {
         }
     }
 
-    public void startClassLoaderServer(ClassLoader cl){
-        if(serverClassLoaderStarted.compareAndSet(false, true)){
+    public void startClassLoaderServer(ClassLoader cl) {
+        if (serverClassLoaderStarted.compareAndSet(false, true)) {
             try {
                 acceptGroup = getAcceptGroup();
                 workerGroup = getWorkerGroup();
                 classLoaderServer = new ClassLoaderServer(cl);
-            }catch(Exception e){
+            } catch (Exception e) {
                 logger.error("Failed to run internal http class loader server", e);
             }
         }
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid) {
-        return new UnicastRef(remoteObjectAddress, remoteInterfaces, objectid);
+    private RemoteRef createUnicastRef(RemoteObjectAddress remoteObjectAddress
+            , Class[] remoteInterfaces, long objectid, String callDescription) {
+        return new UnicastRef(remoteObjectAddress, remoteInterfaces, objectid, callDescription);
     }
 
     @Override

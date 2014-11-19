@@ -30,12 +30,14 @@ public class ObjectRef {
 
     private final Remote impl;
     private final Map<Long, OneWay> oneWayMap;
+    private final String implClassName;
     private Map<Long, Method> methodIdToMethodMap;
 
-    public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap) {
+    public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap, String implClassName) {
         this.impl = impl;
         this.oneWayMap = oneWayMap;
         this.methodIdToMethodMap = createMethodIdToMethodMap(remoteInterfaces);
+        this.implClassName = implClassName;
     }
 
     public void invoke(Request request, ChannelHandlerContext ctx) {
@@ -45,11 +47,12 @@ public class ObjectRef {
             logger.error("Unknown method id {} in request {} of object ", request.getMethodId(), request, impl);
             if (oneWay == null) {
                 writeResponse(ctx, new Response(request.getRequestId()
-                        , null, new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
+                        , null, request.callDescription(),  new IllegalArgumentException("Unknown method id " + request.getMethodId() + " in request " + request + " of object " + impl)));
             }
             return;
         }
         request.setMethodName(method.getName());
+        request.setImplClassName(implClassName);
         logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
         try {
             final Object res = method.invoke(impl, request.getParams());
@@ -61,23 +64,23 @@ public class ObjectRef {
                 //noinspection unchecked
                 completableFuture.whenComplete((o, e) -> {
                     if (o != null) {
-                        writeResponse(ctx, new Response(request.getRequestId(), o, method.getName()));
+                        writeResponse(ctx, new Response(request.getRequestId(), o, request.callDescription()));
                     } else {
-                        writeResponse(ctx, new Response(request.getRequestId(), null, e));
+                        writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
                     }
                 });
             } else {
-                writeResponse(ctx, new Response(request.getRequestId(), res, method.getName()));
+                writeResponse(ctx, new Response(request.getRequestId(), res, request.callDescription()));
             }
         } catch (IllegalAccessException e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, e));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
         } catch (InvocationTargetException e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, e.getTargetException()));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e.getTargetException()));
         } catch (Throwable e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
-            writeResponse(ctx, new Response(request.getRequestId(), null, e));
+            writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e));
         }
     }
 

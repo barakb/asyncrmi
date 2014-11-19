@@ -20,7 +20,6 @@ public class ClientImpl {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         System.setProperty("side", "client");
-        logger.info("starting class loader server");
         Server server = (Server) Util.readFromFile(new File(ServerImpl.SER_FILE_NAME));
 
         logger.info("*************************");

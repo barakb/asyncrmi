@@ -2,6 +2,7 @@ package org.async.rmi.client;
 
 import org.async.rmi.Modules;
 import org.async.rmi.messages.Response;
+import org.async.rmi.net.ResponseFutureHolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,8 +31,8 @@ public class PendingRequestsTest {
     public void testAdd() throws Exception {
         CompletableFuture<Response> pending1 = new CompletableFuture<>();
         CompletableFuture<Response> pending2 = new CompletableFuture<>();
-        pendingRequests.add(pending1, 2);
-        pendingRequests.add(pending2, 3);
+        pendingRequests.add(new ResponseFutureHolder(pending1, null), 2);
+        pendingRequests.add(new ResponseFutureHolder(pending2, null), 3);
         assertThat(pendingRequests.size(), is(2));
         pendingRequests.process(3);
         assertThat(pending1.isCompletedExceptionally(), is(true));
@@ -42,14 +43,14 @@ public class PendingRequestsTest {
         assertThat(pendingRequests.size(), is(0));
 
         CompletableFuture<Response> pending3 = new CompletableFuture<>();
-        pendingRequests.add(pending3, 4);
+        pendingRequests.add(new ResponseFutureHolder(pending3, null), 4);
         pending3.completeExceptionally(new RemoteException());
         //noinspection StatementWithEmptyBody
         while (0 < pendingRequests.size()) {
         }
 
         CompletableFuture<Response> pending4 = new CompletableFuture<>();
-        pendingRequests.add(pending4, 4);
+        pendingRequests.add(new ResponseFutureHolder(pending4, null), 4);
         pending4.complete(null);
         //noinspection StatementWithEmptyBody
         while (0 < pendingRequests.size()) {

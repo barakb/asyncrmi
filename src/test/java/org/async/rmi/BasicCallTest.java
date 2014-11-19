@@ -47,14 +47,14 @@ public class BasicCallTest {
         client.reset();
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 500000)
     public void sync() throws Exception {
             assertThat(client.read(), is(0));
             assertThat(client.next(), is(1));
             assertThat(client.read(), is(1));
     }
 
-    @Test(timeout = 5000)
+    @Test(timeout = 500000)
     public void async() throws Exception {
         CompletableFuture<Integer> firstReadFuture = client.asyncRead();
         CompletableFuture<Integer> firstNextFuture = client.asyncNext();

@@ -36,14 +36,16 @@ public class UnicastRef implements RemoteRef {
     private static final AtomicLong nextRequestId = new AtomicLong(0);
     private Pool<Connection<Message>> pool;
     private long objectid;
+    private String callDescription;
 
     public UnicastRef() {
     }
 
-    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid) {
+    public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid, String callDescription) {
         this.remoteObjectAddress = remoteObjectAddress;
         this.remoteInterfaces = remoteInterfaces;
         this.objectid = objectid;
+        this.callDescription = callDescription;
     }
 
     public long getObjectid() {
@@ -52,8 +54,9 @@ public class UnicastRef implements RemoteRef {
 
     @Override
     public Object invoke(Remote obj, Method method, Object[] params, long opHash, OneWay oneWay) throws Throwable {
-
-        Request request = new Request(nextRequestId.getAndIncrement(), remoteObjectAddress.getObjectId(), opHash, oneWay != null, params, method.getName());
+        Request request = new Request(nextRequestId.getAndIncrement()
+                , remoteObjectAddress.getObjectId(), opHash, oneWay != null
+                , params, method.getName(), callDescription);
         CompletableFuture<Response> future = send(request, oneWay);
         if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
@@ -95,7 +98,7 @@ public class UnicastRef implements RemoteRef {
     private CompletableFuture<Response> send(Request request, OneWay oneWay) {
         Modules.getInstance().getTransport().startClassLoaderServer(Thread.currentThread().getContextClassLoader());
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
-        Modules.getInstance().getTransport().addResponseFuture(request.getRequestId(), responseFuture);
+        Modules.getInstance().getTransport().addResponseFuture(request, responseFuture);
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
         connectionFuture.whenComplete((connection, throwable) -> {
             if (throwable != null) {
@@ -152,6 +155,7 @@ public class UnicastRef implements RemoteRef {
         out.writeObject(remoteObjectAddress);
         out.writeObject(remoteInterfaces);
         out.writeLong(objectid);
+        out.writeUTF(callDescription);
     }
 
     @Override
@@ -159,6 +163,7 @@ public class UnicastRef implements RemoteRef {
         remoteObjectAddress = (RemoteObjectAddress) in.readObject();
         remoteInterfaces = (Class[]) in.readObject();
         objectid = in.readLong();
+        callDescription = in.readUTF();
         pool = createPool();
     }
 

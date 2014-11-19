@@ -51,7 +51,9 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
         if(null != objectRef) {
             objectRef.invoke(request, ctx);
         }else{
-            Response response = new Response(request.getRequestId(), null, new RemoteException("Object id [" + request.getObjectId() +   "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
+            Response response = new Response(request.getRequestId(), null, request.callDescription()
+                    , new RemoteException("Object id [" + request.getObjectId()
+                    +   "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
             logger.debug("--> {}", response);
             ctx.writeAndFlush(response);
         }

@@ -13,17 +13,20 @@ public class Request extends Message {
     private Object[] params;
 
     private transient String methodName;
+    private String implClassName;
+
     @SuppressWarnings("UnusedDeclaration")
     public Request() {
     }
 
-    public Request(long requestId, long objectId, long methodId, boolean oneWay, Object[] params, String methodName) {
+    public Request(long requestId, long objectId, long methodId, boolean oneWay, Object[] params, String methodName, String implClassName) {
         super(requestId);
         this.objectId = objectId;
         this.methodId = methodId;
         this.oneWay = oneWay;
         this.params = params;
         this.methodName = methodName;
+        this.implClassName = implClassName;
     }
 
     public long getObjectId() {
@@ -41,25 +44,37 @@ public class Request extends Message {
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
+    public void setImplClassName(String implClassName) {
+        this.implClassName = implClassName;
+    }
+
+    public String callDescription() {
+        StringBuilder sb = new StringBuilder();
+        if(implClassName != null){
+            sb.append(implClassName);
+        }
+        sb.append("::");
+        if (methodName != null) {
+            sb.append(methodName);
+        }
+        sb.append('/');
+        if (params != null) {
+            sb.append(String.valueOf(params.length));
+        } else {
+            sb.append("0");
+        }
+        return sb.toString();
+    }
 
     @Override
     public String toString() {
-        if(methodName != null){
-            return "Request [" + methodName +"] {" +
-                    "requestId=" + getRequestId() +
-                    ", objectId=" + objectId +
-                    ", methodId=" + methodId +
-                    ", oneWay=" + oneWay +
-                    ", params=" + Arrays.toString(params) +
-                    '}';
-        }else{
-            return "Request {" +
-                    "requestId=" + getRequestId() +
-                    ", objectId=" + objectId +
-                    ", methodId=" + methodId +
-                    ", oneWay=" + oneWay +
-                    ", params=" + Arrays.toString(params) +
-                    '}';
-        }
+        return "Request [" + callDescription() + "] {" +
+                "requestId=" + getRequestId() +
+                ", objectId=" + objectId +
+                ", methodId=" + methodId +
+                ", oneWay=" + oneWay +
+                ", params=" + Arrays.toString(params) +
+                '}';
     }
+
 }
