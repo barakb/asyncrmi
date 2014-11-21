@@ -40,9 +40,8 @@ public class ExampleServer implements Example {
         Example example;
         try {
             ExampleServer server = new ExampleServer();
-            Example proxy = Modules.getInstance().getExporter().export(server);
-            example = Util.writeAndRead(proxy);
-            logger.info("proxy is: {}", proxy);
+            example = Util.writeAndRead(server);
+            logger.info("proxy is: {}", server);
         } catch (Exception e) {
             logger.error("ExampleServer exception while exporting:", e);
             return;
@@ -56,5 +55,8 @@ public class ExampleServer implements Example {
         CompletableFuture<String> future = example.futuredEcho("async foo");
         res = future.join();
         logger.debug("client got async res : {}", res);
+        Modules.getInstance().getExporter().unexport();
+        Modules.getInstance().getTransport().close();
+
     }
 }
