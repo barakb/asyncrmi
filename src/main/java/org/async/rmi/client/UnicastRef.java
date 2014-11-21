@@ -93,7 +93,7 @@ public class UnicastRef implements RemoteRef {
                     return null;
                 });
                 return result;
-            } else if(oneWay.fast()){
+            } else if(oneWay.full()){
                 return null;
             }else{
                 return getResponseResult(translateClientError(future));

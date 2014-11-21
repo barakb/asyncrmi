@@ -140,7 +140,7 @@ public class CounterServer implements Counter {
         }
     }
 
-    @OneWay(fast=true)
+    @OneWay(full =true)
     @Override
     public void fastSleepOneWayOnTheImpl(long time) {
         try {

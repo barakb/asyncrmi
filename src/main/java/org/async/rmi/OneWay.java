@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface OneWay {
-    public boolean fast() default false;
+    public boolean full() default true;
 }

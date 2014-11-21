@@ -11,6 +11,6 @@ import java.util.EventObject;
  */
 public interface EventListener extends Remote{
 
-    @OneWay(fast = true)
+    @OneWay(full = true)
     void onEvent(EventObject event);
 }
