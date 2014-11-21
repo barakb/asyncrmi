@@ -2,17 +2,20 @@ package org.async.example.dcl.client;
 
 import org.async.example.dcl.EventListener;
 import org.async.rmi.NoAutoExport;
-import org.async.rmi.OneWay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.EventObject;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Barak Bar Orion
  * 11/14/14.
+ */
+
+/**
+ * The @NoAutoExport annotation instruct the underline RMI system to
+ * treat Object of this class as Serialize rather then Remote although they can implement Remote
  */
 @NoAutoExport
 public class SerializableListener implements EventListener, Serializable{

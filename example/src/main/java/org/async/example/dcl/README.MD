@@ -22,3 +22,4 @@ Run fresh server `java -jar target/dcl-server.jar`
 Run the client with bogus codebase `java -Djava.rmi.server.codebase="http://google.com" -jar target/dcl-client.jar`
 You will see that the server complains about missing class, and throw exception back to the client.
 
+Here is the [doc](http://barakb.github.io/asyncrmi/rmi-pros.html) that describe the idea for this example.
