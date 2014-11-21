@@ -2,6 +2,10 @@ package org.async.rmi.messages;
 
 import org.async.rmi.MarshalledObject;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by Barak Bar Orion
  * 27/10/14.
@@ -44,13 +48,14 @@ public class Request extends Message {
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
+
     public void setImplClassName(String implClassName) {
         this.implClassName = implClassName;
     }
 
     public String callDescription() {
         StringBuilder sb = new StringBuilder();
-        if(implClassName != null){
+        if (implClassName != null) {
             sb.append(implClassName);
         }
         sb.append("::");
@@ -75,4 +80,20 @@ public class Request extends Message {
                 '}';
     }
 
+    public String toDetailedString() {
+        List params = (this.params == null) ? null : Arrays.stream(this.params).map(marshalledObject -> {
+            try {
+                return marshalledObject.get();
+            } catch (Exception e) {
+                return marshalledObject;
+            }
+        }).collect(Collectors.toList());
+        return "Request [" + callDescription() + "] {" +
+                "requestId=" + getRequestId() +
+                ", objectId=" + objectId +
+                ", oneWay=" + oneWay +
+                ", params=" + params +
+                '}';
+
+    }
 }

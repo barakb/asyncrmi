@@ -125,7 +125,11 @@ public class UnicastRef implements RemoteRef {
     private void trace(Request request, Connection<Message> connection) {
         Trace trace = traceMap.get(request.getMethodId());
         if(trace != null && trace.value() != TraceType.OFF) {
-            logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+            if(trace.value() == TraceType.DETAILED){
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request.toDetailedString());
+            }else{
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+            }
         }
     }
 

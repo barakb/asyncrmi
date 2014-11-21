@@ -94,7 +94,11 @@ public class ObjectRef {
     private void trace(Request request, ChannelHandlerContext ctx) {
         Trace trace = traceMap.get(request.getMethodId());
         if (trace != null && trace.value() != TraceType.OFF) {
-            logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
+            if(trace.value() == TraceType.DETAILED) {
+                logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request.toDetailedString());
+            }else {
+                logger.debug("{} <-- {} : {}", getTo(ctx), getFrom(ctx), request);
+            }
         }
     }
 
