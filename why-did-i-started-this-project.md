@@ -7,7 +7,7 @@ categories: introduction
 
 
 
-###Java RMI is grate, here are some of its pros:
+#Java RMI is grate, here are some of its pros:
 
 - Unlike Corba or Web services it does not need another compilation step.
 
@@ -18,7 +18,7 @@ categories: introduction
 - It has distributed garbage collection.
 
 
-###Even with those pros Java RMI is not being used as much as it should be and here is (what I think some of the reasons) for that.
+#Even with those pros Java RMI is not being used as much as it should be and here is (what I think some of the reasons) for that.
 
 - The dynamic code loading is cumbersome to use, 
    you have to run 2 web http server deploy the jars and configure the code base.
@@ -32,7 +32,7 @@ categories: introduction
      + Closures.
      + Streams.
 
-###Just for example supposed we have server that have to notifiy hundreds of clients remotely about some event.
+#Just for example supposed we have server that have to notifiy hundreds of clients remotely about some event.
 With current Java RMI implementation it is impossible to write it right, the code contains something like that:
 
 ````java
@@ -47,7 +47,7 @@ In case it does one lazy client or bad network will delay the delivery of the ev
 
 Even if the program use a thread pool to execute the notification the threads can be all exhausted by bad network or disconnected machines, and what size will this thread pool will be anyway ?
 
-###Now lets assume that the remote listener interface could be define in RMI like that:
+#Now lets assume that the remote listener interface could be define in RMI like that:
 
 ````java
 public interface Listener extends Remote {

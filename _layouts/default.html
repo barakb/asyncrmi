@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -8,14 +8,16 @@
     <meta name="keywords" content="RMI,Remoting,NIO,Java,Netty,Future,Asynchronous,Networking">
     <meta name="author" content="Barak Bar Orion">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/print.css" media="print" />
+    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/stylesheet.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/pygment_trac.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/print.css" media="print"/>
+    <link rel="stylesheet" type="text/css" href="{{site.baseurl}}/stylesheets/toc.css" media="print"/>
 
     <script src="{{site.baseurl}}/js/jquery.min.js"></script>
     <script src="{{site.baseurl}}/js/underscore-min.js"></script>
     <script src="{{site.baseurl}}/js/raphael-min.js"></script>
     <script src="{{site.baseurl}}/js/sequence-diagram-min.js"></script>
+    <script src="{{site.baseurl}}/js/jquery.toc.js"></script>
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -33,42 +35,50 @@
       $(function(){
         $(".diagram-hand").sequenceDiagram({theme: 'hand'});
         $(".diagram").sequenceDiagram({theme: 'simple'});
+        $("#main-content").toc({
+            saveShowStatus:false
+        });
       })
+
     </script>
-  </head>
+</head>
 
-  <body>
-    <header>
-      <div class="inner">
+<body>
+<header>
+    <div class="inner">
         <h1> {{ site.name }} </h1>
-        <h2>The future of Java RMI</h2>
-        <a href="https://github.com/barakb/asyncrmi" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
+        <h2>The future of Java RMI</h2>
+        <a href="https://github.com/barakb/asyncrmi" class="button">
+            <small>View project on</small>
+            GitHub</a>
+    </div>
+</header>
+
+<div id="content-wrapper">
+    <div class="inner clearfix">
         <section id="main-content">
-          
-          {{ content }}
+
+            {{ content }}
 
         </section>
 
         <aside id="sidebar">
-          <a href="https://github.com/barakb/asyncrmi/archive/master.zip" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/barakb/asyncrmi/archive/master.tar.gz" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+            <a href="https://github.com/barakb/asyncrmi/archive/master.zip" class="button">
+                <small>Download</small>
+                .zip file
+            </a>
+            <a href="https://github.com/barakb/asyncrmi/archive/master.tar.gz" class="button">
+                <small>Download</small>
+                .tar.gz file
+            </a>
 
-          <p class="repo-owner">is maintained by <a href="https://github.com/barakb">Barak Bar Orion</a> and <a href="https://github.com/rkimhi">Revital Kimhi</a>.</p>
+            <p class="repo-owner">is maintained by <a href="https://github.com/barakb">Barak Bar Orion</a> and <a
+                    href="https://github.com/rkimhi">Revital Kimhi</a>.</p>
 
         </aside>
-      </div>
     </div>
+</div>
 
-  </body>
+</body>
 </html>
