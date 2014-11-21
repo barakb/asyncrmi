@@ -8,6 +8,7 @@ rm -rf _site/asyncrmi
 mkdir  _site/asyncrmi
 cp -r _site/stylesheets _site/asyncrmi/stylesheets
 cp -r _site/update _site/asyncrmi/update
+cp -r _site/js _site/asyncrmi/js
 
 
 
