@@ -2,7 +2,7 @@
 layout: default
 title:  async rmi docs
 date:   2014-11-01 15:40:56
-categories: introduction
+categories: doc
 ---
 
 ##Introduction
@@ -14,11 +14,11 @@ categories: introduction
 ## Async RMI Feature set.
 <ul class="features">
 
-    <li>Asynchronous calls [<a href="asynchronous-calls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures">example</a>] </li>
+    <li>Asynchronous calls [<a href="asynchronous-calls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures">example</a>].</li>
     <ul class="features">
         <li>Java 8 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html">CompletableFuture</a>.</li>
         <li>Client timeout [<a href="client-timeout.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout">example</a>].</li>
-        <li>One way calls [<a href="client-timeout.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway">example</a>].</li>
+        <li>One way calls [<a href="oneway-calls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway">example</a>].</li>
     </ul>
 
     <li class="notready">Configurable thread policies [<a href="threads.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway">example</a>].</li>

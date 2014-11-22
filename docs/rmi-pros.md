@@ -38,19 +38,19 @@ As a client of this server I can:
 2. Send my event to all the already registered listeners.
 
 ````java
-        server.addListener(new EventListener(){
-            void onEvent(EventObject event){
-                logger.info("got an event from the server");
-            }
-        );
+server.addListener(new EventListener(){
+    void onEvent(EventObject event){
+        logger.info("got an event from the server");
+    }
+);
 ````
 
 Or with Java8 lambda syntax
 
 ````java
-        server.addListener(event -> {
-            logger.info("got an event from the server");
-        });
+server.addListener(event -> {
+    logger.info("got an event from the server");
+});
 ````
 
 Note that in both the client send the server an event with class that exists only on the server.
@@ -65,7 +65,7 @@ And here is the interaction diagram for this client call.
 Client can trigger an event with:
 
 ```java
-    server.triggerEvent(new ClientEvent(someData));
+server.triggerEvent(new ClientEvent(someData));
 ```
 
 Where again ClientEvent is a new class that the server have to download dynamically from the client,
@@ -88,10 +88,10 @@ But lets say for example that the action that we wish to apply on event is perfo
 We can do that! it is easy we just have to post the request when the on event is called.
 
 ```java
-    server.addListener(event -> {
-        event.sendPostRequest();
-    });
-    server.triggerEvent(new ClientEvent(someURL));
+server.addListener(event -> {
+    event.sendPostRequest();
+});
+server.triggerEvent(new ClientEvent(someURL));
 ```
 And the sequence diagram for that is:
 <div class="diagram">
@@ -154,8 +154,8 @@ public class SerializableListener implements EventListener, Serializable{
 And have the client code:
 
 ```java
-    server.addListener(new SerializableListener());
-    server.triggerEvent(new ClientEvent(aURL));
+server.addListener(new SerializableListener());
+server.triggerEvent(new ClientEvent(aURL));
 ```
 
 The diagram should look like that:
