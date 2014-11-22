@@ -1,0 +1,22 @@
+ul.features {
+    list-style-type: none;
+    // font-size: large;
+//    font-size: 15px;
+//    line-height: 1.5;
+//    font-family: 'Helvetica Neue', Helvetica, Arial, serif;
+    padding-top: 0px;
+    margin-bottom: 0px;
+}
+
+ul.features > li.notready:before{
+    content :'\2718';
+    color:#FF8000;
+    padding-right: 3px
+}
+
+ul.features > li:before{
+    content :'\2714';
+    color:#33CC33;
+    padding-right: 3px
+}
+

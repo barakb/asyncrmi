@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: doc
 title:  logging
 date:   2014-11-01 15:40:56
 categories: introduction

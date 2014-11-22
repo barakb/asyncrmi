@@ -2,3 +2,7 @@ name: Async RMI
 baseurl: /asyncrmi
 markdown: redcarpet
 exclude: [vendor]
+
+collections:
+ docs:
+ output: true
