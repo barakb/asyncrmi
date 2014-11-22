@@ -38,7 +38,7 @@ categories: introduction
 
     <li class="notready">Distributed Garbage collection</li>
     <li>Client connection pool</li>
-    <li>Requests pipeline [<a href="http://barakb.github.io/asyncrmi/request-pipeline.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline">example</a>].</li>
+    <li>Requests pipeline [<a href="request-pipeline.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline">example</a>].</li>
 
     <li>Networking</li>
     <ul class="features">
