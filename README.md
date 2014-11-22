@@ -40,7 +40,7 @@ Async RMI is modern Java RMI implementation.
     - [ ] Port range.
     - [ ] TSL.
 - [x] Client.
-   - [x] Close.
+   - [x] Close. [example](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/CloseTest.java) [documentation](http://barakb.github.io/asyncrmi/closing-client.html)
 
 
 ##How to build.

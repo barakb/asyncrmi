@@ -1,7 +1,7 @@
 package org.async.rmi;
 
+import org.async.rmi.client.ClosedException;
 import org.async.rmi.modules.Exporter;
-import org.async.rmi.pool.ClosedException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -2,6 +2,7 @@ package org.async.rmi.pool;
 
 import org.async.rmi.Connection;
 import org.async.rmi.Factory;
+import org.async.rmi.client.ClosedException;
 import org.async.rmi.messages.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

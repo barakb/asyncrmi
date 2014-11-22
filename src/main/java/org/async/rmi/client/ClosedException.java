@@ -1,4 +1,4 @@
-package org.async.rmi.pool;
+package org.async.rmi.client;
 
 /**
  * Created by Barak Bar Orion
