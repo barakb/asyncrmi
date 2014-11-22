@@ -6,5 +6,5 @@ package org.async.rmi;
  */
 public interface Exported {
     public long getObjectId();
-//    public CompletableFuture<Void> close();
+    public void close();
 }

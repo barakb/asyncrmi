@@ -13,7 +13,6 @@ Async RMI is modern Java RMI implementation.
 - [ ] Allow configurable thread policies. [documentation](http://barakb.github.io/asyncrmi/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
 - [x] Class loading.
   - [x] Code base. [documentation](http://barakb.github.io/asyncrmi/dynamic-class-loading.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
-  - [ ] Direct class loading.
 - [ ] Ease of use.
   - [x] Maven build.
   - [x] Use Oracle RMI marker interfaces.
@@ -40,8 +39,8 @@ Async RMI is modern Java RMI implementation.
     - [ ] Handshake.
     - [ ] Port range.
     - [ ] TSL.
-- [ ] Client.
-   - [ ] Close.
+- [x] Client.
+   - [x] Close.
 
 
 ##How to build.

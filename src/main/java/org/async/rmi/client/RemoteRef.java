@@ -2,6 +2,7 @@ package org.async.rmi.client;
 
 import org.async.rmi.OneWay;
 
+import java.io.IOException;
 import java.rmi.Remote;
 
 /**
@@ -17,4 +18,5 @@ public interface RemoteRef extends java.io.Externalizable {
                   OneWay oneWay)
             throws Throwable;
 
+    void close() throws IOException;
 }

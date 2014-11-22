@@ -22,6 +22,7 @@ public class ShrinkableConnectionPool implements Pool<Connection<Message>> {
     private final List<Connection<Message>> all;
     private final int optimalSize;
     private Factory<CompletableFuture<Connection<Message>>> factory;
+    private boolean closed = false;
 
     public ShrinkableConnectionPool(int optimalSize) {
         this.free = new ArrayList<>();
@@ -34,6 +35,9 @@ public class ShrinkableConnectionPool implements Pool<Connection<Message>> {
 
     @Override
     public synchronized CompletableFuture<Connection<Message>> get() {
+        if(closed){
+            throw new ClosedException();
+        }
         if (!free.isEmpty()) {
             return CompletableFuture.completedFuture(free.remove(0));
         } else {
@@ -70,6 +74,9 @@ public class ShrinkableConnectionPool implements Pool<Connection<Message>> {
 
     @Override
     public synchronized void close() throws IOException {
+        if(closed){
+            return;
+        }
         for (Connection<Message> c : all) {
             try {
                 c.close();
@@ -79,5 +86,6 @@ public class ShrinkableConnectionPool implements Pool<Connection<Message>> {
         }
         all.clear();
         free.clear();
+        closed = true;
     }
 }

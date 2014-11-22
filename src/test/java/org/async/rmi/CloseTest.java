@@ -1,6 +1,7 @@
 package org.async.rmi;
 
 import org.async.rmi.modules.Exporter;
+import org.async.rmi.pool.ClosedException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 
 import static org.async.rmi.Util.writeAndRead;
-import static org.junit.Assert.fail;
 
 /**
  * Created by Barak Bar Orion
@@ -22,36 +22,30 @@ public class CloseTest {
     private static final Logger logger = LoggerFactory.getLogger(CloseTest.class);
 
     private static Exporter exporter;
-    private static Counter proxy;
     private static Counter client;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         Counter server = new CounterServer();
-        Modules.getInstance().getConfiguration().setConfigurePort(0);
         exporter = Modules.getInstance().getExporter();
-        proxy = exporter.export(server);
-        client = writeAndRead(proxy);
+        client = writeAndRead(server);
 
     }
 
     @AfterClass
     public static void afterClass() {
-        exporter.unexport(proxy);
+        exporter.unexport();
     }
 
     @Before
     public void setUp() throws RemoteException {
     }
 
-    @Test(timeout = 5000)
-    @SuppressWarnings("SpellCheckingInspection")
-    public void close() throws Exception {
-        Modules.getInstance().getTransport().close();
-        try {
-            client.read();
-            fail("Should throw RemoteException");
-        } catch (RemoteException ignored) {
-        }
+    @Test(timeout = 5000, expected = ClosedException.class)
+    public void testRead() throws RemoteException {
+        client.read();
+        ((Exported)client).close();
+        client.read();
     }
+
 }

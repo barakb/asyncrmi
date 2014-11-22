@@ -23,7 +23,6 @@ public class TimeoutTest {
     private static final Logger logger = LoggerFactory.getLogger(TimeoutTest.class);
 
     private static Exporter exporter;
-    private static Counter proxy;
     private static Counter client;
 
     @BeforeClass
@@ -31,14 +30,13 @@ public class TimeoutTest {
         Counter server = new CounterServer();
         Modules.getInstance().getConfiguration().setConfigurePort(0).setClientTimeout(1, TimeUnit.SECONDS);
         exporter = Modules.getInstance().getExporter();
-        proxy = exporter.export(server);
-        client = writeAndRead(proxy);
+        client = writeAndRead(server);
 
     }
 
     @AfterClass
     public static void afterClass() {
-        exporter.unexport(proxy);
+        exporter.unexport();
     }
 
     @Before

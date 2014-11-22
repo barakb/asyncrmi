@@ -103,6 +103,11 @@ public class UnicastRef implements RemoteRef {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        pool.close();
+    }
+
     private CompletableFuture<Response> send(Request request, OneWay oneWay) {
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request, responseFuture, traceMap.get(request.getMethodId()));

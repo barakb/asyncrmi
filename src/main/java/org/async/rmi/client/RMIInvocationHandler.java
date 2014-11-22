@@ -76,6 +76,9 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         } else if (declaringClass == Exported.class) {
             if (method.getName().equals("getObjectId")) {
                 return ((UnicastRef) ref).getObjectid();
+            }if(method.getName().equals("close")){
+                ref.close();
+                return null;
             }
             throw new InternalError("Unexpected Object method dispatched: " + method);
         }
