@@ -45,7 +45,6 @@ categories: doc
         <li>Unpublish [<a href="unpublish.html">documentation</a>].</li>
         <li>Selecting network interface [<a href="selecting-network-interface.html">documentation</a>].</li>
         <li class="notready">Handshake [<a href="networking.html">documentation</a>].</li>
-        <li class="notready">Port range [<a href="networking.html">documentation</a>].</li>
         <li>TSL [<a href="tls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/ServerTLSTest.java">example</a>].</li>
         <li >Closing proxy [<a href="closing-client.html">closing-client</a>] [<a href="https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/CloseTest.java">example</a>].</li>
     </ul>
