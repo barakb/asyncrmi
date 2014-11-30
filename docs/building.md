@@ -26,7 +26,7 @@ Building the examples
 from the example sub dir type `mvn install`
 
 
-Alternativly you can get (or build) a Docker file fro the dev env:
+Alternativly you can get (or build) a Docker file with the dev env:
 
 1. sudo docker pull barakb/asyncrmi
 2. sudo docker run -i -t --name=asynrmi  barakb/asyncrmi /bin/bash
