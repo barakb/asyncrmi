@@ -1,5 +1,7 @@
 package org.async.rmi;
 
+import io.netty.handler.ssl.SslContext;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -12,6 +14,8 @@ public class Configuration {
     private TimeSpan clientConnectTimeout = new TimeSpan(3, TimeUnit.SECONDS);
     private TimeSpan clientTimeout = new TimeSpan(30, TimeUnit.SECONDS);
     private String serverHostName;
+    private Factory<SslContext> sslServerContextFactory;
+    private Factory<SslContext> sslClientContextFactory;
 
     public Configuration() {
     }
@@ -60,5 +64,21 @@ public class Configuration {
 
     public void setClientTimeout(long time, TimeUnit timeUnit) {
         this.clientTimeout = new TimeSpan(time, timeUnit);
+    }
+
+    public Factory<SslContext> getSslServerContextFactory() {
+        return sslServerContextFactory;
+    }
+
+    public void setSslServerContextFactory(Factory<SslContext> sslServerContextFactory) {
+        this.sslServerContextFactory = sslServerContextFactory;
+    }
+
+    public Factory<SslContext> getSslClientContextFactory() {
+        return sslClientContextFactory;
+    }
+
+    public void setSslClientContextFactory(Factory<SslContext> sslClientContextFactory) {
+        this.sslClientContextFactory = sslClientContextFactory;
     }
 }

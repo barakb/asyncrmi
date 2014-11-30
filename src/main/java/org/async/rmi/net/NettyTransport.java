@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
 import org.async.rmi.*;
 import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
@@ -138,6 +139,7 @@ public class NettyTransport implements Transport {
             acceptGroup = getAcceptGroup();
             workerGroup = getWorkerGroup();
             Configuration configuration = Modules.getInstance().getConfiguration();
+            final SslContext sslCtx = configuration.getSslServerContextFactory() != null ? configuration.getSslServerContextFactory().create() : null;
             ServerBootstrap b = new ServerBootstrap();
             b.group(acceptGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
@@ -145,6 +147,9 @@ public class NettyTransport implements Transport {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline p = ch.pipeline();
+                            if(sslCtx != null){
+                                p.addLast(sslCtx.newHandler(ch.alloc()));
+                            }
                             p.addLast(
                                     new MessageEncoder(),
                                     new MessageDecoder(),
