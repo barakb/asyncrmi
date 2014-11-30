@@ -1,5 +1,5 @@
 master | gh-pages
--------|---------
+`-------|---------
 [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi) | [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://travis-ci.org/barakb/asyncrmi)
 
 Async RMI is modern Java RMI implementation.
@@ -48,7 +48,7 @@ Async RMI is modern Java RMI implementation.
 - Clone the project `git clone git@github.com:barakb/asyncrmi.git` or download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file. 
 - Change dir to the asyncrmi directory and type `mvn install` at the console.
 
-Alternativly you can get (or build) a Docker file fro the dev env:
+Alternativly you can get (or build) a Docker file with the dev env:
 
 1. sudo docker pull barakb/asyncrmi
 2. sudo docker run -i -t --name=asynrmi  barakb/asyncrmi /bin/bash
