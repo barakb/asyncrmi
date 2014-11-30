@@ -48,6 +48,13 @@ Async RMI is modern Java RMI implementation.
 - Clone the project `git clone git@github.com:barakb/asyncrmi.git` or download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file. 
 - Change dir to the asyncrmi directory and type `mvn install` at the console.
 
+Alternativly you can get (or build) a Docker file fro the dev env:
+
+1. sudo docker pull barakb/asyncrmi
+2. sudo docker run -i -t --name=asynrmi  barakb/asyncrmi /bin/bash
+3. mvn install
+
+
 ## How to build the examples.
 - After building asyncrmi from the asyncrmi dir type `(cd example; maven install)`
 
