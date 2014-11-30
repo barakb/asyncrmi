@@ -51,7 +51,7 @@ Async RMI is modern Java RMI implementation.
 Alternativly you can get (or build) a Docker file with the dev env:
 
 1. sudo docker pull barakb/asyncrmi
-2. sudo docker run -i -t --name=asynrmi  barakb/asyncrmi /bin/bash
+2. sudo docker run -i -t --name=asyncrmi  barakb/asyncrmi /bin/bash
 3. git pull --rebase
 4. mvn install
 
