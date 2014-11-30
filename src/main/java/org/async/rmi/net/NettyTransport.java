@@ -121,7 +121,10 @@ public class NettyTransport implements Transport {
 
     @Override
     public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException {
-        final String address = InetAddress.getLocalHost().getHostAddress();
+        String address = configuration.getServerHostName();
+        if(address ==  null){
+            address = InetAddress.getLocalHost().getHostAddress();
+        }
         final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
         ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, traceMap, callDescription);
         long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
@@ -148,7 +151,13 @@ public class NettyTransport implements Transport {
                                     new RMIServerHandler());
                         }
                     });
-            serverChannel = b.bind(configuration.getConfigurePort()).sync().channel();
+
+            String hostName = configuration.getServerHostName();
+            if(hostName == null) {
+                serverChannel = b.bind(configuration.getConfigurePort()).sync().channel();
+            }else{
+                serverChannel = b.bind(hostName, configuration.getConfigurePort()).sync().channel();
+            }
             logger.info("RMI server started: {}.", serverChannel.localAddress());
             int actualPort = ((InetSocketAddress) serverChannel.localAddress()).getPort();
             configuration.setActualPort(actualPort);

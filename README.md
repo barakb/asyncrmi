@@ -35,7 +35,7 @@ Async RMI is modern Java RMI implementation.
   - [x] Enable/disable method call logs via @Trace annotation. [documentation](http://barakb.github.io/asyncrmi/logging.html)
 - [ ] Networking.
     - [x] Unpublish.
-    - [ ] Selecting network interface.
+    - [x] Selecting network interface (java.rmi.server.hostname System property).
     - [ ] Handshake.
     - [ ] Port range.
     - [ ] TSL.

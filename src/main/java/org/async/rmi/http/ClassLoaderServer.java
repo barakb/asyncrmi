@@ -28,7 +28,6 @@ public class ClassLoaderServer implements Closeable {
     static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
     private final Channel httpChannel;
 
-
     public ClassLoaderServer(ClassLoader classLoader) throws UnknownHostException, InterruptedException {
         String codeBase = System.getProperty("java.rmi.server.codebase", null);
         if (codeBase == null || codeBase.matches("[0-9]+")) {
@@ -37,7 +36,11 @@ public class ClassLoaderServer implements Closeable {
             httpChannel = ClassLoaderServer.run(transport.getAcceptGroup(), transport.getWorkerGroup(), port, classLoader);
             InetSocketAddress inetSocketAddress = ((ServerSocketChannel) httpChannel).localAddress();
             port = inetSocketAddress.getPort();
-            String hostName = InetAddress.getLocalHost().getHostName();
+            String hostName = Modules.getInstance().getConfiguration().getServerHostName();
+            if(hostName == null){
+                hostName = InetAddress.getLocalHost().getHostName();
+            }
+
             System.setProperty("java.rmi.server.codebase", "http://" + hostName + ":" + port + "/");
             LoaderHandler.loadCodeBaseProperty();
             logger.info("Embedded HTTP server run at {} java.rmi.server.codebase is set to {} ", inetSocketAddress, System.getProperty("java.rmi.server.codebase"));
@@ -63,8 +66,11 @@ public class ClassLoaderServer implements Closeable {
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ClassLoaderServerInitializer(cl));
-
-        return b.bind(port).sync().channel();
+        if(Modules.getInstance().getConfiguration().getServerHostName() != null){
+            return b.bind(Modules.getInstance().getConfiguration().getServerHostName(), port).sync().channel();
+        }else{
+            return b.bind(port).sync().channel();
+        }
     }
 
     @Override

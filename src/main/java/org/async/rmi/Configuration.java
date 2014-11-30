@@ -11,12 +11,24 @@ public class Configuration {
     private int actualPort;
     private TimeSpan clientConnectTimeout = new TimeSpan(3, TimeUnit.SECONDS);
     private TimeSpan clientTimeout = new TimeSpan(30, TimeUnit.SECONDS);
+    private String serverHostName;
 
     public Configuration() {
     }
 
     public int getConfigurePort() {
         return configurePort;
+    }
+
+    public String getServerHostName(){
+        if(serverHostName == null){
+            return System.getProperty("java.rmi.server.hostname", null);
+        }
+        return serverHostName;
+    }
+
+    public void setServerHostName(String serverHostName) {
+        this.serverHostName = serverHostName;
     }
 
     public Configuration setConfigurePort(int configurePort) {
