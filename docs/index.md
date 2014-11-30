@@ -43,7 +43,7 @@ categories: doc
     <li>Networking</li>
     <ul class="features">
         <li>Unpublish [<a href="unpublish.html">documentation</a>].</li>
-        <li class="notready">Selecting network interface [<a href="networking.html">documentation</a>].</li>
+        <li>Selecting network interface [<a href="selecting-network-interface.html">documentation</a>].</li>
         <li class="notready">Handshake [<a href="networking.html">documentation</a>].</li>
         <li class="notready">Port range [<a href="networking.html">documentation</a>].</li>
         <li class="notready">TSL [<a href="logging.html">documentation</a>].</li>
