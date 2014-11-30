@@ -1,5 +1,5 @@
 master | gh-pages
-`-------|---------
+-------|---------
 [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi) | [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://travis-ci.org/barakb/asyncrmi)
 
 Async RMI is modern Java RMI implementation.
