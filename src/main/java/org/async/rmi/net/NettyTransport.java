@@ -18,6 +18,7 @@ import org.async.rmi.modules.Transport;
 import org.async.rmi.netty.MessageDecoder;
 import org.async.rmi.netty.MessageEncoder;
 import org.async.rmi.netty.RMIServerHandler;
+import org.async.rmi.netty.ServerHandshakeHandler;
 import org.async.rmi.server.ObjectRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,10 +154,10 @@ public class NettyTransport implements Transport {
                             p.addLast(
                                     new MessageEncoder(),
                                     new MessageDecoder(),
+                                    new ServerHandshakeHandler(),
                                     new RMIServerHandler());
                         }
                     });
-
             String hostName = configuration.getServerHostName();
             if(hostName == null) {
                 serverChannel = b.bind(configuration.getConfigurePort()).sync().channel();

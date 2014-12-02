@@ -48,7 +48,8 @@ public class BasicCallTest {
     }
 
     
-    @Test(timeout = 5000)
+//    @Test(timeout = 5000)
+    @Test
     public void sync() throws Exception {
             assertThat(client.read(), is(0));
             assertThat(client.next(), is(1));

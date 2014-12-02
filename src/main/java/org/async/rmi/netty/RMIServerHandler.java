@@ -43,15 +43,15 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
         logger.info("RMI Server is closing");
     }
 
-    private void dispatch(Request request, ChannelHandlerContext ctx){
+    private void dispatch(Request request, ChannelHandlerContext ctx) {
         long objectId = request.getObjectId();
         ObjectRef objectRef = Modules.getInstance().getObjectRepository().get(objectId);
-        if(null != objectRef) {
+        if (null != objectRef) {
             objectRef.invoke(request, ctx);
-        }else{
+        } else {
             Response response = new Response(request.getRequestId(), null, request.callDescription()
                     , new RemoteException("Object id [" + request.getObjectId()
-                    +   "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
+                    + "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
             logger.warn("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
             ctx.writeAndFlush(response);
         }

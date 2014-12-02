@@ -46,6 +46,7 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
                         p.addLast(
                                 new MessageEncoder(),
                                 new MessageDecoder(),
+                                new ClientHandshakeHandler(),
                                 new RMIClientHandler());
                     }
                 });
