@@ -1,0 +1,12 @@
+---
+rules:
+    - match: {host: 192.168.2.106, port : 2021}
+      filters: [drop]
+    - match: {host: 192.168.2.106, port : 2021}
+      filters: [tls zip]
+tls:
+    keystoreFile: .keystore
+    keystorePass: changeit
+    clientAuth: no
+
+...

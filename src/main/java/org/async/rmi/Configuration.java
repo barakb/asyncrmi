@@ -1,7 +1,10 @@
 package org.async.rmi;
 
 import io.netty.handler.ssl.SslContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -9,6 +12,8 @@ import java.util.concurrent.TimeUnit;
  * 05/10/14.
  */
 public class Configuration {
+    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
+
     private int configurePort = 0;
     private int actualPort;
     private TimeSpan clientConnectTimeout = new TimeSpan(3, TimeUnit.SECONDS);
@@ -16,8 +21,17 @@ public class Configuration {
     private String serverHostName;
     private Factory<SslContext> sslServerContextFactory;
     private Factory<SslContext> sslClientContextFactory;
+    private Netmap netmap;
 
     public Configuration() {
+        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", null);
+        if(netmapFileName != null){
+            try {
+                netmap = Netmap.readNetMapFile(new File(netmapFileName));
+            }catch(Exception e){
+                logger.error("failed to read netmap file {}",netmapFileName,  e);
+            }
+        }
     }
 
     public int getConfigurePort() {
@@ -80,5 +94,13 @@ public class Configuration {
 
     public void setSslClientContextFactory(Factory<SslContext> sslClientContextFactory) {
         this.sslClientContextFactory = sslClientContextFactory;
+    }
+
+    public Netmap getNetmap() {
+        return netmap;
+    }
+
+    public void setNetmap(Netmap netmap) {
+        this.netmap = netmap;
     }
 }
