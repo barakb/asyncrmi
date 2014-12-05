@@ -21,14 +21,13 @@ public class ReadNetMapConfigurationTest {
     @Test(timeout = 5000)
     public void testSlowOneWay() throws Exception {
         Netmap netmap = Util.readNetMapFile(new File("netmap.sample.yaml"));
-        assertThat(netmap.getRules().size(), is(2));
+        assertThat(netmap.getRules().size(), is(3));
         Netmap.Rule rule = netmap.getRules().get(0);
         Netmap.Rule.Match match = rule.getMatch();
         List<String> filters = rule.getFilters();
 
-        assertThat(match.getHost(), is("192.168.2.106"));
-        assertThat(match.getPort(), is("2021"));
+        assertThat(match.getHost(), is(".*"));
         assertThat(filters.size(), is(1));
-        assertThat(filters.get(0), is("drop"));
+        assertThat(filters.get(0), is("tls compress"));
     }
 }

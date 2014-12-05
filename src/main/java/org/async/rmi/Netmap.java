@@ -69,15 +69,11 @@ public class Netmap {
                 return port;
             }
 
-            public boolean match(String hostName, String hostAddress, int port) {
+            public boolean match(String hostName, String hostAddress) {
                 Pattern pattern =  Pattern.compile(host);
                 Matcher m1 = pattern.matcher(hostName);
                 Matcher m2 = pattern.matcher(hostAddress);
-                return ((m1.find() || m2.find()) && matchPort(port));
-            }
-
-            private boolean matchPort(int port) {
-                return this.port == null || String.valueOf(port).equals(this.port);
+                return ((m1.find() || m2.find()));
             }
         }
 

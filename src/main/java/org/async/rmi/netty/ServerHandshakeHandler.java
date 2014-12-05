@@ -2,14 +2,10 @@ package org.async.rmi.netty;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import org.async.rmi.Modules;
-import org.async.rmi.Netmap;
 import org.async.rmi.messages.HandshakeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,37 +14,30 @@ import java.util.List;
  */
 public class ServerHandshakeHandler extends ChannelHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ServerHandshakeHandler.class);
+    private List<String> filters;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-        logger.debug("start handshake with {} {} :{}", address.getHostName(), address.getAddress().getHostAddress(), address.getPort());
         ctx.pipeline().remove(this);
-        List<String> filters = getMatchingFilters(address);
-        for (String filter : filters) {
-            applyFilter(ctx, filter);
+        if(!filters.isEmpty()) {
+            logger.debug("sending session network filters {} to {}", filters, ctx.channel().remoteAddress());
+            if(filters.contains("drop")){
+                ctx.close();
+                return;
+            }
+//            for(int i = filters.size() - 1; -1 < i; --i){
+//                switch (filters.get(i)) {
+//                    case "compress":
+//                        ctx.pipeline().addFirst(new JdkZlibDecoder()).addFirst(new JdkZlibEncoder());
+//                        break;
+//                }
+//            }
+            ctx.writeAndFlush(new HandshakeRequest(filters));
         }
-        ctx.writeAndFlush(new HandshakeRequest());
         super.channelActive(ctx);
     }
 
-    private void applyFilter(ChannelHandlerContext ctx, String filter) {
-        switch (filter) {
-            case "drop":
-                ctx.close();
-                break;
-        }
-    }
-
-    private List<String> getMatchingFilters(InetSocketAddress address) {
-        Netmap netmap = Modules.getInstance().getConfiguration().getNetmap();
-        if (netmap != null) {
-            for (Netmap.Rule rule : netmap.getRules()) {
-                if (rule.getMatch().match(address.getHostName(), address.getAddress().getHostAddress(), address.getPort())) {
-                    return rule.getFilters();
-                }
-            }
-        }
-        return Collections.emptyList();
+    public void setFilters(List<String> filters) {
+        this.filters = filters;
     }
 }

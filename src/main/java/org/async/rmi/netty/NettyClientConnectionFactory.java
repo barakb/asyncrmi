@@ -14,9 +14,13 @@ import org.async.rmi.TimeSpan;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.messages.Message;
 import org.async.rmi.pool.Pool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -24,6 +28,9 @@ import java.util.concurrent.ExecutionException;
  * 27/10/14.
  */
 public class NettyClientConnectionFactory implements Factory<CompletableFuture<Connection<Message>>> {
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientConnectionFactory.class);
+
     private final Bootstrap bootstrap;
     private final RemoteObjectAddress address;
     private Pool<Connection<Message>> pool;
@@ -44,6 +51,8 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
                             p.addLast(sslCtx.newHandler(ch.alloc(), address.getHost(), address.getPort()));
                         }
                         p.addLast(
+                                new ProtocolVerificationMessageDecoder(),
+                                new ClientProtocolVerificationHandshakeHandler(),
                                 new MessageEncoder(),
                                 new MessageDecoder(),
                                 new ClientHandshakeHandler(),
@@ -59,15 +68,14 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
     @Override
     public CompletableFuture<Connection<Message>> create() {
         TimeSpan clientConnectTimeout = Modules.getInstance().getConfiguration().getClientConnectTimeout();
-        CompletableFuture<Connection<Message>> res = new CompletableFuture<>();
         final NettyClientConnection connection = new NettyClientConnection(bootstrap, address, pool);
-        connection.connect().addListener(future -> {
+        final CompletableFuture<Connection<Message>> res = connection.connect();
+        ForkJoinPool.commonPool().execute(() -> {
             try {
-                future.get(clientConnectTimeout.getTime(), clientConnectTimeout.getTimeUnit());
-                res.complete(connection);
+                res.get(clientConnectTimeout.getTime(), clientConnectTimeout.getTimeUnit());
             } catch (ExecutionException e) {
                 res.completeExceptionally(e.getCause());
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | TimeoutException e) {
                 res.completeExceptionally(e);
             }
         });

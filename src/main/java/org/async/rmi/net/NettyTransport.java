@@ -15,10 +15,7 @@ import org.async.rmi.http.ClassLoaderServer;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Transport;
-import org.async.rmi.netty.MessageDecoder;
-import org.async.rmi.netty.MessageEncoder;
-import org.async.rmi.netty.RMIServerHandler;
-import org.async.rmi.netty.ServerHandshakeHandler;
+import org.async.rmi.netty.*;
 import org.async.rmi.server.ObjectRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,7 +148,10 @@ public class NettyTransport implements Transport {
                             if(sslCtx != null){
                                 p.addLast(sslCtx.newHandler(ch.alloc()));
                             }
+
                             p.addLast(
+                                    new ProtocolVerificationMessageDecoder(),
+                                    new ServerProtocolVerificationHandshakeHandler(),
                                     new MessageEncoder(),
                                     new MessageDecoder(),
                                     new ServerHandshakeHandler(),

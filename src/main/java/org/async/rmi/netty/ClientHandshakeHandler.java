@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class ClientHandshakeHandler extends ChannelHandlerAdapter {
 
+
     public ClientHandshakeHandler() {
     }
 
@@ -22,7 +23,10 @@ public class ClientHandshakeHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ctx.pipeline().remove(this);
+
         //todo add missing handlers. zip encryption etc.
         super.channelActive(ctx);
+        RMIClientHandler clientHandler = ctx.pipeline().get(RMIClientHandler.class);
+        clientHandler.getHandshakeCompleteFuture().complete(null);
     }
 }

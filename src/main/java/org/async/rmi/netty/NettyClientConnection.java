@@ -1,6 +1,7 @@
 package org.async.rmi.netty;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.async.rmi.Connection;
 import org.async.rmi.client.RemoteObjectAddress;
@@ -37,17 +38,30 @@ public class NettyClientConnection implements Connection<Message> {
     }
 
 
-    public ChannelFuture connect() {
+    public CompletableFuture<Connection<Message>> connect() {
+        final CompletableFuture<Connection<Message>> res = new CompletableFuture<>();
+
         channelFuture = bootstrap.connect(address.getHost(), address.getPort());
         channelFuture.addListener((ChannelFuture future) -> {
             try {
-                InetSocketAddress la = (InetSocketAddress) future.sync().channel().localAddress();
+                Channel channel = future.sync().channel();
+                InetSocketAddress la = (InetSocketAddress) channel.localAddress();
                 localAddress = la.getHostString() + ":" + la.getPort();
-                InetSocketAddress ra = (InetSocketAddress) future.sync().channel().remoteAddress();
+                InetSocketAddress ra = (InetSocketAddress) channel.remoteAddress();
                 remoteAddress = ra.getHostString() + ":" + ra.getPort();
-                future.sync().channel().closeFuture().addListener(cf -> {
+                channel.closeFuture().addListener(cf -> {
                     closed = true;
                     pool.free(NettyClientConnection.this);
+                });
+                // To prevent premature message from the client to the server
+                // resolve the connection future only when all handshakes are done.
+                RMIClientHandler clientHandler = channel.pipeline().get(RMIClientHandler.class);
+                clientHandler.getHandshakeCompleteFuture().whenComplete((aVoid, throwable) -> {
+                    if (throwable != null) {
+                        res.completeExceptionally(throwable);
+                    } else {
+                        res.complete(NettyClientConnection.this);
+                    }
                 });
             } catch (Exception e) {
                 //noinspection ConstantConditions
@@ -56,7 +70,7 @@ public class NettyClientConnection implements Connection<Message> {
                 }
             }
         });
-        return channelFuture;
+        return res;
     }
 
     @Override

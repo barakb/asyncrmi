@@ -40,7 +40,7 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     @Override
     public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         super.close(ctx, promise);
-        logger.info("RMI Server is closing");
+        logger.info("RMI Server closing connection to {}", ctx.channel().remoteAddress());
     }
 
     private void dispatch(Request request, ChannelHandlerContext ctx) {

@@ -45,7 +45,8 @@ public class FutureInterfaceTest {
     public void setUp() throws RemoteException {
     }
 
-    @Test(timeout = 5000)
+//    @Test(timeout = 5000)
+    @Test()
     public void test1() throws Exception {
         assertThat(client.toUpper("foo").get(), is("FOO"));
     }

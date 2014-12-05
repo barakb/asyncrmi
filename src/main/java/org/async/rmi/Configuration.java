@@ -16,7 +16,7 @@ public class Configuration {
 
     private int configurePort = 0;
     private int actualPort;
-    private TimeSpan clientConnectTimeout = new TimeSpan(3, TimeUnit.SECONDS);
+    private TimeSpan clientConnectTimeout = new TimeSpan(30, TimeUnit.SECONDS);
     private TimeSpan clientTimeout = new TimeSpan(30, TimeUnit.SECONDS);
     private String serverHostName;
     private Factory<SslContext> sslServerContextFactory;

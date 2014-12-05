@@ -16,22 +16,34 @@ import static org.async.rmi.Util.writeAndRead;
  * 12/3/14.
  */
 public class NetmapTest {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(ServerTLSTest.class);
-    private static Counter client;
+    private static CounterServer server;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Modules.getInstance().getConfiguration().setClientConnectTimeout(1, TimeUnit.SECONDS); //todo fixme
-        Modules.getInstance().getConfiguration().setClientTimeout(1, TimeUnit.SECONDS);
         Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*", null), Arrays.asList("drop")))));
-        Counter server = new CounterServer();
-        client = writeAndRead(server);
+        server = new CounterServer();
 
     }
-
+//    @Ignore
     @Test(timeout = 5000, expected = ExecutionException.class)
     public void testDropUsage() throws Exception {
+        Modules.getInstance().getConfiguration().setClientConnectTimeout(1, TimeUnit.SECONDS);
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*", null), Arrays.asList("drop")))));
+        Counter client = writeAndRead(server);
         client.toUpper("foo").get();
+        ((Exported)client).close();
+    }
+
+//    @Ignore
+    @Test(timeout = 5000)
+    public void testFilters() throws Exception {
+        Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*", null), Arrays.asList("tls", "compress")))));
+        Counter client = writeAndRead(server);
+        client.toUpper("foo").get();
+        ((Exported)client).close();
     }
 
 }
