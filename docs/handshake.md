@@ -27,6 +27,16 @@ Messages are 13 bytes length.
 The server adjust its network filters before sending the reply to the client.
 The client adjust its network filters before sending the first none handshake message.
 
+When the server send its handshake message to the filter it contains the set of network filters that the server will be use
+for this session, this set can be configure per client address in the netmap.yaml file.
+By default the name of the file is netmap.yaml and if such file exists it is used.
+You can point asyncrmi to another file with the system property `java.rmi.server.netmapfile`
+
+The syntax of the network mapper file is describe [here](netmap.html)
+
+You can set the content of this configuration from inside Java program using the netmap variable inside the configuration object.
+
+
 
 
 
