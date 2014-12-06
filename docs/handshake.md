@@ -18,23 +18,14 @@ To prevent that the protocol handshake identifier is performed when connection i
 This protocol use fix length messages to prevent out of memory.
 
 <div class="diagram">
-    client->server: asyncrmi[4 byte challenge][byte 0][sh-256 of all the prev]
-    server->client: asyncrmi[challenge + 1][control byte][sh-256 of all the prev]
-</div>
-If the control byte is zero the client switch to length field based frame protocol and send the first message to the server.
-
-If the control byte is not zero the client have to send ack in fix size protocol, it send the last server message as ack.
-
-<div class="diagram">
-    client->server: asyncrmi[challenge + 1][control byte][sh-256 of all the prev]
+    client->server: asyncrmi[challenge byte][4 zero bytes]
+    server->client: asyncrmi[challenge + 1][network filters 4 bytes]
 </div>
 
-After that the client and the server change protocol to length field based frame instead of fix size message
-and the first message is the network filters from the server
+Messages are 13 bytes length.
 
-
-That way it is possible for the client and the server to know that the other side is following the same protocol.
-
+The server adjust its network filters before sending the reply to the client.
+The client adjust its network filters before sending the first none handshake message.
 
 
 
