@@ -42,22 +42,14 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ctx.pipeline().remove(this);
         ByteBuf reply = handshakeManager.verifyRequest((ByteBuf) msg, filters);
-        installFilters(ctx);
+        Filters.installFilters(ctx, filters, false);
         ctx.writeAndFlush(reply).addListener(future -> ctx.fireChannelActive());
         if (filters != 0) {
-            logger.debug("handshake done with client {}, network filters: {}."
-                    , ctx.channel().remoteAddress(), Filters.decode(filters));
+            logger.debug("{}: handshake done with client {}, network filters: {}, and pipeline: {}",
+                    ctx.channel().localAddress(), ctx.channel().remoteAddress(), Filters.decode(filters),
+                    ctx.pipeline().names());
         }
     }
-
-    private void installFilters(ChannelHandlerContext ctx) {
-        if (filters != 0) {
-            if (Filters.hasCompress(filters)) {
-                ctx.pipeline().addFirst(new JdkZlibEncoder(), new JdkZlibDecoder());
-            }
-        }
-    }
-
 
     private List<String> getMatchingFilters(InetSocketAddress address) {
         Netmap netmap = Modules.getInstance().getConfiguration().getNetmap();

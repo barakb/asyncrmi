@@ -35,11 +35,18 @@ public class NetmapTest {
         ((Exported)client).close();
     }
 
-//    @Test(timeout = 5000)
-    @Test
-    public void testFilters() throws Exception {
-        Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.MINUTES);
+    @Test(timeout = 5000)
+    public void testCompress() throws Exception {
+        Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);
         Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*", null), Arrays.asList("compress")))));
+        Counter client = writeAndRead(server);
+        client.toUpper("foo").get();
+        ((Exported)client).close();
+    }
+    @Test
+    public void testEncrypt() throws Exception {
+        Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*", null), Arrays.asList("encrypt")))));
         Counter client = writeAndRead(server);
         client.toUpper("foo").get();
         ((Exported)client).close();
