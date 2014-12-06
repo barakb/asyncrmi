@@ -10,7 +10,7 @@ The encrypt that used with asyncrmi is TLS.
 Once the encrypt is required in the [netmap file](netmap.html) for a client address the server will install the encrypt
 filter after the handshake is done.
 
-By default the server using self signed key pair and certificate for each client connection.
+By default the server are using unique self signed key pair and certificate for each client connection.
 If you wish to configure the server keys and certificate you can do that by setting the `sslServerContextFactory` in the
 configuration object.
 
