@@ -4,6 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import org.async.rmi.Connection;
+import org.async.rmi.client.ClosedException;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.messages.Message;
 import org.async.rmi.messages.Response;
@@ -44,15 +45,8 @@ public class NettyClientConnection implements Connection<Message> {
         channelFuture = bootstrap.connect(address.getHost(), address.getPort());
         channelFuture.addListener((ChannelFuture future) -> {
             try {
+                initAddresses(future);
                 Channel channel = future.sync().channel();
-                InetSocketAddress la = (InetSocketAddress) channel.localAddress();
-                localAddress = la.getHostString() + ":" + la.getPort();
-                InetSocketAddress ra = (InetSocketAddress) channel.remoteAddress();
-                remoteAddress = ra.getHostString() + ":" + ra.getPort();
-                channel.closeFuture().addListener(cf -> {
-                    closed = true;
-                    pool.free(NettyClientConnection.this);
-                });
                 // To prevent premature message from the client to the server
                 // resolve the connection future only when all handshakes are done.
                 RMIClientHandler clientHandler = channel.pipeline().get(RMIClientHandler.class);
@@ -63,6 +57,12 @@ public class NettyClientConnection implements Connection<Message> {
                         res.complete(NettyClientConnection.this);
                     }
                 });
+                channel.closeFuture().addListener(cf -> {
+                    closed = true;
+                    pool.free(NettyClientConnection.this);
+                    res.completeExceptionally(new ClosedException());
+                });
+
             } catch (Exception e) {
                 //noinspection ConstantConditions
                 if (!(e instanceof java.net.ConnectException)) {
@@ -71,6 +71,17 @@ public class NettyClientConnection implements Connection<Message> {
             }
         });
         return res;
+    }
+
+    private void initAddresses(ChannelFuture future){
+        try {
+            Channel channel = future.sync().channel();
+            InetSocketAddress la = (InetSocketAddress) channel.localAddress();
+            localAddress = la.getHostString() + ":" + la.getPort();
+            InetSocketAddress ra = (InetSocketAddress) channel.remoteAddress();
+            remoteAddress = ra.getHostString() + ":" + ra.getPort();
+        }catch(Exception ignored){
+        }
     }
 
     @Override
