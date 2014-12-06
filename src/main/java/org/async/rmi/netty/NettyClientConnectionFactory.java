@@ -51,11 +51,10 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
                             p.addLast(sslCtx.newHandler(ch.alloc(), address.getHost(), address.getPort()));
                         }
                         p.addLast(
-                                new ProtocolVerificationMessageDecoder(),
-                                new ClientProtocolVerificationHandshakeHandler(),
+                                new HandshakeMessageDecoder(),
+                                new ClientHandshakeHandler(),
                                 new MessageEncoder(),
                                 new MessageDecoder(),
-                                new ClientHandshakeHandler(),
                                 new RMIClientHandler());
                     }
                 });

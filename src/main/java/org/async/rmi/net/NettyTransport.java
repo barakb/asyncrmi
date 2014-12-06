@@ -150,11 +150,10 @@ public class NettyTransport implements Transport {
                             }
 
                             p.addLast(
-                                    new ProtocolVerificationMessageDecoder(),
-                                    new ServerProtocolVerificationHandshakeHandler(),
+                                    new HandshakeMessageDecoder(),
+                                    new ServerHandshakeHandler(),
                                     new MessageEncoder(),
                                     new MessageDecoder(),
-                                    new ServerHandshakeHandler(),
                                     new RMIServerHandler());
                         }
                     });

@@ -26,7 +26,6 @@ public class NetmapTest {
         server = new CounterServer();
 
     }
-//    @Ignore
     @Test(timeout = 5000, expected = ExecutionException.class)
     public void testDropUsage() throws Exception {
         Modules.getInstance().getConfiguration().setClientConnectTimeout(1, TimeUnit.SECONDS);
@@ -36,7 +35,6 @@ public class NetmapTest {
         ((Exported)client).close();
     }
 
-//    @Ignore
     @Test(timeout = 5000)
     public void testFilters() throws Exception {
         Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);

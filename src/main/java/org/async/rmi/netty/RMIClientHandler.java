@@ -7,6 +7,7 @@ import org.async.rmi.messages.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -37,7 +38,11 @@ public class RMIClientHandler extends ChannelHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error(cause.getMessage(), cause);
+        if(cause.getClass().equals(IOException.class) && cause.getMessage().contains("Connection reset by peer")){
+            logger.error("{}, local address {}, remote address {}", cause.getMessage(), ctx.channel().localAddress(), ctx.channel().remoteAddress());
+        }else {
+            logger.error(cause.getMessage(), cause);
+        }
         ctx.close();
     }
 

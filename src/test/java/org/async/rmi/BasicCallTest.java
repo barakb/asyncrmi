@@ -34,7 +34,6 @@ public class BasicCallTest {
         exporter = Modules.getInstance().getExporter();
         proxy = exporter.export(server);
         client = writeAndRead(proxy);
-
     }
 
     @AfterClass
