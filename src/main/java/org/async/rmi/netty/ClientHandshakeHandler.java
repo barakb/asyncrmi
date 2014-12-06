@@ -3,6 +3,8 @@ package org.async.rmi.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.compression.JdkZlibDecoder;
+import io.netty.handler.codec.compression.JdkZlibEncoder;
 import org.async.rmi.messages.HandshakeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +34,18 @@ public class ClientHandshakeHandler extends ChannelHandlerAdapter {
         ctx.pipeline().remove(this);
         ByteBuf response = (ByteBuf) msg;
         int filters = handshakeManager.verifyResponse(response);
-        if(filters != 0) {
-            //        todo insert filters
+        if (filters != 0) {
+            if (Filters.hasCompress(filters)) {
+                ctx.pipeline().addFirst(new JdkZlibEncoder(), new JdkZlibDecoder());
+            }
         }
         RMIClientHandler clientHandler = ctx.pipeline().get(RMIClientHandler.class);
         clientHandler.getHandshakeCompleteFuture().complete(null);
         ctx.fireChannelActive();
-        logger.debug("handshake done with server {}, network filters: {}."
-                , ctx.channel().remoteAddress(), Filters.decode(filters));
+        if (filters != 0) {
+            logger.debug("handshake done with server {}, network filters: {}."
+                    , ctx.channel().remoteAddress(), Filters.decode(filters));
+        }
 
     }
 }
