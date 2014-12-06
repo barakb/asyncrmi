@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  * 05/10/14.
  */
 public class Configuration {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     private int configurePort = 0;
@@ -24,12 +25,12 @@ public class Configuration {
     private Netmap netmap;
 
     public Configuration() {
-        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", null);
-        if(netmapFileName != null){
+        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", "netmap.yaml");
+        if (netmapFileName != null && new File(netmapFileName).exists()) {
             try {
                 netmap = Netmap.readNetMapFile(new File(netmapFileName));
-            }catch(Exception e){
-                logger.error("failed to read netmap file {}",netmapFileName,  e);
+            } catch (Exception e) {
+                logger.error("failed to read net mapper file {}", netmapFileName, e);
             }
         }
     }
@@ -38,13 +39,14 @@ public class Configuration {
         return configurePort;
     }
 
-    public String getServerHostName(){
-        if(serverHostName == null){
+    public String getServerHostName() {
+        if (serverHostName == null) {
             return System.getProperty("java.rmi.server.hostname", null);
         }
         return serverHostName;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setServerHostName(String serverHostName) {
         this.serverHostName = serverHostName;
     }

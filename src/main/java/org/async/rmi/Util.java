@@ -62,14 +62,24 @@ public class Util {
     }
 
     public static Netmap readNetMapFile(File file) throws IOException {
-
-        Yaml yaml = new Yaml();
         try (InputStream is = new FileInputStream(file)) {
-            Map map = (Map) yaml.load(is);
-            //noinspection unchecked
-            return new Netmap(extractRules(toStream((List<Map>) map.get("rules"))));
+            return readNetMapStream(is);
         }
     }
+
+    public static Netmap readNetMapStream(InputStream is) {
+        Yaml yaml = new Yaml();
+        Map map = (Map) yaml.load(is);
+        //noinspection unchecked
+        return new Netmap(extractRules(toStream((List<Map>) map.get("rules"))));
+    }
+
+    public static Netmap readNetMapString(String content) throws IOException {
+        try (InputStream is = new ByteArrayInputStream(content.getBytes())) {
+            return readNetMapStream(is);
+        }
+    }
+
 
     private static List<Netmap.Rule> extractRules(Stream<Map> rules) {
         //noinspection unchecked
@@ -77,9 +87,7 @@ public class Util {
     }
 
     private static Netmap.Rule.Match extractMatch(Object match) {
-        Map map = (Map) match;
-        String port = map.get("port") == null ? null : String.valueOf(map.get("port"));
-        return new Netmap.Rule.Match((String) map.get("host"), port);
+        return new Netmap.Rule.Match((String) match);
     }
 
 

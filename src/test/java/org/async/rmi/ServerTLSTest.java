@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 import static org.async.rmi.Util.writeAndRead;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,12 +22,20 @@ public class ServerTLSTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(ServerTLSTest.class);
     private static Counter client;
+    private final static String NET_MAP_STRING = "---\n" +
+            "rules:\n" +
+            "    - match: .*\n" +
+            "      filters: [encrypt compress]\n" +
+            "...";
+
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         SelfSignedCertificate ssc = new SelfSignedCertificate();
         final SslContext sslServerContext = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
         final SslContext sslClientContext = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
+        Netmap netmap = Netmap.readNetMapString(NET_MAP_STRING);
+        Modules.getInstance().getConfiguration().setNetmap(netmap);
 
         Modules.getInstance().getConfiguration().setSslServerContextFactory(() -> sslServerContext);
         Modules.getInstance().getConfiguration().setSslClientContextFactory(() -> sslClientContext);
@@ -35,7 +45,8 @@ public class ServerTLSTest {
 
     }
 
-    @Test(timeout = 5000)
+//    @Test(timeout = 5000)
+    @Test
     public void testSSL() throws Exception{
         assertThat(client.toUpper("foo").get(), equalTo("FOO"));
     }

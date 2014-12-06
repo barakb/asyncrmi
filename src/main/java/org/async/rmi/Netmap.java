@@ -2,6 +2,7 @@ package org.async.rmi;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,6 +30,14 @@ public class Netmap {
     }
 
     @SuppressWarnings("UnusedDeclaration")
+    public static Netmap readNetMapStream(InputStream is){
+        return Util.readNetMapStream(is);
+    }
+    public static Netmap readNetMapString(String content) throws IOException {
+        return Util.readNetMapString(content);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
     public static Netmap empty() {
         return theEmptyNetmap;
     }
@@ -52,21 +61,14 @@ public class Netmap {
 
         public static class Match {
             private final String host;
-            private final String port;
 
-            public Match(String host, String port) {
+            public Match(String host) {
                 this.host = host;
-                this.port = port;
             }
 
             @SuppressWarnings("UnusedDeclaration")
             public String getHost() {
                 return host;
-            }
-
-            @SuppressWarnings("UnusedDeclaration")
-            public String getPort() {
-                return port;
             }
 
             public boolean match(String hostName, String hostAddress) {

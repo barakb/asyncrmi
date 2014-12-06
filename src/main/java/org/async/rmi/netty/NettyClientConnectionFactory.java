@@ -6,7 +6,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.ssl.SslContext;
 import org.async.rmi.Connection;
 import org.async.rmi.Factory;
 import org.async.rmi.Modules;
@@ -38,18 +37,12 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
     public NettyClientConnectionFactory(final EventLoopGroup group, final RemoteObjectAddress address) {
         this.address = address;
         bootstrap = new Bootstrap();
-        Factory<SslContext> sslClientContextFactory = Modules.getInstance().getConfiguration().getSslClientContextFactory();
-        final SslContext sslCtx = sslClientContextFactory != null ? sslClientContextFactory.create() : null;
-
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline p = ch.pipeline();
-                        if (sslCtx != null) {
-                            p.addLast(sslCtx.newHandler(ch.alloc(), address.getHost(), address.getPort()));
-                        }
                         p.addLast(
                                 new HandshakeMessageDecoder(),
                                 new ClientHandshakeHandler(),

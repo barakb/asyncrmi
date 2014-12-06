@@ -1,14 +1,14 @@
 ---
 rules:
-    - match: {host: .*}
-      filters: [tls compress]
-    - match: {host: 192.168.2.106}
+    - match: .*
+      filters: [encrypt, compress]
+    - match: 192\.168\.2\.106
       filters: [drop]
-    - match: {host: 192.168.2.106, port : 2021}
-      filters: [tls compress]
+    - match: 192\.168\.3\.106
+      filters: [compress]
 tls:
     keystoreFile: .keystore
     keystorePass: changeit
+    TrustManagerFactory: foo.Bar
     clientAuth: no
-
 ...

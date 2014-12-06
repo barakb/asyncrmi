@@ -5,7 +5,6 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.ssl.SslContext;
 import org.async.rmi.*;
 import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
@@ -83,7 +82,7 @@ public class NettyTransport implements Transport {
     }
 
     private void trace(Response response, ChannelHandlerContext ctx, Trace trace) {
-        if(trace != null && trace.value() != TraceType.OFF) {
+        if (trace != null && trace.value() != TraceType.OFF) {
             logger.debug("{} --> {} : {}", getLocalAddress(ctx), getRemoteAddress(ctx), response);
         }
     }
@@ -121,7 +120,7 @@ public class NettyTransport implements Transport {
     @Override
     public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException {
         String address = configuration.getServerHostName();
-        if(address ==  null){
+        if (address == null) {
             address = InetAddress.getLocalHost().getHostAddress();
         }
         final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
@@ -137,7 +136,6 @@ public class NettyTransport implements Transport {
             acceptGroup = getAcceptGroup();
             workerGroup = getWorkerGroup();
             Configuration configuration = Modules.getInstance().getConfiguration();
-            final SslContext sslCtx = configuration.getSslServerContextFactory() != null ? configuration.getSslServerContextFactory().create() : null;
             ServerBootstrap b = new ServerBootstrap();
             b.group(acceptGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
@@ -145,10 +143,6 @@ public class NettyTransport implements Transport {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline p = ch.pipeline();
-                            if(sslCtx != null){
-                                p.addLast(sslCtx.newHandler(ch.alloc()));
-                            }
-
                             p.addLast(
                                     new HandshakeMessageDecoder(),
                                     new ServerHandshakeHandler(),
@@ -158,9 +152,9 @@ public class NettyTransport implements Transport {
                         }
                     });
             String hostName = configuration.getServerHostName();
-            if(hostName == null) {
+            if (hostName == null) {
                 serverChannel = b.bind(configuration.getConfigurePort()).sync().channel();
-            }else{
+            } else {
                 serverChannel = b.bind(hostName, configuration.getConfigurePort()).sync().channel();
             }
             logger.info("RMI server started: {}.", serverChannel.localAddress());
