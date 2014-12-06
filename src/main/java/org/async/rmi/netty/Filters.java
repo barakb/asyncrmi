@@ -7,6 +7,8 @@ import io.netty.handler.codec.compression.JdkZlibEncoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.async.rmi.Factory;
+import org.async.rmi.Modules;
 
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
@@ -81,16 +83,22 @@ public class Filters {
 
     private static void addServerEncryption(ChannelHandlerContext ctx) throws CertificateException, SSLException {
         Channel ch = ctx.pipeline().channel();
-        InetSocketAddress address = (InetSocketAddress) ch.remoteAddress();
-        SelfSignedCertificate ssc = new SelfSignedCertificate();
-        final SslContext sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
-        ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc(), address.getHostString(), address.getPort()));
+        Factory<SslContext> sslServerContextFactory = Modules.getInstance().getConfiguration().getSslServerContextFactory();
+        SslContext sslCtx;
+        if(sslServerContextFactory != null){
+            sslCtx = sslServerContextFactory.create();
+        }else{
+            SelfSignedCertificate ssc = new SelfSignedCertificate();
+            sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
+        }
+        ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc()));
     }
 
     private static void addClientEncryption(ChannelHandlerContext ctx) throws SSLException {
+        Factory<SslContext> sslClientContextFactory = Modules.getInstance().getConfiguration().getSslClientContextFactory();
+        final SslContext sslCtx = sslClientContextFactory != null ? sslClientContextFactory.create() :  SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
         Channel ch = ctx.pipeline().channel();
         InetSocketAddress address = (InetSocketAddress) ch.remoteAddress();
-        SslContext sslCtx = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
         ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc(), address.getHostString(), address.getPort()));
     }
 
