@@ -4,42 +4,7 @@ master | gh-pages
 
 Async RMI is modern Java RMI implementation.
 
-
-###Feature set (todo add link doc page end link to example dir for done)
-- [x] Support asynchronous calls. [documentation](http://barakb.github.io/asyncrmi/docs/asynchronous-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
-  - [x] Java 8 CompletableFuture. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/futures)
-  - [x] Client timeout. [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout)
-  - [x] One way calls. [documentation](http://barakb.github.io/asyncrmi/docs/oneway-calls.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway)
-- [ ] Allow configurable thread policies. [documentation](http://barakb.github.io/asyncrmi/docs/threads.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/threads)
-- [x] Class loading.
-  - [x] Code base. [documentation](http://barakb.github.io/asyncrmi/docs/dynamic-class-loading.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
-- [ ] Ease of use.
-  - [x] Maven build.
-  - [x] Use Oracle RMI marker interfaces.
-    - [x] Remote.
-    - [x] RemoteException.
-  - [x] Logging [SLF4J](http://www.slf4j.org/)
-  - [x] No code generation.
-  - [ ] Closure and streams.
-  - [ ] Firewalls.
-  - [x] Auto export. [documentation](http://barakb.github.io/asyncrmi/docs/automatic-exporting.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/dcl)
-- [ ] DGC.
-  - [ ] Leases.
-  - [ ] Finalize
-- [ ] Performance.
-  - [x] Connection pooling.
-  - [x] Requests pipeline. [documentation](http://barakb.github.io/asyncrmi/docs/request-pipeline.html) [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline)
-  - [ ] Benchmark.
-- [x] Logging
-  - [x] Add IP addresses. [documentation](http://barakb.github.io/asyncrmi/docs/logging.html)
-  - [x] Enable/disable method call logs via @Trace annotation. [documentation](http://barakb.github.io/asyncrmi/logging.html)
-- [ ] Networking.
-    - [x] Unpublish.
-    - [x] Selecting network interface (java.rmi.server.hostname System property).
-    - [ ] Handshake.
-    - [x] TSL.
-- [x] Client.
-   - [x] Close. [example](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/CloseTest.java) [documentation](http://barakb.github.io/asyncrmi/closing-client.html)
+The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
 
 
 ##How to build.
@@ -147,4 +112,3 @@ public class ExampleServer implements Example {
 [The example code](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/embedded).
 
 
-The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
