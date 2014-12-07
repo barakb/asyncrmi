@@ -7,14 +7,13 @@ import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
 
 import static io.netty.buffer.Unpooled.buffer;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
 
 /**
  * Created by Barak Bar Orion
  * 12/4/14.
  */
 public class HandshakeManager {
-    public final ByteBuf HANDSHAKE_PREFIX = wrappedBuffer(new byte[]{97, 115, 121, 110, 99, 114, 109, 105});
+    private static final byte [] HANDSHAKE_PREFIX = new byte[]{97, 115, 121, 110, 99, 114, 109, 105};
     private byte challenge;
 
 
@@ -28,7 +27,6 @@ public class HandshakeManager {
         ByteBuf buffer = buffer(13);
         buffer.order(ByteOrder.BIG_ENDIAN);
         buffer.writeBytes(HANDSHAKE_PREFIX);
-        HANDSHAKE_PREFIX.resetReaderIndex();
         buffer.writeByte(challenge);
         buffer.writeInt(0);
         return buffer;
@@ -44,7 +42,7 @@ public class HandshakeManager {
      */
     public ByteBuf verifyRequest(ByteBuf request, int filters) throws NoSuchAlgorithmException, IOException {
         request.order(ByteOrder.BIG_ENDIAN);
-        if (!request.slice(0, 8).equals(HANDSHAKE_PREFIX)) {
+        if (!isPrefixBytes(request.slice(0, 8))) {
             throw new IOException("Invalid protocol handshake request, prefix is not match");
         }
         int challenge = request.getByte(8);
@@ -52,10 +50,18 @@ public class HandshakeManager {
         ByteBuf reply = buffer(13);
         reply.order(ByteOrder.BIG_ENDIAN);
         reply.writeBytes(HANDSHAKE_PREFIX);
-        HANDSHAKE_PREFIX.resetReaderIndex();
         reply.writeByte((byte) (challenge + 1));
         reply.writeInt(filters);
         return reply;
+    }
+
+    private boolean isPrefixBytes(ByteBuf bytes) {
+        for(int i = 0; i < 8; ++i){
+            if(HANDSHAKE_PREFIX[i] != bytes.getByte(i)){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -66,7 +72,7 @@ public class HandshakeManager {
      */
     public int verifyResponse(ByteBuf response) throws IOException, NoSuchAlgorithmException {
         response.order(ByteOrder.BIG_ENDIAN);
-        if (!response.slice(0, 8).equals(HANDSHAKE_PREFIX)) {
+        if (!isPrefixBytes(response.slice(0, 8))) {
             throw new IOException("Invalid protocol handshake request, prefix is not match");
         }
         byte challenge = response.getByte(8);
