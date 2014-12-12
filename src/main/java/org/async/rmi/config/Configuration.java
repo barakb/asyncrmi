@@ -1,10 +1,16 @@
-package org.async.rmi;
+package org.async.rmi.config;
 
 import io.netty.handler.ssl.SslContext;
+import org.async.rmi.Factory;
+import org.async.rmi.TimeSpan;
+import org.async.rmi.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.IntrospectionException;
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,17 +28,24 @@ public class Configuration {
     private String serverHostName;
     private Factory<SslContext> sslServerContextFactory;
     private Factory<SslContext> sslClientContextFactory;
-    private Netmap netmap;
-
-    public Configuration() {
-        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", "netmap.yml");
-        if (netmapFileName != null && new File(netmapFileName).exists()) {
+    private NetMap netMap;
+    public static Configuration readDefault()  {
+        String ymlFileName = System.getProperty("java.rmi.server.config", "config.yml");
+        File ymlFile = new File(ymlFileName);
+        if(ymlFile.exists()){
+            logger.debug("reading configuration from {}", ymlFile.getAbsolutePath());
             try {
-                netmap = Netmap.readNetMapFile(new File(netmapFileName));
-            } catch (Exception e) {
-                logger.error("failed to read net mapper file {}", netmapFileName, e);
+                return Util.readConfiguration(ymlFile);
+            }catch(Exception e){
+                logger.error(e.toString(), e);
+                return new Configuration();
             }
+        }else{
+            return new Configuration();
         }
+
+    }
+    public Configuration() {
     }
 
     public int getConfigurePort() {
@@ -51,18 +64,16 @@ public class Configuration {
         this.serverHostName = serverHostName;
     }
 
-    public Configuration setConfigurePort(int configurePort) {
+    public void setConfigurePort(int configurePort) {
         this.configurePort = configurePort;
-        return this;
     }
 
     public int getActualPort() {
         return actualPort;
     }
 
-    public Configuration setActualPort(int actualPort) {
+    public void setActualPort(int actualPort) {
         this.actualPort = actualPort;
-        return this;
     }
 
     public TimeSpan getClientConnectTimeout() {
@@ -98,12 +109,22 @@ public class Configuration {
         this.sslClientContextFactory = sslClientContextFactory;
     }
 
-    public Netmap getNetmap() {
-        return netmap;
+    public NetMap getNetMap() {
+        return netMap;
     }
 
-    public void setNetmap(Netmap netmap) {
-        this.netmap = netmap;
+    public void setNetMap(NetMap netMap) {
+        this.netMap = netMap;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setClientConnectTimeout(TimeSpan clientConnectTimeout) {
+        this.clientConnectTimeout = clientConnectTimeout;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setClientTimeout(TimeSpan clientTimeout) {
+        this.clientTimeout = clientTimeout;
     }
 
 }

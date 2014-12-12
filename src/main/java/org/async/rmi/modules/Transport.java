@@ -2,7 +2,7 @@ package org.async.rmi.modules;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
-import org.async.rmi.Configuration;
+import org.async.rmi.config.Configuration;
 import org.async.rmi.OneWay;
 import org.async.rmi.Trace;
 import org.async.rmi.client.RemoteRef;

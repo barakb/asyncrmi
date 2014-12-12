@@ -1,5 +1,6 @@
 package org.async.rmi;
 
+import org.async.rmi.config.Configuration;
 import org.async.rmi.modules.Exporter;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,7 +29,9 @@ public class TimeoutTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Counter server = new CounterServer();
-        Modules.getInstance().getConfiguration().setConfigurePort(0).setClientTimeout(1, TimeUnit.SECONDS);
+        Configuration configuration = Modules.getInstance().getConfiguration();
+        configuration.setConfigurePort(0);
+        configuration.setClientTimeout(1, TimeUnit.SECONDS);
         exporter = Modules.getInstance().getExporter();
         client = writeAndRead(server);
 

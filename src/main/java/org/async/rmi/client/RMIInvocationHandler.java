@@ -1,6 +1,7 @@
 package org.async.rmi.client;
 
 import org.async.rmi.*;
+import org.async.rmi.config.Configuration;
 import org.async.rmi.modules.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -12,6 +12,9 @@ public class JKS {
     private String filePassword;
     private String aliasPassword;
 
+    public JKS() {
+    }
+
     public JKS(File jksFile, String alias) {
         this.jksFile = jksFile;
         this.alias = alias;

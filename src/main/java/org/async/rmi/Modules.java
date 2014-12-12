@@ -1,5 +1,6 @@
 package org.async.rmi;
 
+import org.async.rmi.config.Configuration;
 import org.async.rmi.modules.Exporter;
 import org.async.rmi.modules.ObjectRepository;
 import org.async.rmi.modules.Transport;
@@ -19,7 +20,7 @@ public class Modules {
     private ObjectRepository objectRepository;
 
     private Modules() {
-        configuration = new Configuration();
+        configuration = Configuration.readDefault();
         setExporter(new DynamicExporter());
         setTransport(new NettyTransport());
         setUtil(new RMIUtil());
@@ -67,5 +68,9 @@ public class Modules {
 
     public void setObjectRepository(ObjectRepository objectRepository) {
         this.objectRepository = objectRepository;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 }

@@ -1,7 +1,6 @@
 package org.async.example.ssl.server;
 
 import org.async.example.ssl.Server;
-import org.async.rmi.Netmap;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,7 @@ public class ServerImpl implements Server {
 
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("java.rmi.server.netmapfile", "ssl.server.netmap.yml");
-        Netmap netmap = Netmap.readNetMapFile(new File("ssl.server.netmap.yml"));
+        System.setProperty("java.rmi.server.config", "ssl.server.config.yml");
         Server server = new ServerImpl();
         Util.writeToFile(server, new File(new File(".."), SER_FILE_NAME));
 

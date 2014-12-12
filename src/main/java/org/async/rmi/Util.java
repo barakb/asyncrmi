@@ -1,16 +1,19 @@
 package org.async.rmi;
 
+import org.async.rmi.config.Configuration;
+import org.async.rmi.config.PropertiesReader;
 import org.async.rmi.server.MarshalInputStream;
 import org.async.rmi.server.MarshalOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import java.beans.IntrospectionException;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -59,40 +62,23 @@ public class Util {
         }
     }
 
-    public static Netmap readNetMapFile(File file) throws IOException {
+    public static <T> T readYmlFile(File file, T instance) throws IOException, IllegalAccessException, IntrospectionException, InvocationTargetException, InstantiationException {
         try (InputStream is = new FileInputStream(file)) {
-            return readNetMapStream(is);
+            return readYmlFile(is, instance);
         }
     }
 
-    public static Netmap readNetMapStream(InputStream is) {
+
+    public static <T> T readYmlContent(String content, T instance) throws IOException, IllegalAccessException, IntrospectionException, InvocationTargetException, InstantiationException {
+        try (InputStream is = new ByteArrayInputStream(content.getBytes())) {
+            return readYmlFile(is, instance);
+        }
+    }
+
+    public static <T> T readYmlFile(InputStream is, T instance) throws MalformedURLException, IntrospectionException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Yaml yaml = new Yaml();
         Map map = (Map) yaml.load(is);
-        //noinspection unchecked
-        return new Netmap(extractRules(toStream((List<Map>) map.get("rules"))), extractID((Map<String, String>) map.get("id")));
-    }
-
-    private static Netmap.ID extractID(Map<String, String> id) {
-        if(id == null){
-            return null;
-        }
-        return new Netmap.ID(new File(id.get("key")), new File(id.get("certificate")));
-    }
-
-    public static Netmap readNetMapString(String content) throws IOException {
-        try (InputStream is = new ByteArrayInputStream(content.getBytes())) {
-            return readNetMapStream(is);
-        }
-    }
-
-
-    private static List<Netmap.Rule> extractRules(Stream<Map> rules) {
-        //noinspection unchecked
-        return rules.map(r -> new Netmap.Rule(extractMatch(r.get("match")), (List<String>) r.get("filters"))).collect(Collectors.toList());
-    }
-
-    private static Netmap.Rule.Match extractMatch(Object match) {
-        return new Netmap.Rule.Match((String) match);
+        return read(map, instance);
     }
 
 
@@ -104,4 +90,14 @@ public class Util {
         }
     }
 
+    public static <T> T read(Map properties, T instance) throws IntrospectionException, InvocationTargetException, IllegalAccessException, MalformedURLException, InstantiationException {
+        return PropertiesReader.read(properties, instance);
+    }
+
+    public static Configuration readConfiguration(File ymlFile) throws InvocationTargetException, IntrospectionException, InstantiationException, IllegalAccessException, IOException {
+        return readYmlFile(ymlFile, new Configuration());
+    }
+    public static Configuration readConfiguration(String configuration) throws InvocationTargetException, IntrospectionException, InstantiationException, IllegalAccessException, IOException {
+        return readYmlContent(configuration, new Configuration());
+    }
 }

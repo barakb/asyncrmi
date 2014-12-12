@@ -10,6 +10,7 @@ import org.async.rmi.client.PendingRequests;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.client.RemoteRef;
 import org.async.rmi.client.UnicastRef;
+import org.async.rmi.config.Configuration;
 import org.async.rmi.http.ClassLoaderServer;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;

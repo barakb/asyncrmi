@@ -3,16 +3,14 @@ package org.async.rmi.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.compression.JdkZlibDecoder;
-import io.netty.handler.codec.compression.JdkZlibEncoder;
 import org.async.rmi.Modules;
-import org.async.rmi.Netmap;
+import org.async.rmi.config.NetMap;
+import org.async.rmi.config.Rule;
 import org.async.rmi.messages.HandshakeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,10 +51,10 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
     }
 
     private List<String> getMatchingFilters(InetSocketAddress address) {
-        Netmap netmap = Modules.getInstance().getConfiguration().getNetmap();
-        if (netmap != null) {
-            for (Netmap.Rule rule : netmap.getRules()) {
-                if (rule.getMatch().match(address.getHostName(), address.getAddress().getHostAddress())) {
+        NetMap netMap = Modules.getInstance().getConfiguration().getNetMap();
+        if (netMap != null) {
+            for (Rule rule : netMap.getRules()) {
+                if (rule.match(address.getHostName(), address.getAddress().getHostAddress())) {
                     return rule.getFilters();
                 }
             }

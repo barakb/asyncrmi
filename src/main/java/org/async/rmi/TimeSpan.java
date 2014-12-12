@@ -10,6 +10,7 @@ public class TimeSpan {
     private final long time;
     private final TimeUnit timeUnit;
 
+
     public TimeSpan(long time, TimeUnit timeUnit) {
         this.time = time;
         this.timeUnit = timeUnit;

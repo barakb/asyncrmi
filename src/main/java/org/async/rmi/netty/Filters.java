@@ -9,7 +9,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.async.rmi.Factory;
 import org.async.rmi.Modules;
-import org.async.rmi.Netmap;
+import org.async.rmi.config.ID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public class Filters {
 
         }
 */
-        Netmap.ID id = Modules.getInstance().getConfiguration().getNetmap().getId();
+        ID id = Modules.getInstance().getConfiguration().getNetMap().getId();
         Factory<SslContext> sslServerContextFactory = Modules.getInstance().getConfiguration().getSslServerContextFactory();
         if (sslServerContextFactory != null) {
             sslCtx = sslServerContextFactory.create();

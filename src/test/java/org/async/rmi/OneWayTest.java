@@ -1,5 +1,6 @@
 package org.async.rmi;
 
+import org.async.rmi.config.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,7 +24,9 @@ public class OneWayTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Counter server = new CounterServer();
-        Modules.getInstance().getConfiguration().setConfigurePort(0).setClientTimeout(1, TimeUnit.SECONDS);
+        Configuration configuration = Modules.getInstance().getConfiguration();
+        configuration.setConfigurePort(0);
+        configuration.setClientTimeout(1, TimeUnit.SECONDS);
         client = writeAndRead(server);
     }
 
