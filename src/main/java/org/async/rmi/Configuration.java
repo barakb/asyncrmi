@@ -25,7 +25,7 @@ public class Configuration {
     private Netmap netmap;
 
     public Configuration() {
-        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", "netmap.yaml");
+        String netmapFileName = System.getProperty("java.rmi.server.netmapfile", "netmap.yml");
         if (netmapFileName != null && new File(netmapFileName).exists()) {
             try {
                 netmap = Netmap.readNetMapFile(new File(netmapFileName));
@@ -105,4 +105,5 @@ public class Configuration {
     public void setNetmap(Netmap netmap) {
         this.netmap = netmap;
     }
+
 }

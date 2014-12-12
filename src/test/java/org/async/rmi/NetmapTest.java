@@ -22,14 +22,14 @@ public class NetmapTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("drop")))));
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("drop"))), null));
         server = new CounterServer();
 
     }
     @Test(timeout = 5000, expected = ExecutionException.class)
     public void testDropUsage() throws Exception {
         Modules.getInstance().getConfiguration().setClientConnectTimeout(1, TimeUnit.SECONDS);
-        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("drop")))));
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("drop"))), null));
         Counter client = writeAndRead(server);
         client.toUpper("foo").get();
         ((Exported)client).close();
@@ -38,7 +38,7 @@ public class NetmapTest {
     @Test(timeout = 5000)
     public void testCompress() throws Exception {
         Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);
-        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("compress")))));
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("compress"))), null));
         Counter client = writeAndRead(server);
         client.toUpper("foo").get();
         ((Exported)client).close();
@@ -46,7 +46,7 @@ public class NetmapTest {
     @Test
     public void testEncrypt() throws Exception {
         Modules.getInstance().getConfiguration().setClientConnectTimeout(30, TimeUnit.SECONDS);
-        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("encrypt")))));
+        Modules.getInstance().getConfiguration().setNetmap(new Netmap(Arrays.asList(new Netmap.Rule(new Netmap.Rule.Match(".*"), Arrays.asList("encrypt"))), null));
         Counter client = writeAndRead(server);
         client.toUpper("foo").get();
         ((Exported)client).close();

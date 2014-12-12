@@ -1,0 +1,13 @@
+---
+rules:
+    - match: .*
+      filters: [encrypt]
+      auth: client
+
+id:
+    key : example/src/main/keys/server-private.pem
+    certificate: example/src/main/keys/server-certificate.pem
+auth:
+    - name: client
+      certificate: example/src/main/keys/client-certificate.pem
+...

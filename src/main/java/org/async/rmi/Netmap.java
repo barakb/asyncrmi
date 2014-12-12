@@ -13,12 +13,14 @@ import java.util.regex.Pattern;
  * 12/3/14.
  */
 public class Netmap {
-    private static Netmap theEmptyNetmap = new Netmap(Collections.emptyList());
+    private static Netmap theEmptyNetmap = new Netmap(Collections.emptyList(), null);
 
     private final List<Rule> rules;
+    private final ID id;
 
-    public Netmap(List<Rule> rules) {
+    public Netmap(List<Rule> rules, ID id) {
         this.rules = rules;
+        this.id = id;
     }
 
     public List<Rule> getRules() {
@@ -30,9 +32,10 @@ public class Netmap {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public static Netmap readNetMapStream(InputStream is){
+    public static Netmap readNetMapStream(InputStream is) {
         return Util.readNetMapStream(is);
     }
+
     public static Netmap readNetMapString(String content) throws IOException {
         return Util.readNetMapString(content);
     }
@@ -40,6 +43,10 @@ public class Netmap {
     @SuppressWarnings("UnusedDeclaration")
     public static Netmap empty() {
         return theEmptyNetmap;
+    }
+
+    public ID getId() {
+        return id;
     }
 
     public static class Rule {
@@ -72,15 +79,31 @@ public class Netmap {
             }
 
             public boolean match(String hostName, String hostAddress) {
-                Pattern pattern =  Pattern.compile(host);
+                Pattern pattern = Pattern.compile(host);
                 Matcher m1 = pattern.matcher(hostName);
                 Matcher m2 = pattern.matcher(hostAddress);
                 return ((m1.find() || m2.find()));
             }
         }
-
     }
 
+    public static class ID {
+        private final File key;
+        private final File certificate;
+
+        public ID(File key, File certificate) {
+            this.key = key;
+            this.certificate = certificate;
+        }
+
+        public File getKey() {
+            return key;
+        }
+
+        public File getCertificate() {
+            return certificate;
+        }
+    }
 }
 
 

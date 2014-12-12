@@ -45,8 +45,6 @@ public class Util {
             out.flush();
             return out.toByteArray();
         }
-
-
     }
 
     public static void writeToFile(Object object, File file) throws IOException {
@@ -71,7 +69,14 @@ public class Util {
         Yaml yaml = new Yaml();
         Map map = (Map) yaml.load(is);
         //noinspection unchecked
-        return new Netmap(extractRules(toStream((List<Map>) map.get("rules"))));
+        return new Netmap(extractRules(toStream((List<Map>) map.get("rules"))), extractID((Map<String, String>) map.get("id")));
+    }
+
+    private static Netmap.ID extractID(Map<String, String> id) {
+        if(id == null){
+            return null;
+        }
+        return new Netmap.ID(new File(id.get("key")), new File(id.get("certificate")));
     }
 
     public static Netmap readNetMapString(String content) throws IOException {

@@ -2,7 +2,6 @@ package org.async.example.dcl.client;
 
 import org.async.example.dcl.EventListener;
 import org.async.example.dcl.Server;
-import org.async.example.dcl.server.ServerImpl;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ public class ClientImpl {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         System.setProperty("side", "client");
-        Server server = (Server) Util.readFromFile(new File(ServerImpl.SER_FILE_NAME));
+        Server server = (Server) Util.readFromFile(new File(Server.SER_FILE_NAME));
 
         logger.info("*************************");
         logger.info("SerializableListener demo");
