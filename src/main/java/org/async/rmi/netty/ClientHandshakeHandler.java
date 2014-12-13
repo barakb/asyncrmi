@@ -32,7 +32,7 @@ public class ClientHandshakeHandler extends ChannelHandlerAdapter {
         ctx.pipeline().remove(this);
         ByteBuf response = (ByteBuf) msg;
         int filters = handshakeManager.verifyResponse(response);
-        Filters.installFilters(ctx, filters, true);
+        Filters.installClientFilters(ctx, filters);
         RMIClientHandler clientHandler = ctx.pipeline().get(RMIClientHandler.class);
         clientHandler.getHandshakeCompleteFuture().complete(null);
         ctx.fireChannelActive();

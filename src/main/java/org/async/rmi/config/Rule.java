@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 public class Rule {
     private String match;
     private List<String> filters;
+    private List<String> auth;
 
     @SuppressWarnings("UnusedDeclaration")
     public Rule() {
@@ -38,6 +39,14 @@ public class Rule {
 
     public List<String> getFilters() {
         return filters;
+    }
+
+    public List<String> getAuth() {
+        return auth;
+    }
+
+    public void setAuth(List<String> auth) {
+        this.auth = auth;
     }
 
     public boolean match(String hostName, String hostAddress) {

@@ -23,6 +23,7 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
 
     private HandshakeManager handshakeManager;
     private int filters;
+    private Rule rule;
 
     public ServerHandshakeHandler() {
         handshakeManager = new HandshakeManager();
@@ -30,7 +31,8 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        filters = Filters.encode(getMatchingFilters((InetSocketAddress) ctx.channel().remoteAddress()));
+        rule = getMatchingRule(ctx);
+        filters = Filters.encode(getMatchingFilters(rule));
         if (Filters.hasDrop(filters)) {
             logger.debug("drop connection to {}", ctx.channel().remoteAddress());
             ctx.channel().close();
@@ -41,7 +43,7 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ctx.pipeline().remove(this);
         ByteBuf reply = handshakeManager.verifyRequest((ByteBuf) msg, filters);
-        Filters.installFilters(ctx, filters, false);
+        Filters.installServerFilters(ctx, filters, rule);
         ctx.writeAndFlush(reply).addListener(future -> ctx.fireChannelActive());
         if (filters != 0) {
             logger.debug("{}: handshake done with client {}, network filters: {}, and pipeline: {}",
@@ -50,14 +52,22 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
         }
     }
 
-    private List<String> getMatchingFilters(InetSocketAddress address) {
+    private Rule getMatchingRule(ChannelHandlerContext ctx){
+        InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         NetMap netMap = Modules.getInstance().getConfiguration().getNetMap();
         if (netMap != null) {
             for (Rule rule : netMap.getRules()) {
                 if (rule.match(address.getHostName(), address.getAddress().getHostAddress())) {
-                    return rule.getFilters();
+                    return rule;
                 }
             }
+        }
+        return null;
+    }
+
+    private List<String> getMatchingFilters(Rule rule) {
+        if(rule != null) {
+            return rule.getFilters();
         }
         return Collections.emptyList();
     }
