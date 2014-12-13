@@ -39,13 +39,14 @@ categories: doc
     <li class="notready">Distributed Garbage collection</li>
     <li>Client connection pool</li>
     <li>Requests pipeline [<a href="request-pipeline.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/pipeline">example</a>].</li>
+    <li>Configuration File[<a href="configuration.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/blob/master/example/ssl.server.config.yml">example</a>].</li>
 
     <li>Networking</li>
     <ul class="features">
         <li>Unpublish [<a href="unpublish.html">documentation</a>].</li>
         <li>Selecting network interface [<a href="selecting-network-interface.html">documentation</a>].</li>
         <li>Handshake [<a href="handshake.html">documentation</a>].</li>
-        <li>TSL [<a href="tls.html">documentation</a>].</li>
+        <li>Encryption [<a href="tls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/ssl">example</a>].</li>
         <li >Closing proxy [<a href="closing-client.html">closing-client</a>] [<a href="https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/CloseTest.java">example</a>].</li>
     </ul>
 

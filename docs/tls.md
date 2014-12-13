@@ -7,14 +7,43 @@ categories: doc
 
 The encrypt that used with asyncrmi is TLS.
 
-Once the encrypt is required in the [netmap file](netmap.html) for a client address the server will install the encrypt
-filter after the handshake is done.
+By default if required the server and client are using unique self signed key pair and certificate for each client connection.
 
-By default the server are using unique self signed key pair and certificate for each client connection.
-If you wish to configure the server keys and certificate you can do that by setting the `sslServerContextFactory` in the
-configuration object.
+It is only required to configure the server to require encryption from each client to have all communication but the handshake encrypted.
+This is the server configuration file needed for this:
 
-By default the client use trust store that accept any certificate, you can override it by setting the `sslClientContextFactory`
-in the configuration object.
+```yaml
+---
+netMap:
+    rules:
+        - match: .*
+          filters: [encrypt]
 
-see [example](https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/ServerTLSTest.java)
+...
+```
+If you wish to use your one keys for the process you have to add id section in the server config file.
+In the id section you have to provide the path to pem private key file, and the
+path to a pem certificate file (that is the server public key signed by a certificate authority).
+you can learn how to create your set of keys and certificate [here](keys.html)
+
+
+```yaml
+---
+
+netMap:
+    rules:
+        - match: .*
+          filters: [encrypt]
+
+    id:
+        key : example/src/main/keys/server-private.pem
+        certificate: example/src/main/keys/server-certificate.pem
+...
+```
+
+With this configuration the server will use the provided key and certificate instead.
+If you wish to have the client use a pre define key you can do the same in the client configuration file.
+
+
+
+see [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/ssl)
