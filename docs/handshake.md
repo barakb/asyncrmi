@@ -32,7 +32,7 @@ for this session, this set can be configure per client address in the netmap.yam
 By default the name of the file is netmap.yaml and if such file exists it is used.
 You can point asyncrmi to another file with the system property `java.rmi.server.netmapfile`
 
-The syntax of the network mapper file is describe [here](netmap.html)
+The syntax of the network mapper file is describe [here](networking.html)
 
 You can set the content of this configuration from inside Java program using the netmap variable inside the configuration object.
 
