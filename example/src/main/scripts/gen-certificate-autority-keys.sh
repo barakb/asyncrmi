@@ -8,4 +8,4 @@ rm -f $KEYSTORE_DIR/ca.keystore
 
 keytool -genkeypair  -keysize 2048 -genkey -alias ca -keyalg RSA -keystore $KEYSTORE_DIR/ca.keystore\
  -storepass $PASSWORD -keypass $PASSWORD \
- -dname "CN=Certificate Autority, OU=Async, O=RMI, L=Avigdor, S=NA, C=ISRAEL"
+ -dname "CN=Certificate Authority, OU=Async, O=RMI, L=Avigdor, S=NA, C=ISRAEL"
