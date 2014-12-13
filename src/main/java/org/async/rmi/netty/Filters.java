@@ -89,57 +89,42 @@ public class Filters {
     private static void addServerEncryption(ChannelHandlerContext ctx) throws SSLException, CertificateException {
         Channel ch = ctx.pipeline().channel();
         SslContext sslCtx;
-
-/*
-        Netmap.TLS tls = Modules.getInstance().getConfiguration().getNetmap().getTls();
-        if(tls != null){
-            InputStream is = new FileInputStream(tls.getKeystore());
-            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keystore.load(is, tls.getKeystorePassword() != null ? tls.getKeystorePassword().toCharArray() : null);
-//            KeyManagerFactory kmf
-//            Certificate cert = keystore.getCertificate("issuer");
-//            sslCtx = SslContext.newServerContext();
-
-            sslCtx = new JdkSslServerContext(servertTrustCrtFile, null,
-                    serverCrtFile, serverKeyFile, serverKeyPassword, null,
-                    null, IdentityCipherSuiteFilter.INSTANCE, (ApplicationProtocolConfig) null, 0, 0);
-
-        }
-*/
         ID id = Modules.getInstance().getConfiguration().getNetMap().getId();
         Factory<SslContext> sslServerContextFactory = Modules.getInstance().getConfiguration().getSslServerContextFactory();
         if (sslServerContextFactory != null) {
             sslCtx = sslServerContextFactory.create();
-            logger.debug("using sslServerContextFactory to create ssl context");
+            logger.debug("server using configured sslServerContextFactory to create ssl context");
         } else if (id != null) {
             sslCtx = SslContext.newServerContext(id.getCertificate(), id.getKey());
-            logger.debug("using id to create ssl context");
+            logger.debug("server using certificate {} from configured id to create ssl context", id.getCertificate().getAbsolutePath());
         } else {
-            logger.debug("creating self signed certificate");
             SelfSignedCertificate ssc = new SelfSignedCertificate();
             sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
-//            try {
-//                String [] file = TLSUtil.JKSToPrivateKey("/home/barakbo/opensource/asyncrmi/example/src/main/keys/server.keystore", "password", "server"
-//                        , "password", new File("/home/barakbo/opensource/asyncrmi/example/src/main/keys/"));
-//                sslCtx = SslContext.newServerContext(new File(file[0]), new File(file[1]));
-//            }catch(Exception e){
-//                logger.error(e.toString(), e);
-//                SelfSignedCertificate ssc = new SelfSignedCertificate();
-//                sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
-//            }
-
+            logger.debug("server creating self signed certificate to create ssl context");
     }
 
     ctx.pipeline().
-
     addFirst(sslCtx.newHandler(ch.alloc()
 
     ));
 }
 
     private static void addClientEncryption(ChannelHandlerContext ctx) throws SSLException {
+        SslContext sslCtx;
+        ID id = Modules.getInstance().getConfiguration().getNetMap().getId();
+
         Factory<SslContext> sslClientContextFactory = Modules.getInstance().getConfiguration().getSslClientContextFactory();
-        final SslContext sslCtx = sslClientContextFactory != null ? sslClientContextFactory.create() : SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
+        if(sslClientContextFactory != null){
+            sslCtx = sslClientContextFactory.create();
+            logger.debug("client using configured sslClientContextFactory to create ssl context");
+        }else if(id != null){
+            sslCtx = SslContext.newClientContext(id.getCertificate(), InsecureTrustManagerFactory.INSTANCE);
+            logger.debug("client using certificate {} from configured id to create ssl context", id.getCertificate().getAbsolutePath());
+        }else{
+            sslCtx = SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
+            logger.debug("client creating self signed certificate to create ssl context");
+        }
+
         Channel ch = ctx.pipeline().channel();
         InetSocketAddress address = (InetSocketAddress) ch.remoteAddress();
         ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc(), address.getHostString(), address.getPort()));

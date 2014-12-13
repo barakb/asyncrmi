@@ -24,24 +24,8 @@ public class ServerImpl implements Server {
 
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("java.rmi.server.config", "ssl.server.config.yml");
         Server server = new ServerImpl();
         Util.writeToFile(server, new File(new File(".."), SER_FILE_NAME));
-
-/*
-        InputStream is = new FileInputStream("example/src/main/keys/server.keystore");
-        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keystore.load(is, "password".toCharArray());
-        Certificate[] chain = keystore.getCertificateChain("server");
-        logger.info("chain is of length {}, {}", chain.length, Arrays.asList(chain));
-        Key key = keystore.getKey("server", "password".toCharArray());
-
-//            KeyManagerFactory kmf
-//            Certificate cert = keystore.getCertificate("issuer");
-//            sslCtx = SslContext.newServerContext();
-
-
-*/
         Thread.sleep(Long.MAX_VALUE);
     }
 }

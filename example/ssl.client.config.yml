@@ -1,0 +1,6 @@
+---
+netMap:
+    id:
+        key : example/src/main/keys/client-private.pem
+        certificate: example/src/main/keys/client-certificate.pem
+...

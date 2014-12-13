@@ -46,6 +46,7 @@ public class Configuration {
 
     }
     public Configuration() {
+        this.netMap = NetMap.empty();
     }
 
     public int getConfigurePort() {
