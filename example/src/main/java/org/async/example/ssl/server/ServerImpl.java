@@ -1,5 +1,6 @@
 package org.async.example.ssl.server;
 
+import org.async.example.ssl.ExportJKSToPem;
 import org.async.example.ssl.Server;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
@@ -24,6 +25,9 @@ public class ServerImpl implements Server {
 
 
     public static void main(String[] args) throws Exception {
+        if(0 < args.length){
+            ExportJKSToPem.main(args);
+        }
         Server server = new ServerImpl();
         Util.writeToFile(server, new File(new File(".."), SER_FILE_NAME));
         Thread.sleep(Long.MAX_VALUE);

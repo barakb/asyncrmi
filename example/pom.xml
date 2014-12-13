@@ -38,16 +38,6 @@
             </roles>
             <timezone>+2</timezone>
         </developer>
-        <developer>
-            <id>rkimhi</id>
-            <name>Revital Kimhi</name>
-            <email/>
-            <roles>
-                <role>developer</role>
-                <role>maintainer</role>
-            </roles>
-            <timezone>+2</timezone>
-        </developer>
     </developers>
 
     <scm>
@@ -144,6 +134,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <executions>
+                    <!--dynamic code loading example-->
                     <execution>
                         <id>dcl-server</id>
                         <goals><goal>jar</goal></goals>
@@ -182,6 +173,49 @@
                                     <addClasspath>true</addClasspath>
                                     <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
                                     <mainClass>org.async.example.dcl.client.ClientImpl</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <!--ssl example-->
+                    <execution>
+                        <id>ssl-server</id>
+                        <goals><goal>jar</goal></goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>ssl-server</finalName>
+                            <excludes>
+                                <exclude>**/client/**</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/ssl/**</include>
+                            </includes>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <mainClass>org.async.example.ssl.server.ServerImpl</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ssl-client</id>
+                        <goals><goal>jar</goal></goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>ssl-client</finalName>
+                            <excludes>
+                                <exclude>**/server/**</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/ssl/**</include>
+                            </includes>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <mainClass>org.async.example.ssl.client.ClientImpl</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
