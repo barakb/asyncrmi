@@ -37,17 +37,6 @@
             </roles>
             <timezone>+2</timezone>
         </developer>
-        <developer>
-            <id>rkimhi</id>
-            <name>Revital Kimhi</name>
-            <url>https://github.com/rkimhi</url>
-            <email/>
-            <roles>
-                <role>developer</role>
-                <role>maintainer</role>
-            </roles>
-            <timezone>+2</timezone>
-        </developer>
     </developers>
 
     <scm>
