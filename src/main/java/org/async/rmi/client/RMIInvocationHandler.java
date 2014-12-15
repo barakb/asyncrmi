@@ -47,7 +47,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         this.exporterContextClassLoader = null;
     }
 
-    public RMIInvocationHandler(Remote impl, Class[] remoteInterfaces) throws InterruptedException, UnknownHostException {
+    public RMIInvocationHandler(Remote impl, Class[] remoteInterfaces, long objectId) throws InterruptedException, UnknownHostException {
         this.impl = impl;
         this.remoteInterfaces = remoteInterfaces;
         this.exporterContextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -55,7 +55,7 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
         this.oneWayMap = createOneWayMap();
         this.traceMap = createTraceMap();
         this.configuration = Modules.getInstance().getConfiguration();
-        this.ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration, oneWayMap, traceMap);
+        this.ref = Modules.getInstance().getTransport().export(impl, remoteInterfaces, configuration, oneWayMap, traceMap, objectId);
     }
 
 
@@ -79,6 +79,11 @@ public class RMIInvocationHandler implements InvocationHandler, Externalizable, 
                 return ((UnicastRef) ref).getObjectid();
             }if(method.getName().equals("close")){
                 ref.close();
+                return null;
+            } if(method.getName().equals("redirect")){
+                //redirect this proxy to another server.
+                //redirect(long objectId, String host, int port)
+                ((UnicastRef) ref).redirect((Long)args[0], (String)args[1], (Integer)args[2]);
                 return null;
             }
             throw new InternalError("Unexpected Object method dispatched: " + method);

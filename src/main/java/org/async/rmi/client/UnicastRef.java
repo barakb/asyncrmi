@@ -108,6 +108,23 @@ public class UnicastRef implements RemoteRef {
         pool.close();
     }
 
+    public synchronized void redirect(long objectId, String host, int port) {
+        RemoteObjectAddress redirectedAddress = new RemoteObjectAddress("rmi://" + host + ":" + port, objectId);
+        logger.info("redirecting client from {} to {}", remoteObjectAddress, redirectedAddress);
+        this.objectid = objectId;
+        remoteObjectAddress = redirectedAddress;
+        Pool<Connection<Message>> oldPool = pool;
+        pool = createPool();
+        if(oldPool != null) {
+            logger.warn("Redirect while pool was already used !");
+            try {
+                oldPool.close();
+            }catch(Exception e){
+                logger.error(e.toString(), e);
+            }
+        }
+    }
+
     private CompletableFuture<Response> send(Request request, OneWay oneWay) {
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request, responseFuture, traceMap.get(request.getMethodId()));

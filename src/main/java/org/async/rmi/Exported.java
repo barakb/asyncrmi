@@ -5,6 +5,7 @@ package org.async.rmi;
  * 08/10/14.
  */
 public interface Exported {
-    public long getObjectId();
-    public void close();
+    long getObjectId();
+    void close();
+    void redirect(long objectId, String host, int port);
 }

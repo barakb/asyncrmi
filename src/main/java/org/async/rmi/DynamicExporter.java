@@ -28,13 +28,27 @@ public class DynamicExporter implements Exporter {
     }
 
     @Override
-    public Remote export(Remote impl) throws InterruptedException, UnknownHostException {
+    public  <T extends Remote> T export(T impl) throws InterruptedException, UnknownHostException {
         if (impl instanceof Exported) {
             return impl;
         }
         Modules.getInstance().getTransport().listen(impl.getClass().getClassLoader());
 
-        Remote proxy = createProxy(impl);
+        T proxy = createProxy(impl, 0);
+
+        exportedObjects.put(((Exported) proxy).getObjectId(), proxy);
+
+        return proxy;
+    }
+
+    @Override
+    public  <T extends Remote> T export(T impl, long objectId) throws InterruptedException, UnknownHostException {
+        if (impl instanceof Exported) {
+            return impl;
+        }
+        Modules.getInstance().getTransport().listen(impl.getClass().getClassLoader());
+
+        T proxy = createProxy(impl, objectId);
 
         exportedObjects.put(((Exported) proxy).getObjectId(), proxy);
 
@@ -67,10 +81,11 @@ public class DynamicExporter implements Exporter {
         return true;
     }
 
-    private Remote createProxy(Remote impl) throws UnknownHostException, InterruptedException {
+    private  <T extends Remote> T createProxy(Remote impl, long objectId) throws UnknownHostException, InterruptedException {
         Class[] remoteInterfaces = extractRemoteInterfaces(impl.getClass());
-        RMIInvocationHandler handler = new RMIInvocationHandler(impl, remoteInterfaces);
-        return (Remote) Proxy.newProxyInstance(impl.getClass().getClassLoader(), remoteInterfaces, handler);
+        RMIInvocationHandler handler = new RMIInvocationHandler(impl, remoteInterfaces, objectId);
+        //noinspection unchecked
+        return (T) Proxy.newProxyInstance(impl.getClass().getClassLoader(), remoteInterfaces, handler);
     }
 
 

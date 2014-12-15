@@ -119,14 +119,14 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException {
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap, long objectId) throws UnknownHostException, InterruptedException {
         String address = configuration.getServerHostName();
         if (address == null) {
             address = InetAddress.getLocalHost().getHostAddress();
         }
         final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
         ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, traceMap, callDescription);
-        long objectId = Modules.getInstance().getObjectRepository().add(objectRef);
+        objectId = Modules.getInstance().getObjectRepository().add(objectRef, objectId);
         RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
         return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId, traceMap, callDescription);
     }

@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public interface Transport extends Closeable {
 
     RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap,
-                     Map<Long, Trace> traceMap) throws UnknownHostException, InterruptedException;
+                     Map<Long, Trace> traceMap, long objectId) throws UnknownHostException, InterruptedException;
 
     void addResponseFuture(Request request, CompletableFuture<Response> responseFuture, Trace trace);
 
