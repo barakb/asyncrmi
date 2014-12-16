@@ -26,7 +26,7 @@ Download the DockerFile from [github](https://github.com/barakb/docker-asyncrmi)
 
 
 ## How to build the examples.
-- After building asyncrmi from the asyncrmi dir type `(cd example; maven install)`
+- After building Async RMI from the Async RMI dir type `(cd example; mvn install)`
 
 ##An example.
 
