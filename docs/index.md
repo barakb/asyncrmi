@@ -10,6 +10,7 @@ categories: doc
 1. [why did i started this project](why-did-i-started-this-project.html).
 2. [rmi pros](rmi-pros.html).
 
+[Async RMI in 10 Minutes](10min-start.html)
 
 ## Async RMI Feature set.
 <ul class="features">
