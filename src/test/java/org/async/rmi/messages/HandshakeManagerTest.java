@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -17,7 +19,7 @@ public class HandshakeManagerTest {
     @Test
     public void testValidateRequest() throws Exception {
 
-        HandshakeManager handshake = new HandshakeManager();
+        HandshakeManager handshake = new HandshakeManager(UUID.randomUUID());
         ByteBuf request = handshake.handshakeRequest();
         ByteBuf response = handshake.verifyRequest(request, 10);
         assertThat(handshake.verifyResponse(response), is(10));

@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import org.async.rmi.Modules;
+import org.async.rmi.messages.CancelRequest;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.server.ObjectRef;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 /**
  * Created by Barak Bar Orion
@@ -19,6 +21,7 @@ import java.rmi.RemoteException;
  */
 public class RMIServerHandler extends ChannelHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RMIServerHandler.class);
+    private UUID clientId;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -44,10 +47,15 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     }
 
     private void dispatch(Request request, ChannelHandlerContext ctx) {
+        request.setClientId(clientId);
         long objectId = request.getObjectId();
         ObjectRef objectRef = Modules.getInstance().getObjectRepository().get(objectId);
         if (null != objectRef) {
-            objectRef.invoke(request, ctx);
+            if(request instanceof CancelRequest){
+                objectRef.cancelRequest((CancelRequest)request);
+            }else {
+                objectRef.invoke(request, ctx);
+            }
         } else {
             Response response = new Response(request.getRequestId(), null, request.callDescription()
                     , new RemoteException("Object id [" + request.getObjectId()
@@ -55,6 +63,10 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
             logger.warn("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
             ctx.writeAndFlush(response);
         }
+    }
+
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
     }
 
     private String getFrom(ChannelHandlerContext ctx) {

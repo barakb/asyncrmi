@@ -1,6 +1,7 @@
 package org.async.rmi.client;
 
 import org.async.rmi.*;
+import org.async.rmi.messages.CancelRequest;
 import org.async.rmi.messages.Message;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
@@ -18,6 +19,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,8 +40,12 @@ public class UnicastRef implements RemoteRef {
     private long objectid;
     private Map<Long, Trace> traceMap;
     private String callDescription;
+    private UUID clientId;
+    private RequestQueue requestQueue;
 
     public UnicastRef() {
+        clientId = UUID.randomUUID();
+        requestQueue = new RequestQueue(this);
     }
 
     public UnicastRef(RemoteObjectAddress remoteObjectAddress, Class[] remoteInterfaces, long objectid
@@ -61,14 +68,13 @@ public class UnicastRef implements RemoteRef {
 
         MarshalledObject [] marshalledParams = Modules.getInstance().getUtil().marshalParams(params);
 
-        Request request = new Request(nextRequestId.getAndIncrement()
+        final Request request = new Request(nextRequestId.getAndIncrement()
                 , remoteObjectAddress.getObjectId(), opHash, oneWay != null
                 , marshalledParams, method.getName(), callDescription);
-
-        CompletableFuture<Response> future = send(request, oneWay);
+        CompletableFuture<Object> result = new CompletableFuture<>();
+        CompletableFuture<Response> future = send(request, oneWay, result);
         if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
-            CompletableFuture<Object> result = new CompletableFuture();
             future.handle((response, throwable) -> {
                 if (null != throwable) {
                     result.completeExceptionally(throwable);
@@ -79,11 +85,17 @@ public class UnicastRef implements RemoteRef {
                 }
                 return null;
             });
+            result.exceptionally(ex -> {
+                if(ex instanceof CancellationException){
+                    future.cancel(true);
+                    send(new CancelRequest(request, true), null, null);
+                }
+                return null;
+            });
             return result;
         } else if (oneWay != null) {
             if (Future.class.isAssignableFrom(method.getReturnType())) {
                 //noinspection unchecked
-                CompletableFuture<Void> result = new CompletableFuture();
                 future.handle((response, throwable) -> {
                     if (null != throwable) {
                         result.completeExceptionally(throwable);
@@ -116,7 +128,6 @@ public class UnicastRef implements RemoteRef {
         Pool<Connection<Message>> oldPool = pool;
         pool = createPool();
         if(oldPool != null) {
-            logger.warn("Redirect while pool was already used !");
             try {
                 oldPool.close();
             }catch(Exception e){
@@ -125,26 +136,18 @@ public class UnicastRef implements RemoteRef {
         }
     }
 
-    private CompletableFuture<Response> send(Request request, OneWay oneWay) {
+    private CompletableFuture<Response> send(Request request, OneWay oneWay, CompletableFuture<Object> result) {
+        if(!requestQueue.add(request, oneWay, result)){
+            return null;
+        }
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
         Modules.getInstance().getTransport().addResponseFuture(request, responseFuture, traceMap.get(request.getMethodId()));
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
-        connectionFuture.whenComplete((connection, throwable) -> {
-            if (throwable != null) {
-                responseFuture.completeExceptionally(throwable);
-            } else {
-                trace(request, connection);
-                if (oneWay != null) {
-                    connection.sendOneWay(request, responseFuture);
-                } else {
-                    connection.send(request);
-                }
-            }
-        });
+        connectionFuture.whenComplete((connection, throwable) -> requestQueue.processRequest(connection, throwable, responseFuture));
         return responseFuture;
     }
 
-    private void trace(Request request, Connection<Message> connection) {
+    void trace(Request request, Connection<Message> connection) {
         Trace trace = traceMap.get(request.getMethodId());
         if(trace != null && trace.value() != TraceType.OFF) {
             if(trace.value() == TraceType.DETAILED){
@@ -228,7 +231,7 @@ public class UnicastRef implements RemoteRef {
 
     private Pool<Connection<Message>> createPool() {
         pool = new ShrinkableConnectionPool(2);
-        NettyClientConnectionFactory factory = new NettyClientConnectionFactory(Modules.getInstance().getTransport().getClientEventLoopGroup(), remoteObjectAddress);
+        NettyClientConnectionFactory factory = new NettyClientConnectionFactory(Modules.getInstance().getTransport().getClientEventLoopGroup(), remoteObjectAddress, clientId);
         factory.setPool(pool);
         pool.setFactory(factory);
         return pool;

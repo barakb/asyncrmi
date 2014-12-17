@@ -15,7 +15,7 @@ public class HandshakeMessageDecoder extends FixedLengthFrameDecoder {
     private static final Logger logger = LoggerFactory.getLogger(HandshakeMessageDecoder.class);
 
     public HandshakeMessageDecoder() {
-        super(13);
+        super(29);
         setSingleDecode(true);
     }
 

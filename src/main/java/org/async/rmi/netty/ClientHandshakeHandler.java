@@ -7,6 +7,8 @@ import org.async.rmi.messages.HandshakeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 /**
  * Created by Barak Bar Orion
  * 12/4/14.
@@ -16,8 +18,8 @@ public class ClientHandshakeHandler extends ChannelHandlerAdapter {
 
     private HandshakeManager handshakeManager;
 
-    public ClientHandshakeHandler() {
-        handshakeManager = new HandshakeManager();
+    public ClientHandshakeHandler(UUID clientId) {
+        handshakeManager = new HandshakeManager(clientId);
     }
 
     @Override
@@ -25,7 +27,6 @@ public class ClientHandshakeHandler extends ChannelHandlerAdapter {
         ByteBuf msg = handshakeManager.handshakeRequest();
         ctx.writeAndFlush(msg);
     }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 

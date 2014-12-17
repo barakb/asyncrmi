@@ -5,6 +5,7 @@ import org.async.rmi.Modules;
 import org.async.rmi.OneWay;
 import org.async.rmi.Trace;
 import org.async.rmi.TraceType;
+import org.async.rmi.messages.CancelRequest;
 import org.async.rmi.messages.Request;
 import org.async.rmi.messages.Response;
 import org.async.rmi.modules.Util;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -35,6 +37,7 @@ public class ObjectRef {
     private final String implClassName;
     private Map<Long, Method> methodIdToMethodMap;
     private Map<Long, Trace> traceMap;
+    private Map<String, CompletableFuture> inProgressCalls;
 
     public ObjectRef(Remote impl, Class[] remoteInterfaces, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap, String implClassName) {
         this.impl = impl;
@@ -42,6 +45,7 @@ public class ObjectRef {
         this.traceMap = traceMap;
         this.methodIdToMethodMap = createMethodIdToMethodMap(remoteInterfaces);
         this.implClassName = implClassName;
+        this.inProgressCalls = new ConcurrentHashMap<>();
     }
 
     public void invoke(Request request, ChannelHandlerContext ctx) {
@@ -68,8 +72,13 @@ public class ObjectRef {
             }
             if (res instanceof Future) {
                 final CompletableFuture<Object> completableFuture = toCompletableFuture((Future) res);
+                inProgressCalls.put(request.getUniqueId(), completableFuture);
                 //noinspection unchecked
                 completableFuture.whenComplete((o, e) -> {
+                    if(null == inProgressCalls.remove(request.getUniqueId())){
+                       // future was canceled by client.
+                       return;
+                    }
                     if (o != null) {
                         writeResponse(ctx, new Response(request.getRequestId(), o, request.callDescription()), request);
                     } else {
@@ -88,6 +97,14 @@ public class ObjectRef {
         } catch (Throwable e) {
             logger.error("error while processing request {} object is {} method is {}", request, impl, method.toGenericString(), e);
             writeResponse(ctx, new Response(request.getRequestId(), null, request.callDescription(), e), request);
+        }
+    }
+
+
+    public void cancelRequest(CancelRequest request) {
+        CompletableFuture future = inProgressCalls.remove(request.getUniqueId());
+        if(future != null) {
+            future.cancel(request.isMayInterruptIfRunning());
         }
     }
 

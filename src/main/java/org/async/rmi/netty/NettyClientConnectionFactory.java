@@ -16,6 +16,7 @@ import org.async.rmi.pool.Pool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -34,7 +35,7 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
     private final RemoteObjectAddress address;
     private Pool<Connection<Message>> pool;
 
-    public NettyClientConnectionFactory(final EventLoopGroup group, final RemoteObjectAddress address) {
+    public NettyClientConnectionFactory(final EventLoopGroup group, final RemoteObjectAddress address, final UUID clientId) {
         this.address = address;
         bootstrap = new Bootstrap();
         bootstrap.group(group)
@@ -45,7 +46,7 @@ public class NettyClientConnectionFactory implements Factory<CompletableFuture<C
                         ChannelPipeline p = ch.pipeline();
                         p.addLast(
                                 new HandshakeMessageDecoder(),
-                                new ClientHandshakeHandler(),
+                                new ClientHandshakeHandler(clientId),
                                 new MessageEncoder(),
                                 new MessageDecoder(),
                                 new RMIClientHandler());

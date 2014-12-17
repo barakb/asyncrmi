@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Barak Bar Orion
@@ -43,6 +44,7 @@ public class ServerHandshakeHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ctx.pipeline().remove(this);
         ByteBuf reply = handshakeManager.verifyRequest((ByteBuf) msg, filters);
+        ctx.pipeline().get(RMIServerHandler.class).setClientId(handshakeManager.getClientId());
         Filters.installServerFilters(ctx, filters, rule);
         ctx.writeAndFlush(reply).addListener(future -> ctx.fireChannelActive());
         if (filters != 0) {

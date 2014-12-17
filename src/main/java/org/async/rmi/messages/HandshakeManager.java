@@ -1,10 +1,13 @@
 package org.async.rmi.messages;
 
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import static io.netty.buffer.Unpooled.buffer;
 
@@ -13,9 +16,20 @@ import static io.netty.buffer.Unpooled.buffer;
  * 12/4/14.
  */
 public class HandshakeManager {
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger logger = LoggerFactory.getLogger(HandshakeManager.class);
+
     private static final byte [] HANDSHAKE_PREFIX = new byte[]{97, 115, 121, 110, 99, 114, 109, 105};
     private byte challenge;
+    private UUID clientId;
 
+
+    public HandshakeManager(UUID clientId) {
+        this.clientId = clientId;
+    }
+
+    public HandshakeManager() {
+    }
 
     /**
      * Called by the client to initiate protocol handshake.
@@ -24,11 +38,13 @@ public class HandshakeManager {
      */
     public ByteBuf handshakeRequest() {
         challenge = (byte) (Math.random() * Byte.MAX_VALUE);
-        ByteBuf buffer = buffer(13);
+        ByteBuf buffer = buffer(29);
         buffer.order(ByteOrder.BIG_ENDIAN);
         buffer.writeBytes(HANDSHAKE_PREFIX);
         buffer.writeByte(challenge);
         buffer.writeInt(0);
+        buffer.writeLong(clientId.getLeastSignificantBits());
+        buffer.writeLong(clientId.getMostSignificantBits());
         return buffer;
     }
 
@@ -46,12 +62,17 @@ public class HandshakeManager {
             throw new IOException("Invalid protocol handshake request, prefix is not match");
         }
         int challenge = request.getByte(8);
-
-        ByteBuf reply = buffer(13);
+        request.getInt(9);
+        long lsb = request.getLong(13);
+        long msb = request.getLong(21);
+        clientId = new UUID(msb, lsb);
+        ByteBuf reply = buffer(29);
         reply.order(ByteOrder.BIG_ENDIAN);
         reply.writeBytes(HANDSHAKE_PREFIX);
         reply.writeByte((byte) (challenge + 1));
         reply.writeInt(filters);
+        reply.writeLong(0);
+        reply.writeLong(0);
         return reply;
     }
 
@@ -82,4 +103,9 @@ public class HandshakeManager {
         }
         return response.getInt(9);
     }
+
+    public UUID getClientId() {
+        return clientId;
+    }
+
 }

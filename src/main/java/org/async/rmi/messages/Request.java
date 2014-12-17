@@ -4,6 +4,7 @@ import org.async.rmi.MarshalledObject;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +19,7 @@ public class Request extends Message {
 
     private transient String methodName;
     private String implClassName;
+    private transient UUID clientId;
 
     @SuppressWarnings("UnusedDeclaration")
     public Request() {
@@ -51,6 +53,25 @@ public class Request extends Message {
 
     public void setImplClassName(String implClassName) {
         this.implClassName = implClassName;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getImplClassName() {
+        return implClassName;
+    }
+
+    public UUID getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
+    }
+    public String getUniqueId(){
+        return clientId.toString() + ":" + getRequestId();
     }
 
     public String callDescription() {
