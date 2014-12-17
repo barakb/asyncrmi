@@ -35,12 +35,12 @@ public class CancelingRemoteFutureTest {
         CancelCounter client = writeAndRead(server);
         CompletableFuture<Void> future = client.get();
         do {
-            Thread.sleep(20);
+            Thread.sleep(200);
         } while (client.getFutures() == 0);
         assertThat(client.getFutures(), is(1));
         future.cancel(true);
         do {
-            Thread.sleep(20);
+            Thread.sleep(200);
         } while (0 < client.getFutures());
     }
 
