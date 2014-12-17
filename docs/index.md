@@ -20,6 +20,7 @@ categories: doc
         <li>Java 8 <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html">CompletableFuture</a> as remote futures.</li>
         <li>Client timeout [<a href="client-timeout.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/timeout">example</a>].</li>
         <li>One way calls [<a href="oneway-calls.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway">example</a>].</li>
+        <li>Cancellation of remote future [<a href="cancellation-of-remote-future.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/blob/master/src/test/java/org/async/rmi/CancelingRemoteFutureTest.java">example</a>].</li>
     </ul>
 
     <li class="notready">Configurable thread policies [<a href="threads.html">documentation</a>] [<a href="https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/oneway">example</a>].</li>
