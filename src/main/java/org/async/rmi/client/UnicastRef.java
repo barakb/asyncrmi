@@ -71,7 +71,7 @@ public class UnicastRef implements RemoteRef {
         final Request request = new Request(nextRequestId.getAndIncrement()
                 , remoteObjectAddress.getObjectId(), opHash, oneWay != null
                 , marshalledParams, method.getName(), callDescription);
-        CompletableFuture<Object> result = new CompletableFuture<>();
+        CompletableFuture<Object> result = new ClientCompletableFuture<>(mayInterruptIfRunning -> send(new CancelRequest(request, mayInterruptIfRunning), null, null));
         CompletableFuture<Response> future = send(request, oneWay, result);
         if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
@@ -82,13 +82,6 @@ public class UnicastRef implements RemoteRef {
                     result.completeExceptionally(response.getError());
                 } else {
                     result.complete(response.getResult());
-                }
-                return null;
-            });
-            result.exceptionally(ex -> {
-                if(ex instanceof CancellationException){
-                    future.cancel(true);
-                    send(new CancelRequest(request, true), null, null);
                 }
                 return null;
             });

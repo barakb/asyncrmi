@@ -1,13 +1,11 @@
 package org.async.rmi;
 
-import org.async.rmi.config.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import static org.async.rmi.Util.writeAndRead;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,8 +27,6 @@ public class CancelingRemoteFutureTest {
 
     @Test(timeout = 5000)
     public void cancelingRemoteUnResolvedFuture() throws Exception {
-        Configuration configuration = Modules.getInstance().getConfiguration();
-        configuration.setClientTimeout(30, TimeUnit.MINUTES);
         CancelCounter server = new CancelCounterServer();
         CancelCounter client = writeAndRead(server);
         CompletableFuture<Void> future = client.get();
