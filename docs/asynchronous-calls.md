@@ -34,7 +34,7 @@ saved in an internal data structure inside the caller proxy and when the matchin
 <div class="diagram">
     Main->Proxy: invoke foo("bar");
     Proxy->Selector: Request(requestId=1\n,objectId=89, methodId=3\n,params=["bar"])
-    Note right of Proxy: Proxy create a future\nf=Future<String>and\nsave it in with the context\nrequestId = 1
+    Note right of Proxy: Proxy create a future\nf=Future<String> and\nsave it in with the context\nrequestId = 1
     Proxy->Main: return f
     Selector->Server: request
     Server->Selector: response
