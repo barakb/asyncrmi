@@ -110,7 +110,9 @@ public class UnicastRef implements RemoteRef {
 
     @Override
     public void close() throws IOException {
-        pool.close();
+        if(pool != null) {
+            pool.close();
+        }
     }
 
     public synchronized void redirect(long objectId, String host, int port) {
@@ -204,6 +206,12 @@ public class UnicastRef implements RemoteRef {
         objectid = in.readLong();
         callDescription = in.readUTF();
         pool = createPool();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        close();
     }
 
     @Override
