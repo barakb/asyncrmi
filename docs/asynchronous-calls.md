@@ -7,7 +7,7 @@ categories: introduction
 
 ## What is a *true* asynchronous call.
 A *true* asynchronous is one that does bounded by client side thread pool.
-That is each remote call does not add anther waiting thread in the client instead there is a group of constant size threads that
+That is, each remote call does not add anther waiting thread in the client, instead there is a group of constant size threads that
 handles all the read and write regardless of the number of processing calls.
 
 In addition the caller thread should not blocked as well, it can not use as the thread that waiting for the result.
