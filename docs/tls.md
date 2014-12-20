@@ -41,9 +41,24 @@ netMap:
 ...
 ```
 
-With this configuration the server will use the provided key and certificate instead.
-If you wish to have the client use a pre define key you can do the same in the client configuration file.
+With this configuration the server/client will use the provided key and certificate instead of generating one on the fly.
+This is unfurl if you wish to authenticate the client using certificate.
 
+To authenticate the client the rule have to include one more element the `auth` element that point to a file that
+contains the pem certificate that should be used to authenticate the client.
 
+ ```yaml
+ ---
+ netMap:
+     rules:
+         - match: .*
+           filters: [encrypt]
+           auth: example/src/main/keys/client-certificate.pem
+
+     id:
+         key : example/src/main/keys/server-private.pem
+         certificate: example/src/main/keys/server-certificate.pem
+ ...
+ ```
 
 see [example](https://github.com/barakb/asyncrmi/tree/master/example/src/main/java/org/async/example/ssl)
