@@ -1,16 +1,11 @@
 package org.async.rmi.config;
 
-import io.netty.handler.ssl.SslContext;
-import org.async.rmi.Factory;
 import org.async.rmi.TimeSpan;
 import org.async.rmi.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.IntrospectionException;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,25 +21,25 @@ public class Configuration {
     private TimeSpan clientConnectTimeout = new TimeSpan(30, TimeUnit.SECONDS);
     private TimeSpan clientTimeout = new TimeSpan(30, TimeUnit.SECONDS);
     private String serverHostName;
-    private Factory<SslContext> sslServerContextFactory;
-    private Factory<SslContext> sslClientContextFactory;
     private NetMap netMap;
-    public static Configuration readDefault()  {
+
+    public static Configuration readDefault() {
         String ymlFileName = System.getProperty("java.rmi.server.config", "config.yml");
         File ymlFile = new File(ymlFileName);
-        if(ymlFile.exists()){
+        if (ymlFile.exists()) {
             logger.debug("reading configuration from {}", ymlFile.getAbsolutePath());
             try {
                 return Util.readConfiguration(ymlFile);
-            }catch(Exception e){
+            } catch (Exception e) {
                 logger.error(e.toString(), e);
                 return new Configuration();
             }
-        }else{
+        } else {
             return new Configuration();
         }
 
     }
+
     public Configuration() {
         this.netMap = NetMap.empty();
     }
@@ -92,22 +87,6 @@ public class Configuration {
 
     public void setClientTimeout(long time, TimeUnit timeUnit) {
         this.clientTimeout = new TimeSpan(time, timeUnit);
-    }
-
-    public Factory<SslContext> getSslServerContextFactory() {
-        return sslServerContextFactory;
-    }
-
-    public void setSslServerContextFactory(Factory<SslContext> sslServerContextFactory) {
-        this.sslServerContextFactory = sslServerContextFactory;
-    }
-
-    public Factory<SslContext> getSslClientContextFactory() {
-        return sslClientContextFactory;
-    }
-
-    public void setSslClientContextFactory(Factory<SslContext> sslClientContextFactory) {
-        this.sslClientContextFactory = sslClientContextFactory;
     }
 
     public NetMap getNetMap() {

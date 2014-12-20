@@ -45,10 +45,16 @@
 
     <repositories>
         <repository>
-            <id>snapshots-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
+            <id>netty-snapshots-repo</id>
+            <url>http://clinker.netty.io/nexus/content/repositories/public</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
         <repository>
             <id>Sonatype-public</id>
@@ -63,7 +69,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>5.0.0.Alpha2-SNAPSHOT</version>
+            <version>${nettyVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>

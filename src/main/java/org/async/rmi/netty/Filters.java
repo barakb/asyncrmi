@@ -4,18 +4,19 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.compression.JdkZlibDecoder;
 import io.netty.handler.codec.compression.JdkZlibEncoder;
+import io.netty.handler.ssl.IdentityCipherSuiteFilter;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import org.async.rmi.Factory;
 import org.async.rmi.Modules;
 import org.async.rmi.config.ID;
 import org.async.rmi.config.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.TrustManagerFactory;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -102,38 +103,37 @@ public class Filters {
     }
 
     private static void addServerEncryption(ChannelHandlerContext ctx, Rule rule) throws SSLException, CertificateException {
-        TrustManagerFactory trustManagerFactory = getRuleTrustManager(rule);
+//        TrustManagerFactory trustManagerFactory = getRuleTrustManager(rule);
         Channel ch = ctx.pipeline().channel();
         SslContext sslCtx;
         ID id = Modules.getInstance().getConfiguration().getNetMap().getId();
-        Factory<SslContext> sslServerContextFactory = Modules.getInstance().getConfiguration().getSslServerContextFactory();
-        if (sslServerContextFactory != null) {
-            sslCtx = sslServerContextFactory.create();
-            logger.debug("server using configured sslServerContextFactory to create ssl context");
-        } else if (id != null) {
-            sslCtx = SslContext.newServerContext(id.getCertificate(), id.getKey());
-            logger.debug("server using certificate {} from configured id to create ssl context", id.getCertificate().getAbsolutePath());
+        if (id != null) {
+            if (rule.getAuth() != null) {
+                logger.debug("server using certificate {} from configured id to create ssl context and require client auth: {}", id.getCertificate().getAbsolutePath(), rule.getAuth());
+                sslCtx = SslContext.newServerContext(null, new File(rule.getAuth()), null,
+                        id.getCertificate(), id.getKey(), null, null, null, IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
+                SSLEngine engine = sslCtx.newEngine(ch.alloc());
+                engine.setUseClientMode(false);
+                engine.setNeedClientAuth(true);
+            } else {
+                sslCtx = SslContext.newServerContext(id.getCertificate(), id.getKey());
+                logger.debug("server using certificate {} from configured id to create ssl context", id.getCertificate().getAbsolutePath());
+            }
+            ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc()));
         } else {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-            //todo netty does not support client authentication currently but the code already in the netty git repository
-            //todo when it ready update his code
-//            if(trustManagerFactory != null){
-//                sslCtx = SslContext.newServerContext(null, ssc.certificate(), trustManagerFactory,
-//                        ssc.certificate(), ssc.privateKey(), null, null, null, null, null, 0, 0)
-//            }else {
-            sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
-//            }
-            logger.debug("server creating self signed certificate to create ssl context");
-        }
-
-        ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc()));
-    }
-
-    private static TrustManagerFactory getRuleTrustManager(Rule rule) {
-        if (rule.getAuth() != null && !rule.getAuth().isEmpty()) {
-            return new AuthTrustManagerFactory(rule.getAuth());
-        } else {
-            return null;
+            if (rule.getAuth() != null) {
+                logger.debug("server using self signed certificate to create ssl context and require client auth: {}", rule.getAuth());
+                sslCtx = SslContext.newServerContext(null, new File(rule.getAuth()), null,
+                        ssc.certificate(), ssc.privateKey(), null, null, null, IdentityCipherSuiteFilter.INSTANCE, null, 0, 0);
+                SSLEngine engine = sslCtx.newEngine(ch.alloc());
+                engine.setUseClientMode(false);
+                engine.setNeedClientAuth(true);
+            } else {
+                logger.debug("server creating self signed certificate to create ssl context");
+                sslCtx = SslContext.newServerContext(ssc.certificate(), ssc.privateKey());
+            }
+            ctx.pipeline().addFirst(sslCtx.newHandler(ch.alloc()));
         }
     }
 
@@ -141,11 +141,7 @@ public class Filters {
         SslContext sslCtx;
         ID id = Modules.getInstance().getConfiguration().getNetMap().getId();
 
-        Factory<SslContext> sslClientContextFactory = Modules.getInstance().getConfiguration().getSslClientContextFactory();
-        if (sslClientContextFactory != null) {
-            sslCtx = sslClientContextFactory.create();
-            logger.debug("client using configured sslClientContextFactory to create ssl context");
-        } else if (id != null) {
+        if (id != null) {
             sslCtx = SslContext.newClientContext(id.getCertificate(), InsecureTrustManagerFactory.INSTANCE);
             logger.debug("client using certificate {} from configured id to create ssl context", id.getCertificate().getAbsolutePath());
         } else {

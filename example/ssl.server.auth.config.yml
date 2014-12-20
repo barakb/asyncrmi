@@ -3,6 +3,7 @@ netMap:
     rules:
         - match: .*
           filters: [encrypt]
+          auth: example/src/main/keys/client-certificate.pem
 
     id:
         key : example/src/main/keys/server-private.pem

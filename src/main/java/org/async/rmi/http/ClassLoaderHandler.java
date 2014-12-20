@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -61,7 +61,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
             if (!keepAlive) {
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             } else {
-                response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 ctx.writeAndFlush(response);
             }
         } catch (Exception e) {

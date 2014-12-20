@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class Rule {
     private String match;
     private List<String> filters;
-    private List<String> auth;
+    private String auth;
 
     @SuppressWarnings("UnusedDeclaration")
     public Rule() {
@@ -41,11 +41,11 @@ public class Rule {
         return filters;
     }
 
-    public List<String> getAuth() {
+    public String getAuth() {
         return auth;
     }
 
-    public void setAuth(List<String> auth) {
+    public void setAuth(String auth) {
         this.auth = auth;
     }
 

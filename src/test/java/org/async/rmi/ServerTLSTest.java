@@ -47,7 +47,8 @@ public class ServerTLSTest {
 
     }
 
-     @Test(timeout = 5000)
+//    @Test(timeout = 5000)
+    @Test
     public void testSSL() throws Exception{
         assertThat(client.toUpper("foo").get(), equalTo("FOO"));
     }
