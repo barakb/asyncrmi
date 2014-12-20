@@ -44,7 +44,7 @@ netMap:
 With this configuration the server/client will use the provided key and certificate instead of generating one on the fly.
 This is useful if you wish to authenticate the client using certificate.
 
-To authenticate the client the rule have to include one more element the `auth` element that point to a file that
+To authenticate the client the rule have to include one more element, the `auth` element that point to a file that
 contains the pem certificate that should be used to authenticate the client.
 
  ```yaml
