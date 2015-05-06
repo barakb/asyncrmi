@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Barak Bar Orion
@@ -23,6 +24,18 @@ public class ServerImpl implements Server {
         return msg;
     }
 
+    @Override
+    public CompletableFuture<String> asyncEcho(String msg) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error(e.toString(), e);
+            }
+            return msg;
+        });
+    }
 
     public static void main(String[] args) throws Exception {
         if(0 < args.length){

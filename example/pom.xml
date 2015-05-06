@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <groupId>org.async</groupId>
+    <groupId>com.github.barakb</groupId>
     <artifactId>asyncrmi-example</artifactId>
     <packaging>jar</packaging>
-    <version>0.8-SNAPSHOT</version>
+    <version>1.0</version>
 
     <name>rmi/Example</name>
 
@@ -14,7 +14,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version>0.8-SNAPSHOT</version>
+        <version>1.0</version>
+        <asmVersion>5.0.3</asmVersion>
         <slf4jVersion>1.7.7</slf4jVersion>
         <log4jVersion>1.2.17</log4jVersion>
     </properties>
@@ -50,9 +51,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.async</groupId>
+            <groupId>com.github.barakb</groupId>
             <artifactId>asyncrmi</artifactId>
-            <version>0.8-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -74,6 +75,12 @@
             <artifactId>log4j</artifactId>
             <version>${log4jVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asmVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
