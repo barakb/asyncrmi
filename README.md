@@ -7,6 +7,17 @@ Async RMI is modern true asynchronous Java RMI implementation.
 The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
 
 
+##Use with Maven dependency.
+
+```xml
+    <dependency>
+      <groupId>com.github.barakb</groupId>
+      <artifactId>asyncrmi</artifactId>
+      <version>1.0</version>
+    </dependency>
+```
+
+
 ##How to build.
 - Install Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 - Install [maven](http://maven.apache.org/).
