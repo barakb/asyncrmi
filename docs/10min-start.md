@@ -10,8 +10,15 @@ categories: introduction
 - Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 - [maven](http://maven.apache.org/).
 
-##Installing Async RMI
-For now there is no central maven repository for Async RMI the recomanded way to use it is to compile it with maven.
+##Installing Async RMI with Maven dependency
+
+```xml
+    <dependency>
+      <groupId>com.github.barakb</groupId>
+      <artifactId>asyncrmi</artifactId>
+      <version>1.0</version>
+    </dependency>
+```
 
 ##Installing from ZIP
 Download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file
@@ -43,26 +50,16 @@ This will install the Async RMI jar and its dependencies on your local machine.
   <url>http://your-project-home-page</url>
   <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-       <version>0.8-SNAPSHOT</version>
+       <version>0.1-SNAPSHOT</version>
        <slf4jVersion>1.7.7</slf4jVersion>
        <log4jVersion>1.2.17</log4jVersion>
   </properties>
 
   <dependencies>
         <dependency>
-            <groupId>org.async</groupId>
+            <groupId>com.github.barakb</groupId>
             <artifactId>asyncrmi</artifactId>
-            <version>0.8-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4jVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>${slf4jVersion}</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -73,12 +70,6 @@ This will install the Async RMI jar and its dependencies on your local machine.
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4jVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
   </dependencies>
 </project>
