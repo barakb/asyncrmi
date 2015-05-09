@@ -6,7 +6,7 @@
     <groupId>com.github.barakb</groupId>
     <artifactId>asyncrmi-example</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <name>rmi/Example</name>
 
@@ -75,12 +75,6 @@
             <artifactId>log4j</artifactId>
             <version>${log4jVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>${asmVersion}</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
