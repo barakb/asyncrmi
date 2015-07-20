@@ -15,6 +15,12 @@ public interface Connection<M> extends PooledResource {
 
     String getLocalAddress();
 
+    void attach(Object value) throws InterruptedException;
+
+    Object attach() throws InterruptedException;
+
+    void clearAttachment() throws InterruptedException;
+
     void send(M message);
 
     void sendOneWay(M message, CompletableFuture<Response> response);

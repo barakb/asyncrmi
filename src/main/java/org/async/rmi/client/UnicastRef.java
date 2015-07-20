@@ -1,9 +1,9 @@
 package org.async.rmi.client;
 
 import org.async.rmi.*;
-import org.async.rmi.messages.CancelRequest;
+import org.async.rmi.messages.CancelInvokeRequest;
 import org.async.rmi.messages.Message;
-import org.async.rmi.messages.Request;
+import org.async.rmi.messages.InvokeRequest;
 import org.async.rmi.messages.Response;
 import org.async.rmi.netty.NettyClientConnectionFactory;
 import org.async.rmi.pool.Pool;
@@ -20,7 +20,6 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -62,18 +61,19 @@ public class UnicastRef implements RemoteRef {
     }
 
     @Override
-    public Object invoke(Remote obj, Method method, Object[] params, long opHash, OneWay oneWay) throws Throwable {
+    public Object invoke(Remote obj, Method method, Object[] params, long opHash, OneWay oneWay, boolean isResultSet) throws Throwable {
 
         Modules.getInstance().getTransport().startClassLoaderServer(Thread.currentThread().getContextClassLoader());
 
         MarshalledObject [] marshalledParams = Modules.getInstance().getUtil().marshalParams(params);
 
-        final Request request = new Request(nextRequestId.getAndIncrement()
+        final InvokeRequest invokeRequest = new InvokeRequest(nextRequestId.getAndIncrement()
                 , remoteObjectAddress.getObjectId(), opHash, oneWay != null
                 , marshalledParams, method.getName(), callDescription);
-        CompletableFuture<Object> result = new ClientCompletableFuture<>(mayInterruptIfRunning -> send(new CancelRequest(request, mayInterruptIfRunning), null, null));
-        CompletableFuture<Response> future = send(request, oneWay, result);
-        if (oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
+        final CompletableFuture<Object> result = new ClientCompletableFuture<>(mayInterruptIfRunning -> send(new CancelInvokeRequest(invokeRequest, mayInterruptIfRunning), null, false, null));
+        SendResult sendResult = send(invokeRequest, oneWay, isResultSet, result);
+        CompletableFuture<Response> future = sendResult != null ? sendResult.responseFuture : null;
+        if (future != null && oneWay == null && Future.class.isAssignableFrom(method.getReturnType())) {
             //noinspection unchecked
             future.handle((response, throwable) -> {
                 if (null != throwable) {
@@ -87,7 +87,7 @@ public class UnicastRef implements RemoteRef {
             });
             return result;
         } else if (oneWay != null) {
-            if (Future.class.isAssignableFrom(method.getReturnType())) {
+            if (future != null && Future.class.isAssignableFrom(method.getReturnType())) {
                 //noinspection unchecked
                 future.handle((response, throwable) -> {
                     if (null != throwable) {
@@ -98,11 +98,16 @@ public class UnicastRef implements RemoteRef {
                     return null;
                 });
                 return result;
-            } else if(oneWay.full()){
+            } else if (oneWay.full()) {
                 return null;
-            }else{
+            } else {
                 return getResponseResult(translateClientError(future));
             }
+        } else if(isResultSet && (sendResult != null)){
+            ClientResultSet clientResultSet = new ClientResultSet(sendResult.connectionFuture);
+            sendResult.connectionFuture.get().attach(clientResultSet);
+            clientResultSet.readyFuture().get();
+            return clientResultSet;
         } else {
             return getResponseResult(translateClientError(future));
         }
@@ -131,24 +136,40 @@ public class UnicastRef implements RemoteRef {
         }
     }
 
-    private CompletableFuture<Response> send(Request request, OneWay oneWay, CompletableFuture<Object> result) {
-        if(!requestQueue.add(request, oneWay, result)){
+    private SendResult send(InvokeRequest invokeRequest, OneWay oneWay, boolean isResultSet, CompletableFuture<Object> result) {
+        if(!requestQueue.add(invokeRequest, oneWay, result)){
             return null;
         }
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
-        Modules.getInstance().getTransport().addResponseFuture(request, responseFuture, traceMap.get(request.getMethodId()));
+        if(!isResultSet) {
+            Modules.getInstance().getTransport().addResponseFuture(invokeRequest, responseFuture, traceMap.get(invokeRequest.getMethodId()));
+        }
         CompletableFuture<Connection<Message>> connectionFuture = pool.get();
-        connectionFuture.whenComplete((connection, throwable) -> requestQueue.processRequest(connection, throwable, responseFuture));
-        return responseFuture;
+        connectionFuture.whenComplete((connection, throwable) -> {
+            requestQueue.processRequest(connection, throwable, responseFuture);
+            if(!isResultSet) {
+                pool.free(connection);
+            }
+        });
+        return new SendResult(responseFuture, connectionFuture);
     }
 
-    void trace(Request request, Connection<Message> connection) {
-        Trace trace = traceMap.get(request.getMethodId());
+    class SendResult{
+        public SendResult(CompletableFuture<Response> responseFuture, CompletableFuture<Connection<Message>> connectionFuture) {
+            this.responseFuture = responseFuture;
+            this.connectionFuture = connectionFuture;
+        }
+        CompletableFuture<Response> responseFuture;
+        CompletableFuture<Connection<Message>> connectionFuture;
+    }
+
+    void trace(InvokeRequest invokeRequest, Connection<Message> connection) {
+        Trace trace = traceMap.get(invokeRequest.getMethodId());
         if(trace != null && trace.value() != TraceType.OFF) {
             if(trace.value() == TraceType.DETAILED){
-                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request.toDetailedString());
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), invokeRequest.toDetailedString());
             }else{
-                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), request);
+                logger.debug("{} --> {} : {}", connection.getLocalAddress(), connection.getRemoteAddress(), invokeRequest);
             }
         }
     }

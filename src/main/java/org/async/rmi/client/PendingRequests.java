@@ -2,7 +2,7 @@ package org.async.rmi.client;
 
 import org.async.rmi.Modules;
 import org.async.rmi.TimeoutException;
-import org.async.rmi.messages.Request;
+import org.async.rmi.messages.InvokeRequest;
 import org.async.rmi.messages.Response;
 import org.async.rmi.net.ResponseFutureHolder;
 
@@ -31,7 +31,7 @@ public class PendingRequests {
      */
     void add(ResponseFutureHolder responseFutureHolder, long currentTime) {
         CompletableFuture<Response> future = responseFutureHolder.getResponseFuture();
-        PendingRequest pendingRequest = new PendingRequest(future, responseFutureHolder.getRequest(), currentTime);
+        PendingRequest pendingRequest = new PendingRequest(future, responseFutureHolder.getInvokeRequest(), currentTime);
         requests.add(pendingRequest);
         future.whenComplete((response, throwable) -> {
             if (null == throwable || !(throwable instanceof TimeoutException)) {
@@ -53,7 +53,7 @@ public class PendingRequests {
         while (iterator.hasNext()) {
             PendingRequest pendingRequest = iterator.next();
             if (timeout <= currentTime - pendingRequest.requestTime) {
-                pendingRequest.future.completeExceptionally(new TimeoutException(String.valueOf(pendingRequest.getRequest())));
+                pendingRequest.future.completeExceptionally(new TimeoutException(String.valueOf(pendingRequest.getInvokeRequest())));
                 iterator.remove();
             }else{
                 return;
@@ -71,17 +71,17 @@ public class PendingRequests {
 
     private static class PendingRequest {
         public final CompletableFuture<Response> future;
-        private final Request request;
+        private final InvokeRequest invokeRequest;
         public final long requestTime;
 
-        public PendingRequest(CompletableFuture<Response> future, Request request, long requestTime) {
+        public PendingRequest(CompletableFuture<Response> future, InvokeRequest invokeRequest, long requestTime) {
             this.future = future;
-            this.request = request;
+            this.invokeRequest = invokeRequest;
             this.requestTime = requestTime;
         }
 
-        public Request getRequest() {
-            return request;
+        public InvokeRequest getInvokeRequest() {
+            return invokeRequest;
         }
 
         @Override

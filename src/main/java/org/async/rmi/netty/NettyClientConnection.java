@@ -3,7 +3,10 @@ package org.async.rmi.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.util.AttributeKey;
 import org.async.rmi.Connection;
+import org.async.rmi.client.ClientResultSet;
 import org.async.rmi.client.ClosedException;
 import org.async.rmi.client.RemoteObjectAddress;
 import org.async.rmi.messages.Message;
@@ -23,7 +26,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class NettyClientConnection implements Connection<Message> {
     private static final Logger logger = LoggerFactory.getLogger(NettyClientConnection.class);
-
+    public static final AttributeKey<Object> ATTACH_KEY = AttributeKey.valueOf("ATTACH_KEY");
     private final Bootstrap bootstrap;
     private Pool<Connection<Message>> pool;
     private RemoteObjectAddress address;
@@ -60,6 +63,13 @@ public class NettyClientConnection implements Connection<Message> {
                 channel.closeFuture().addListener(cf -> {
                     closed = true;
                     pool.free(NettyClientConnection.this);
+                    Object attachment = attach();
+                    if(attachment != null){
+                        clearAttachment();
+                    }
+                    if(attachment instanceof ClientResultSet){
+                        ((ClientResultSet)attachment).onConnectionClosed();
+                    }
                     res.completeExceptionally(new ClosedException());
                 });
 
@@ -71,6 +81,19 @@ public class NettyClientConnection implements Connection<Message> {
             }
         });
         return res;
+    }
+
+    @Override
+    public void attach(Object value) throws InterruptedException {
+        channelFuture.sync().channel().attr(ATTACH_KEY).set(value);
+    }
+    @Override
+    public Object attach() throws InterruptedException {
+        return channelFuture.sync().channel().attr(ATTACH_KEY).get();
+    }
+    @Override
+    public void clearAttachment() throws InterruptedException {
+        channelFuture.sync().channel().attr(ATTACH_KEY).remove();
     }
 
     private void initAddresses(ChannelFuture future){

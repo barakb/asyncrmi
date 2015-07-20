@@ -5,15 +5,16 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.async.rmi.*;
-import org.async.rmi.client.PendingRequests;
-import org.async.rmi.client.RemoteObjectAddress;
-import org.async.rmi.client.RemoteRef;
-import org.async.rmi.client.UnicastRef;
+import org.async.rmi.Modules;
+import org.async.rmi.OneWay;
+import org.async.rmi.Trace;
+import org.async.rmi.TraceType;
+import org.async.rmi.client.*;
 import org.async.rmi.config.Configuration;
 import org.async.rmi.http.ClassLoaderServer;
-import org.async.rmi.messages.Request;
+import org.async.rmi.messages.InvokeRequest;
 import org.async.rmi.messages.Response;
+import org.async.rmi.messages.ResultSetResponse;
 import org.async.rmi.modules.Transport;
 import org.async.rmi.netty.*;
 import org.async.rmi.server.ObjectRef;
@@ -26,6 +27,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -62,23 +64,33 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public void addResponseFuture(final Request request, CompletableFuture<Response> responseFuture, Trace trace) {
-        ResponseFutureHolder responseFutureHolder = new ResponseFutureHolder(responseFuture, request, trace);
-        awaitingResponses.put(request.getRequestId(), responseFutureHolder);
-        responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(request.getRequestId()));
+    public void addResponseFuture(final InvokeRequest invokeRequest, CompletableFuture<Response> responseFuture, Trace trace) {
+        ResponseFutureHolder responseFutureHolder = new ResponseFutureHolder(responseFuture, invokeRequest, trace);
+        awaitingResponses.put(invokeRequest.getRequestId(), responseFutureHolder);
+        responseFuture.whenComplete((response, throwable) -> awaitingResponses.remove(invokeRequest.getRequestId()));
         pendingRequests.add(responseFutureHolder);
     }
 
     @Override
     public void handleResponse(Response response, ChannelHandlerContext ctx) {
-        ResponseFutureHolder responseFutureHolder = awaitingResponses.remove(response.getRequestId());
-        if (responseFutureHolder != null) {
-            CompletableFuture<Response> responseFuture = responseFutureHolder.getResponseFuture();
-            response.setCallDescription(responseFutureHolder.getRequest().callDescription());
-            trace(response, ctx, responseFutureHolder.getTrace());
-            responseFuture.complete(response);
+        if (response instanceof ResultSetResponse) {
+            ClientResultSet clientResultSet = (ClientResultSet) ctx.channel().attr(NettyClientConnection.ATTACH_KEY).get();
+            if(response.isError()){
+                //todo
+                logger.error(response.toString());
+            }else {
+                clientResultSet.feed(response.getResult());
+            }
         } else {
-            logger.error("unexpected response {} --> {} : {}.", getLocalAddress(ctx), getRemoteAddress(ctx), response);
+            ResponseFutureHolder responseFutureHolder = awaitingResponses.remove(response.getRequestId());
+            if (responseFutureHolder != null) {
+                CompletableFuture<Response> responseFuture = responseFutureHolder.getResponseFuture();
+                response.setCallDescription(responseFutureHolder.getInvokeRequest().callDescription());
+                trace(response, ctx, responseFutureHolder.getTrace());
+                responseFuture.complete(response);
+            } else {
+                logger.error("unexpected response {} --> {} : {}.", getLocalAddress(ctx), getRemoteAddress(ctx), response);
+            }
         }
     }
 
@@ -119,13 +131,15 @@ public class NettyTransport implements Transport {
     }
 
     @Override
-    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap, Map<Long, Trace> traceMap, long objectId) throws UnknownHostException, InterruptedException {
+    public RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration,
+                            Map<Long, OneWay> oneWayMap, Set<Long> resultSetSet, Map<Long, Trace> traceMap,
+                            long objectId) throws UnknownHostException, InterruptedException {
         String address = configuration.getServerHostName();
         if (address == null) {
             address = InetAddress.getLocalHost().getHostAddress();
         }
         final String callDescription = impl.getClass().getSimpleName() + "@" + impl.hashCode();
-        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, traceMap, callDescription);
+        ObjectRef objectRef = new ObjectRef(impl, remoteInterfaces, oneWayMap, resultSetSet, traceMap, callDescription);
         objectId = Modules.getInstance().getObjectRepository().add(objectRef, objectId);
         RemoteObjectAddress remoteObjectAddress = new RemoteObjectAddress("rmi://" + address + ":" + configuration.getActualPort(), objectId);
         return createUnicastRef(remoteObjectAddress, remoteInterfaces, objectId, traceMap, callDescription);

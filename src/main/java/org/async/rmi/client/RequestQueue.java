@@ -2,9 +2,9 @@ package org.async.rmi.client;
 
 import org.async.rmi.Connection;
 import org.async.rmi.OneWay;
-import org.async.rmi.messages.CancelRequest;
+import org.async.rmi.messages.CancelInvokeRequest;
 import org.async.rmi.messages.Message;
-import org.async.rmi.messages.Request;
+import org.async.rmi.messages.InvokeRequest;
 import org.async.rmi.messages.Response;
 
 import java.util.Iterator;
@@ -26,13 +26,13 @@ public class RequestQueue {
         this.requests = new LinkedList<>();
     }
 
-    public synchronized boolean add(Request request, OneWay oneWay, CompletableFuture<Object> userFuture) {
-        if (request instanceof CancelRequest) {
-            if (removeRequest(request.getRequestId())) {
+    public synchronized boolean add(InvokeRequest invokeRequest, OneWay oneWay, CompletableFuture<Object> userFuture) {
+        if (invokeRequest instanceof CancelInvokeRequest) {
+            if (removeRequest(invokeRequest.getRequestId())) {
                 return false;
             }
         }
-        requests.add(new RequestHolder(request, oneWay, userFuture));
+        requests.add(new RequestHolder(invokeRequest, oneWay, userFuture));
         return true;
     }
 
@@ -40,7 +40,7 @@ public class RequestQueue {
         Iterator<RequestHolder> i = requests.iterator();
         while (i.hasNext()) {
             RequestHolder holder = i.next();
-            if (holder.request.getRequestId() == requestId) {
+            if (holder.invokeRequest.getRequestId() == requestId) {
                 i.remove();
                 return true;
             }
@@ -57,22 +57,22 @@ public class RequestQueue {
             // fail to connect.
             responseFuture.completeExceptionally(throwable);
         } else {
-            unicastRef.trace(holder.request, connection);
-            if (holder.oneWay != null || holder.request instanceof CancelRequest) {
-                connection.sendOneWay(holder.request, responseFuture);
+            unicastRef.trace(holder.invokeRequest, connection);
+            if (holder.oneWay != null || holder.invokeRequest instanceof CancelInvokeRequest) {
+                connection.sendOneWay(holder.invokeRequest, responseFuture);
             } else {
-                connection.send(holder.request);
+                connection.send(holder.invokeRequest);
             }
         }
     }
 
     private class RequestHolder {
-        Request request;
+        InvokeRequest invokeRequest;
         OneWay oneWay;
         CompletableFuture<Object> userFuture;
 
-        public RequestHolder(Request request, OneWay oneWay, CompletableFuture<Object> userFuture) {
-            this.request = request;
+        public RequestHolder(InvokeRequest invokeRequest, OneWay oneWay, CompletableFuture<Object> userFuture) {
+            this.invokeRequest = invokeRequest;
             this.oneWay = oneWay;
             this.userFuture = userFuture;
         }

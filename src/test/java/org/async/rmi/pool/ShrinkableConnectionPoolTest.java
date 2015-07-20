@@ -62,6 +62,20 @@ public class ShrinkableConnectionPoolTest {
             public String getLocalAddress() {
                 return null;
             }
+
+            @Override
+            public void attach(Object value) throws InterruptedException {
+            }
+
+            @Override
+            public Object attach() throws InterruptedException {
+                return null;
+            }
+
+            @Override
+            public void clearAttachment() throws InterruptedException {
+
+            }
         }));
     }
 

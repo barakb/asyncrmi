@@ -5,8 +5,8 @@ package org.async.rmi.messages;
  * 27/10/14.
  */
 public class Response extends Message {
-    private Object result;
-    private Throwable error;
+    protected Object result;
+    protected Throwable error;
     private transient String callDescription;
 
     public Response() {

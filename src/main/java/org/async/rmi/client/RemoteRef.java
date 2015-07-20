@@ -15,7 +15,8 @@ public interface RemoteRef extends java.io.Externalizable {
                   java.lang.reflect.Method method,
                   Object[] params,
                   long opHash,
-                  OneWay oneWay)
+                  OneWay oneWay,
+                  boolean isResultSet)
             throws Throwable;
 
     void close() throws IOException;

@@ -4,10 +4,9 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import org.async.rmi.Modules;
-import org.async.rmi.messages.CancelRequest;
-import org.async.rmi.messages.Request;
-import org.async.rmi.messages.Response;
+import org.async.rmi.messages.*;
 import org.async.rmi.server.ObjectRef;
+import org.async.rmi.server.ServerResultSetCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +46,47 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     }
 
     private void dispatch(Request request, ChannelHandlerContext ctx) {
-        request.setClientId(clientId);
-        long objectId = request.getObjectId();
-        ObjectRef objectRef = Modules.getInstance().getObjectRepository().get(objectId);
-        if (null != objectRef) {
-            if(request instanceof CancelRequest){
-                objectRef.cancelRequest((CancelRequest)request);
-            }else {
-                objectRef.invoke(request, ctx);
+        if(request instanceof ResultSetRequest) {
+            ServerResultSetCallback serverResultSetCallback = ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
+            if (serverResultSetCallback != null) {
+                ResultSetRequest resultSetRequest = (ResultSetRequest) request;
+                if(resultSetRequest.isCloseRequest()){
+                    serverResultSetCallback.onClientClosed();
+                    ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).remove();
+                }else {
+                    serverResultSetCallback.resume();
+                }
             }
-        } else {
-            Response response = new Response(request.getRequestId(), null, request.callDescription()
-                    , new RemoteException("Object id [" + request.getObjectId()
-                    + "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
-            logger.warn("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
-            ctx.writeAndFlush(response);
+        }else if(request instanceof InvokeRequest) {
+            InvokeRequest invokeRequest = (InvokeRequest) request;
+            invokeRequest.setClientId(clientId);
+            long objectId = invokeRequest.getObjectId();
+            ObjectRef objectRef = Modules.getInstance().getObjectRepository().get(objectId);
+            if (null != objectRef) {
+                if (invokeRequest instanceof CancelInvokeRequest) {
+                    objectRef.cancelRequest((CancelInvokeRequest) invokeRequest);
+                } else {
+                    objectRef.invoke(invokeRequest, ctx);
+                }
+            } else {
+                Response response = new Response(invokeRequest.getRequestId(), null, invokeRequest.callDescription()
+                        , new RemoteException("Object id [" + invokeRequest.getObjectId()
+                        + "] not found, while trying to serve client request [" + request.getRequestId() + "]"));
+                logger.warn("{} --> {} : {}", getFrom(ctx), getTo(ctx), response);
+                ctx.writeAndFlush(response);
+            }
+        }else{
+            logger.error("Unknown request type " + request);
+        }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        ServerResultSetCallback serverResultSetCallback = ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
+        if(serverResultSetCallback != null){
+            ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).remove();
+            serverResultSetCallback.onClientClosed();
         }
     }
 

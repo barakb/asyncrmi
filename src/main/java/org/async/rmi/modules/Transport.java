@@ -6,13 +6,14 @@ import org.async.rmi.config.Configuration;
 import org.async.rmi.OneWay;
 import org.async.rmi.Trace;
 import org.async.rmi.client.RemoteRef;
-import org.async.rmi.messages.Request;
+import org.async.rmi.messages.InvokeRequest;
 import org.async.rmi.messages.Response;
 
 import java.io.Closeable;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,9 +23,10 @@ import java.util.concurrent.CompletableFuture;
 public interface Transport extends Closeable {
 
     RemoteRef export(Remote impl, Class[] remoteInterfaces, Configuration configuration, Map<Long, OneWay> oneWayMap,
-                     Map<Long, Trace> traceMap, long objectId) throws UnknownHostException, InterruptedException;
+                     Set<Long> resultSetSet, Map<Long, Trace> traceMap, long objectId) throws UnknownHostException,
+            InterruptedException;
 
-    void addResponseFuture(Request request, CompletableFuture<Response> responseFuture, Trace trace);
+    void addResponseFuture(InvokeRequest invokeRequest, CompletableFuture<Response> responseFuture, Trace trace);
 
     void handleResponse(Response response, ChannelHandlerContext ctx);
 
