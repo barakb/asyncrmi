@@ -10,12 +10,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 
 import static org.async.rmi.Util.writeAndRead;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by Barak Bar Orion
@@ -48,18 +51,17 @@ public class ResultSetTest {
     }
 
 
-//    @Test(timeout = 5000)
-    @Test
+    @Test(timeout = 5000)
     public void call() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try(ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
+        try (ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
             while (rs.next()) {
                 baos.write(rs.get());
             }
         }
-        logger.info("Done baos is {}",  new String(baos.toByteArray()));
-
+        String collected = new String(baos.toByteArray());
+        String content = new String(Files.readAllBytes(Paths.get("pom.xml")));
+        assertThat(content, equalTo(collected));
+        logger.debug("collected: {}", collected);
     }
-
-
 }

@@ -30,7 +30,6 @@ public class ServerResultSetCallback<V> implements ResultSetCallback<V> {
     public boolean send(V[] values) {
         lock.lock();
         try {
-//            logger.info("sending {}", Arrays.asList(values));
             ctx.writeAndFlush(new ResultSetResponse(values));
             notRequired.await();
         } catch (InterruptedException e) {
@@ -46,7 +45,6 @@ public class ServerResultSetCallback<V> implements ResultSetCallback<V> {
         if(closed.compareAndSet(false, true)) {
             ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).remove();
             ctx.writeAndFlush(new ResultSetResponse(null));
-            logger.info("closing");
         }
     }
 
