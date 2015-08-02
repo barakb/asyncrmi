@@ -20,19 +20,26 @@ public class FileContentRetrieverServer implements FileContentRetriever {
 
     @Override
     public ResultSet<Byte> retrieve(File file, final int bufferSize) throws RemoteException {
-            try (InputStream is = new FileInputStream(file); ResultSetCallback<Byte> callback = ResultSets.getCallback()) {
-                byte[] buffer = new byte[bufferSize];
-                int read;
-                while ((read = is.read(buffer)) != -1 ) {
-                    Byte[] sentBuf = new Byte[read];
-                    for(int i = 0; i < read; ++i){
-                        sentBuf[i] = buffer[i];
-                    }
-                    callback.send(sentBuf);
+        int bytes = 0;
+        try (InputStream is = new FileInputStream(file); ResultSetCallback<Byte> callback = ResultSets.getCallback()) {
+            byte[] buffer = new byte[bufferSize];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                Byte[] sentBuf = new Byte[read];
+                for (int i = 0; i < read; ++i) {
+                    sentBuf[i] = buffer[i];
                 }
-            } catch (Throwable t) {
-                logger.error(t.toString(), t);
+                bytes += read;
+                if (callback.send(sentBuf)) {
+                    // connection or proxy was closed.
+                    logger.info("sent {} bytes",  bytes);
+                    return null;
+                }
             }
+        } catch (Throwable t) {
+            logger.error(t.toString(), t);
+        }
+        logger.info("sent {} bytes",  bytes);
         return null;
     }
 }

@@ -75,11 +75,13 @@ public class NettyTransport implements Transport {
     public void handleResponse(Response response, ChannelHandlerContext ctx) {
         if (response instanceof ResultSetResponse) {
             ClientResultSet clientResultSet = (ClientResultSet) ctx.channel().attr(NettyClientConnection.ATTACH_KEY).get();
-            if(response.isError()){
-                //todo
-                logger.error(response.toString());
-            }else {
-                clientResultSet.feed(response.getResult());
+            if(clientResultSet != null) {
+                if (response.isError()) {
+                    //todo
+                    logger.error(response.toString());
+                } else {
+                    clientResultSet.feed(response.getResult());
+                }
             }
         } else {
             ResponseFutureHolder responseFutureHolder = awaitingResponses.remove(response.getRequestId());

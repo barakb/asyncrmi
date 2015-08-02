@@ -52,7 +52,7 @@ public class ResultSetTest {
 
 
     @Test(timeout = 5000)
-    public void call() throws Exception {
+    public void testReadAll() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
             while (rs.next()) {
@@ -63,5 +63,48 @@ public class ResultSetTest {
         String content = new String(Files.readAllBytes(Paths.get("pom.xml")));
         assertThat(content, equalTo(collected));
         logger.debug("collected: {}", collected);
+    }
+
+
+    @Test(timeout = 5000)
+    public void testOneByte() throws Exception {
+        byte read = 0;
+        try (ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
+            if (rs.next()) {
+                read = rs.get();
+            }
+            byte firstByte = Files.readAllBytes(Paths.get("pom.xml"))[0];
+            logger.info("firstByte is " + firstByte);
+            logger.info("read is " + read);
+            assertThat(read, equalTo(firstByte));
+        }
+    }
+
+    @Test(timeout = 5000)
+    public void testReadAll1() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
+            while (rs.next()) {
+                baos.write(rs.get());
+            }
+        }
+        String collected = new String(baos.toByteArray());
+        String content = new String(Files.readAllBytes(Paths.get("pom.xml")));
+        assertThat(content, equalTo(collected));
+        logger.debug("collected: {}", collected);
+    }
+
+    @Test(timeout = 5000)
+    public void testOneByte1() throws Exception {
+        byte read = 0;
+        try (ResultSet<Byte> rs = client.retrieve(new File("pom.xml"), 1024)) {
+            if (rs.next()) {
+                read = rs.get();
+            }
+        }
+        byte firstByte = Files.readAllBytes(Paths.get("pom.xml"))[0];
+        logger.info("firstByte is " + firstByte);
+        logger.info("read is " + read);
+        assertThat(read, equalTo(firstByte));
     }
 }

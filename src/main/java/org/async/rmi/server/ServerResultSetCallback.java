@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 7/19/15.
  */
 public class ServerResultSetCallback<V> implements ResultSetCallback<V> {
-    private static final Logger logger = LoggerFactory.getLogger(ObjectRef.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerResultSetCallback.class);
     private final ChannelHandlerContext ctx;
     final Lock lock = new ReentrantLock();
     final Condition notRequired = lock.newCondition();
@@ -49,7 +49,7 @@ public class ServerResultSetCallback<V> implements ResultSetCallback<V> {
     }
 
     public void onClientClosed() {
-        if(closed.compareAndSet(false, false)) {
+        if(closed.compareAndSet(false, true)) {
            resume();
         }
     }
