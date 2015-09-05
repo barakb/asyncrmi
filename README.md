@@ -17,6 +17,19 @@ The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
     </dependency>
 ```
 
+Alternatively you can use one jar with all dependencies.
+
+```xml
+    <dependency>
+      <groupId>com.github.barakb</groupId>
+      <artifactId>asyncrmi-dep</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+```
+
+See [sample](https://github.com/barakb/asyncrmi-dep-example) project on github.
+
+
 
 ##How to build.
 - Install Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
