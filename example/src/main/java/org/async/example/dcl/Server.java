@@ -8,7 +8,7 @@ import java.util.EventObject;
  * 11/14/14.
  */
 public interface Server extends Remote {
-    public final static String SER_FILE_NAME = "dcl.server.ser";
+    String SER_FILE_NAME = "dcl.server.ser";
     void addListener(EventListener listener);
     void removeListener(EventListener listener);
     void triggerEvent(EventObject event);

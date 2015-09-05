@@ -6,7 +6,7 @@
     <groupId>com.github.barakb</groupId>
     <artifactId>asyncrmi-example</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <name>rmi/Example</name>
 
@@ -14,8 +14,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version>1.0</version>
-        <asmVersion>5.0.3</asmVersion>
         <slf4jVersion>1.7.7</slf4jVersion>
         <log4jVersion>1.2.17</log4jVersion>
     </properties>
@@ -116,8 +114,11 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.5.1</version>
                 <configuration>
+                    <outputDirectory>${project.basedir}</outputDirectory>
+                    <finalName>deps</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
-                        <descriptor>src/assembly/dependencies.xml</descriptor>
+                        <descriptor>src/assembly/slf4j-log4j.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>
@@ -150,8 +151,8 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <addClasspath>true</addClasspath>
-                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <!--<addClasspath>true</addClasspath>-->
+                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.dcl.server.ServerImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -171,8 +172,8 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <addClasspath>true</addClasspath>
-                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <!--<addClasspath>true</addClasspath>-->
+                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.dcl.client.ClientImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -193,8 +194,8 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <addClasspath>true</addClasspath>
-                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <!--<addClasspath>true</addClasspath>-->
+                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.ssl.server.ServerImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -214,8 +215,8 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <addClasspath>true</addClasspath>
-                                    <classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>
+                                    <!--<addClasspath>true</addClasspath>-->
+                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.ssl.client.ClientImpl</mainClass>
                                 </manifest>
                             </archive>

@@ -1,4 +1,4 @@
-package org.async.example.embedded;
+package org.async.embedded;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
