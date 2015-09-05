@@ -13,7 +13,7 @@ The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
     <dependency>
       <groupId>com.github.barakb</groupId>
       <artifactId>asyncrmi</artifactId>
-      <version>1.0</version>
+      <version>1.0.2</version>
     </dependency>
 ```
 
