@@ -121,4 +121,10 @@ public class ClientResultSet<V> implements ResultSet<V> {
     public CompletableFuture<Void> readyFuture() {
         return readyFuture;
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        close(true);
+    }
 }
