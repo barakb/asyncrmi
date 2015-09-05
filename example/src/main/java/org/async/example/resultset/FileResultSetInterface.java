@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
  * Created by Barak Bar Orion
  * 05/10/14.
  */
-public interface ResultSetInterface extends Remote {
-    ResultSet<Byte> content(File file) throws IOException;
+public interface FileResultSetInterface extends Remote {
+    String SER_FILE_NAME = "file.resultset.server.ser";
+    ResultSet<Byte> retrieve(File file, int bufferSize) throws RemoteException;
 }

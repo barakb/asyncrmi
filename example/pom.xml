@@ -151,8 +151,6 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <!--<addClasspath>true</addClasspath>-->
-                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.dcl.server.ServerImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -172,8 +170,6 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <!--<addClasspath>true</addClasspath>-->
-                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.dcl.client.ClientImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -194,8 +190,6 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <!--<addClasspath>true</addClasspath>-->
-                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.ssl.server.ServerImpl</mainClass>
                                 </manifest>
                             </archive>
@@ -215,9 +209,46 @@
                             </includes>
                             <archive>
                                 <manifest>
-                                    <!--<addClasspath>true</addClasspath>-->
-                                    <!--<classpathPrefix>${project.build.directory}/${project.build.finalName}-lib/</classpathPrefix>-->
                                     <mainClass>org.async.example.ssl.client.ClientImpl</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <!-- resultset example-->
+                    <execution>
+                        <id>file-server</id>
+                        <goals><goal>jar</goal></goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>file-server</finalName>
+                            <excludes>
+                                <exclude>**/client/**</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/resultset/**</include>
+                            </includes>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.async.example.resultset.server.FileContentRetrieverServer</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>file-client</id>
+                        <goals><goal>jar</goal></goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>file-client</finalName>
+                            <excludes>
+                                <exclude>**/server/**</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/resultset/**</include>
+                            </includes>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.async.example.resultset.client.ClientImpl</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

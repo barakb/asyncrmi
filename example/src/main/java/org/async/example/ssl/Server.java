@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
  * 12/9/14.
  */
 public interface Server extends Remote {
-    public final static String SER_FILE_NAME = "ssl.server.ser";
+    String SER_FILE_NAME = "ssl.server.ser";
 
     String echo(String msg) throws RemoteException;
 
