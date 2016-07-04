@@ -11,9 +11,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class GenericExporterTest {
+public class DynamicExporterTest {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger logger = LoggerFactory.getLogger(GenericExporterTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DynamicExporterTest.class);
 
     private Counter server;
     private Exporter exporter;
