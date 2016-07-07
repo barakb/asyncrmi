@@ -2,6 +2,8 @@ package org.async.rmi.resultset;
 
 import org.async.rmi.ResultSet;
 import org.async.rmi.ResultSetCallback;
+import org.async.rmi.Trace;
+import org.async.rmi.TraceType;
 import org.async.rmi.server.ResultSets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import java.rmi.RemoteException;
  * Created by Barak Bar Orion
  * 7/19/15.
  */
+@SuppressWarnings("WeakerAccess")
 public class FileContentRetrieverServer implements FileContentRetriever {
     private static final Logger logger = LoggerFactory.getLogger(ResultSetTest.class);
 

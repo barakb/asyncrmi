@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 import static org.async.rmi.Util.writeAndRead;
@@ -25,7 +26,7 @@ public class CancelingRemoteFutureTest {
     }
 
 
-    @Test(timeout = 5000)
+    @Test(timeout = 5000, expected = CancellationException.class)
     public void cancelingRemoteUnResolvedFuture() throws Exception {
         CancelCounter server = new CancelCounterServer();
         CancelCounter client = writeAndRead(server);
@@ -38,6 +39,7 @@ public class CancelingRemoteFutureTest {
         do {
             Thread.sleep(200);
         } while (0 < client.getFutures());
+        future.get();
     }
 
 }

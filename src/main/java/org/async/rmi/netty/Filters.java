@@ -26,6 +26,7 @@ import java.util.List;
  * Created by Barak Bar Orion
  * 12/6/14.
  */
+@SuppressWarnings("WeakerAccess")
 public class Filters {
     private static final Logger logger = LoggerFactory.getLogger(Filters.class);
 

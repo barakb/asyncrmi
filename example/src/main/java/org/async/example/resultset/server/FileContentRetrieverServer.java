@@ -1,9 +1,7 @@
 package org.async.example.resultset.server;
 
 import org.async.example.resultset.FileResultSetInterface;
-import org.async.rmi.ResultSet;
-import org.async.rmi.ResultSetCallback;
-import org.async.rmi.Util;
+import org.async.rmi.*;
 import org.async.rmi.server.ResultSets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +17,7 @@ public class FileContentRetrieverServer implements FileResultSetInterface {
     private static final Logger logger = LoggerFactory.getLogger(FileContentRetrieverServer.class);
 
 
+    @Trace(TraceType.DETAILED)
     @Override
     public ResultSet<Byte> retrieve(File file, final int bufferSize) throws RemoteException {
         int bytes = 0;

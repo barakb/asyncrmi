@@ -9,14 +9,15 @@ import java.util.concurrent.CompletableFuture;
  * Created by Barak Bar Orion
  * 12/17/14.
  */
+@SuppressWarnings("WeakerAccess")
 public class CancelCounterServer implements CancelCounter {
-    private List<CompletableFuture<Void>> futures;
+    private volatile List<CompletableFuture<Void>> futures;
 
     public CancelCounterServer() {
         futures = new ArrayList<>();
     }
 
-    //    @Trace(TraceType.DETAILED)
+    //@Trace(TraceType.DETAILED)
     @Override
     public CompletableFuture<Void> get() {
         CompletableFuture<Void> res = new CompletableFuture<>();
