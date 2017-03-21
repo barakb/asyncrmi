@@ -34,7 +34,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, FullHttpRequest request) {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         if (!request.decoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
@@ -54,7 +54,7 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
         try {
             byte[] bytes = getClassBytes(className);
 
-            boolean keepAlive = HttpHeaderUtil.isKeepAlive(request);
+            boolean keepAlive = HttpUtil.isKeepAlive(request);
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(bytes));
             response.headers().set(CONTENT_TYPE, "application/x-java-class");
             response.headers().set(CONTENT_LENGTH, String.valueOf(response.content().readableBytes()));
@@ -69,7 +69,9 @@ public class ClassLoaderHandler extends SimpleChannelInboundHandler<FullHttpRequ
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
 
+
     }
+
 
     private byte[] getClassBytes(String className) throws IOException {
         String classAsPath = className.replace('.', '/') + ".class";

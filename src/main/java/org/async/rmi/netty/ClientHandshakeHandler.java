@@ -1,8 +1,9 @@
 package org.async.rmi.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+
 import org.async.rmi.messages.HandshakeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.UUID;
  * Created by Barak Bar Orion
  * 12/4/14.
  */
-public class ClientHandshakeHandler extends ChannelHandlerAdapter {
+public class ClientHandshakeHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ClientHandshakeHandler.class);
 
     private HandshakeManager handshakeManager;

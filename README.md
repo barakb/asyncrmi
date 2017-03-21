@@ -13,7 +13,7 @@ The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
     <dependency>
       <groupId>com.github.barakb</groupId>
       <artifactId>asyncrmi</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3</version>
     </dependency>
 ```
 
@@ -23,7 +23,7 @@ Alternatively you can use one jar with all dependencies.
     <dependency>
       <groupId>com.github.barakb</groupId>
       <artifactId>asyncrmi-dep</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3</version>
     </dependency>
 ```
 

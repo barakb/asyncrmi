@@ -1,8 +1,9 @@
 package org.async.rmi.netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+
 import org.async.rmi.Modules;
 import org.async.rmi.config.NetMap;
 import org.async.rmi.config.Rule;
@@ -13,13 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Barak Bar Orion
  * 12/4/14.
  */
-public class ServerHandshakeHandler extends ChannelHandlerAdapter {
+public class ServerHandshakeHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ServerHandshakeHandler.class);
 
     private HandshakeManager handshakeManager;

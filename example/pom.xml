@@ -6,7 +6,7 @@
     <groupId>com.github.barakb</groupId>
     <artifactId>asyncrmi-example</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <name>rmi/Example</name>
 
@@ -14,7 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4jVersion>1.7.7</slf4jVersion>
+        <slf4jVersion>1.7.25</slf4jVersion>
         <log4jVersion>1.2.17</log4jVersion>
     </properties>
 

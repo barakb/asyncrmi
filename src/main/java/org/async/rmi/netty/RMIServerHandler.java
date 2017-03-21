@@ -1,8 +1,7 @@
 package org.async.rmi.netty;
 
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.async.rmi.Modules;
 import org.async.rmi.messages.*;
 import org.async.rmi.server.ObjectRef;
@@ -18,9 +17,10 @@ import java.util.UUID;
  * Created by Barak Bar Orion
  * 28/10/14.
  */
-public class RMIServerHandler extends ChannelHandlerAdapter {
+public class RMIServerHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(RMIServerHandler.class);
     private UUID clientId;
+
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -39,20 +39,14 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
         ctx.close();
     }
 
-    @Override
-    public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-        super.close(ctx, promise);
-        logger.info("RMI Server closing connection to {}", ctx.channel().remoteAddress());
-    }
-
     private void dispatch(Request request, ChannelHandlerContext ctx) {
         if(request instanceof ResultSetRequest) {
-            ServerResultSetCallback serverResultSetCallback = ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
+            ServerResultSetCallback serverResultSetCallback = ctx.channel().attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
             if (serverResultSetCallback != null) {
                 ResultSetRequest resultSetRequest = (ResultSetRequest) request;
                 if(resultSetRequest.isCloseRequest()){
                     serverResultSetCallback.onClientClosed();
-                    ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).remove();
+                    ctx.channel().attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).set(null);
                 }else {
                     serverResultSetCallback.resume();
                 }
@@ -83,14 +77,14 @@ public class RMIServerHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        ServerResultSetCallback serverResultSetCallback = ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
+        ServerResultSetCallback serverResultSetCallback = ctx.channel().attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).get();
         if(serverResultSetCallback != null){
-            ctx.attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).remove();
+            ctx.channel().attr(ObjectRef.SERVER_RESULT_SET_CALLBACK_ATTRIBUTE_KEY).set(null);
             serverResultSetCallback.onClientClosed();
         }
     }
 
-    public void setClientId(UUID clientId) {
+    void setClientId(UUID clientId) {
         this.clientId = clientId;
     }
 
