@@ -1,7 +1,6 @@
 master | gh-pages
 -------|---------
-[![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=master)](https://travis-ci.org/barakb/asyncrmi) | [![Build Status](https://travis-ci.org/barakb/asyncrmi.svg?branch=gh-pages)](https://travis-ci.org/barakb/asyncrmi)
-
+[![Build Status](https://www.travis-ci.com/barakb/asyncrmi.svg?branch=master)](https://www.travis-ci.com/barakb/asyncrmi) | [![Build Status](https://www.travis-ci.com/barakb/asyncrmi.svg?branch=gh-pages)](https://www.travis-ci.com/barakb/asyncrmi) 
 Async RMI is modern true asynchronous Java RMI implementation.
 
 The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
@@ -13,7 +12,7 @@ The full [documentation](http://barakb.github.io/asyncrmi/docs/index.html) page.
     <dependency>
       <groupId>com.github.barakb</groupId>
       <artifactId>asyncrmi</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
     </dependency>
 ```
 
@@ -23,7 +22,7 @@ Alternatively you can use one jar with all dependencies.
     <dependency>
       <groupId>com.github.barakb</groupId>
       <artifactId>asyncrmi-dep</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
     </dependency>
 ```
 
@@ -33,9 +32,9 @@ See [sample](https://github.com/barakb/asyncrmi-dep-example) project on github.
 
 ##How to build.
 - Install Oracle [JDK8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-- Install [maven](http://maven.apache.org/).
+- Install [gradle](https://gradle.org/).
 - Clone the project `git clone git@github.com:barakb/asyncrmi.git` or download the [zip](https://github.com/barakb/asyncrmi/archive/master.zip) or the [tar.gz](https://github.com/barakb/asyncrmi/archive/master.tar.gz) file. 
-- Change dir to the asyncrmi directory and type `mvn install` at the console.
+- Change dir to the asyncrmi directory and type `gradle build` at the console.
 
 Alternatively you can get (or build) a Docker image with the dev env:
 
@@ -50,7 +49,7 @@ Download the DockerFile from [github](https://github.com/barakb/docker-asyncrmi)
 
 
 ## How to build the examples.
-- After building Async RMI from the Async RMI dir type `(cd example; mvn install)`
+- After building Async RMI from the Async RMI dir type `(cd example; gradle :example:build)`
 
 ##An example.
 
@@ -58,8 +57,8 @@ Download the DockerFile from [github](https://github.com/barakb/docker-asyncrmi)
 ```java
 
 public interface Example extends Remote {
-    public String echo(String msg) throws RemoteException;
-    public CompletableFuture<String> futuredEcho(String msg) throws RemoteException;
+    String echo(String msg) throws RemoteException;
+    CompletableFuture<String> futuredEcho(String msg) throws RemoteException;
 }
 ```
 

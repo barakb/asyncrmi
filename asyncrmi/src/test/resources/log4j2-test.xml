@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<configuration status="ALL">-->
+<configuration status="WARN">
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+    </appenders>
+    <Loggers>
+        <Logger name="org" level="ALL"/>
+        <Logger name="org.apache.logging" level="ERROR"/>
+        <Logger name="org.async.rmi" level="ALL"/>
+        <Logger name="org.async.rmi.server.LoaderHandler" level="WARN"/>
+        <Logger name="org.apache.logging" level="WARN"/>
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</configuration>
