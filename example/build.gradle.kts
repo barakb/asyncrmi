@@ -20,8 +20,8 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("org.slf4j:jul-to-slf4j:1.7.25")
     implementation("org.slf4j:slf4j-log4j12:1.7.25")
-    implementation("log4j:log4j:1.2.17")
-    testImplementation("junit:junit:4.11")
+    implementation("org.apache.logging.log4j:log4j-core:2.14.1")
+    testImplementation("junit:junit:4.13.2")
 }
 
 group = "com.github.barakb"
