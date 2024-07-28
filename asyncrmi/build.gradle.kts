@@ -20,7 +20,7 @@ repositories {
 dependencies {
     implementation("io.netty:netty-all:4.1.63.Final")
     implementation("org.javassist:javassist:3.18.0-GA")
-    implementation("org.slf4j:slf4j-api:1.7.25")
+    implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("org.slf4j:slf4j-site:1.7.25")
     implementation("org.yaml:snakeyaml:1.15")
     testImplementation("org.slf4j:jul-to-slf4j:1.7.25")
