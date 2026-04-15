@@ -26,7 +26,7 @@ dependencies {
     testImplementation("org.slf4j:jul-to-slf4j:1.7.25")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
     testImplementation("org.apache.logging.log4j:log4j-api:2.14.1")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.14.1")
+    testImplementation("org.apache.logging.log4j:log4j-core:2.25.4")
     testImplementation("junit:junit:4.13.2")
 }
 
