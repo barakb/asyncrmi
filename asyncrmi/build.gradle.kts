@@ -22,7 +22,7 @@ dependencies {
     implementation("org.javassist:javassist:3.18.0-GA")
     implementation("org.slf4j:slf4j-api:1.7.25")
     implementation("org.slf4j:slf4j-site:1.7.25")
-    implementation("org.yaml:snakeyaml:1.15")
+    implementation("org.yaml:snakeyaml:1.33")
     testImplementation("org.slf4j:jul-to-slf4j:1.7.25")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.14.1")
     testImplementation("org.apache.logging.log4j:log4j-api:2.14.1")
